@@ -1,14 +1,20 @@
-import { useState } from 'react'
+import * as React from 'react'
+
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import HomeScreen  from './components/HomeScreen';
+
+// Import components
+import { MajorProvider } from './Major';
+
+// Import Styles
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <h1>BruinPlan</h1>
-    </>
-  )
+      <MajorProvider>
+        <HomeScreen />
+      </MajorProvider>
+  );
 }
 
 export default App
