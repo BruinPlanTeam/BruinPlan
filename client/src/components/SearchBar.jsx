@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+
 import { useMajor } from '../Major';
 import '../App.css' 
 
@@ -144,6 +146,8 @@ export function SearchBar() {
   const [inputValue, setInputValue] = useState('');
   const [suggestions, setSuggestions] = useState([]);
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
@@ -163,6 +167,8 @@ export function SearchBar() {
     setInputValue(value);
     setSuggestions([]);
     handleMajorSelect(value);
+    navigate('/degreeplan');  
+    console.log("got here");
   };
 
   return (

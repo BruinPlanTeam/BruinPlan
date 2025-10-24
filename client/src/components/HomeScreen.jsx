@@ -8,7 +8,7 @@ import { Header } from './Header';
 export default function HomeScreen() {
     return (
         <> 
-          <Header />
+        <Header />
         <h1>Bruinplan</h1>
         <SearchBar></SearchBar>
         </>

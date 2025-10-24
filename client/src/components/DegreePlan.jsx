@@ -1,5 +1,11 @@
 import React, { useState } from "react";
+import { useMajor } from "../Major";
 
-export function DegreePlan() {
-    <h1>Degree Planner</h1>
+export default function DegreePlan() {
+    const { major, handleMajorSelect } = useMajor();
+
+    return (
+        <h1>{major}</h1>
+    )
+
 }
