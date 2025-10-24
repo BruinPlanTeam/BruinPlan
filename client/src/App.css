@@ -40,3 +40,80 @@
 .read-the-docs {
   color: #888;
 }
+
+/* for the Search Bar Component */
+.search-container {
+  position: relative;
+  width: 400px; 
+  margin: 0 auto; 
+}
+
+/* Style for the input field */
+.search-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  box-sizing: border-box; 
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Style for the dropdown list */
+.suggestions-list {
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  right: 0;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  list-style-type: disc;
+  margin: 0;
+  padding: 0;
+  max-height: 200px; 
+  overflow-y: auto;
+  z-index: 1000; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for each item in the list */
+.suggestion-item {
+  width: 80%; 
+  cursor: pointer;
+  padding: 5px;
+  text-align: left;
+  border-color: #f0f0f087;
+}
+
+/* Add a hover effect for each item */
+.suggestion-item:hover {
+  background-color: #f0f0f087;
+  border-radius: 4px;
+}
+
+/* Styles for the Header */
+.header-container {
+  padding: 0.75%;
+  position: fixed;
+  display: flex;
+  align-items: center; 
+  top: 1%;
+  left: 1%;
+  right: 1%;
+  height: 4.5%;
+  border-radius: 4px;
+  background-color: #f0f0f028;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #ccc;
+}
+
+/* Hold items on the rights side of the Header */
+.right-header-container {
+  float: right;
+  padding-left: 83%;
+}
+
+
+.header-logo {
+  height: 100%;
+}
