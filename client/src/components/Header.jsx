@@ -13,7 +13,7 @@ export function Header() {
 
     return (
         <div className='header-container'>
-            <BruinplanLogo onRefresh={refreshPage} className='header-logo'/>
+            <BruinplanLogo className='header-logo'/>
             <div className='right-header-container'>
                 <MajorCatalog />
             </div>   
