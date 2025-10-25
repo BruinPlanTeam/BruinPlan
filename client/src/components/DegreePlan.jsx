@@ -12,12 +12,17 @@ export default function DegreePlan() {
     );
     
     return (
-        <DndContext onDragEnd={handleDragEnd}>
+        <div>
+            <Header />
+            <DndContext onDragEnd={handleDragEnd}>
             {!isDropped ? draggableMarkup : null}
             <Droppable>
                 {isDropped ? draggableMarkup : 'Drop here'}
             </Droppable>
         </DndContext>
+
+        </div>
+        
     );
     
     function handleDragEnd(event) {
