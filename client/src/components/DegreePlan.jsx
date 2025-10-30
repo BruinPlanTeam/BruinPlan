@@ -5,7 +5,6 @@ import { Draggable } from './Draggable';
 import { Droppable } from './Droppable';
 
 import { Header } from './Header';
-import { ClassesList } from './ClassesList';
 import { Grid } from './Grid';
 
 export default function DegreePlan() {
@@ -37,7 +36,6 @@ export default function DegreePlan() {
     <DndContext onDragEnd={handleDragEnd}>
     <Header />
       <div> 
-        <ClassesList getClassesForContainer={getClassesForContainer} />
         <Grid containers={containers} getClassesForContainer={getClassesForContainer} />
       </div>
     </DndContext>
