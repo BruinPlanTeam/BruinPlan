@@ -7,9 +7,9 @@ import { Header } from './Header';
 export default function HomeScreen() {
     return (
         <> 
-        <Header />
-        <h1>Bruinplan</h1>
-        <SearchBar></SearchBar>
+            <Header />
+            <h1>Bruinplan</h1>
+            <SearchBar></SearchBar>
         </>
     );
 }

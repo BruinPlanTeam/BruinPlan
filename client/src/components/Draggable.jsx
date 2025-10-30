@@ -11,13 +11,7 @@ export function Draggable({ id, children }) {
   };
 
   return (
-    <button 
-      ref={setNodeRef} 
-      style={style} 
-      {...listeners} 
-      {...attributes}
-      className="p-3 bg-white border border-gray-300 rounded-lg shadow-sm touch-none cursor-grab active:cursor-grabbing z-10"
-    >
+    <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
       {children}
     </button>
   );

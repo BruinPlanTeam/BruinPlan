@@ -10,7 +10,7 @@ import { Grid } from './Grid';
 
 export default function DegreePlan() {
   const containers = ['Fall', 'Winter', 'Spring', 'Summer'];
-  const classes = ['Math 101', 'Physics 210', 'CS 101', 'History 110'];
+  const classes = ['Math', 'CS', 'Physics', 'Philosophy'];
 
   const [parentState, setParentState] = useState(
     classes.reduce((acc, id) => {
@@ -36,11 +36,9 @@ export default function DegreePlan() {
   return (
     <DndContext onDragEnd={handleDragEnd}>
     <Header />
-      <div className="w-full max-w-4xl mx-auto p-4 font-sans flex flex-col md:flex-row gap-4">
-        
+      <div> 
         <ClassesList getClassesForContainer={getClassesForContainer} />
         <Grid containers={containers} getClassesForContainer={getClassesForContainer} />
-
       </div>
     </DndContext>
   );
