@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, act } from 'react'
 
 import {
   DndContext,
@@ -22,7 +22,9 @@ import '../Major.jsx'
 import '../DegreePlan.css'
 
 
-const MAX_ITEMS_PER_CONTAINER = 5 // assuming no one will take 6 classes, need to change this to max credits
+const MAX_ITEMS_PER_CONTAINER = 5 
+const MAX_UNITS = 21;
+
 const QUARTERS = {
   1 : 'Fall',
   2 : 'Winter',
@@ -35,14 +37,17 @@ export default function DegreePlan() {
 
   // initialize items, will need to replace with a database call    
   const [draggableItems, setDraggableItems] = useState([
-    { id: '1', name: 'Math 33B' },
-    { id: '2', name: 'Physics 1C' },
-    { id: '3', name: 'Com Sci 35L' },
-    { id: '4', name: 'Philo 22' },
-    { id: '5', name: 'Extra 1' },
-    { id: '6', name: 'Extra 2' },
-    { id: '7', name: 'Extra 3' },
-  ])
+    { id: '1', name: 'COM SCI 31', units: 4 },
+    { id: '2', name: 'COM SCI 32', units: 4},
+    { id: '3', name: 'COM SCI 33', units: 4 },
+    { id: '4', name: 'COM SCI 35L', units: 4 },
+    { id: '5', name: 'COM SCI 111', units: 4 },
+    { id: '6', name: 'COM SCI 180', units: 4 },
+    { id: '7', name: 'COM SCI 118', units: 4 },
+    { id: '8', name: 'COM SCI M151B', units: 4 },
+    { id: '9', name: 'COM SCI M152A', units: 4 },
+    { id: '10', name: 'COM SCI 181', units: 4 },
+  ]);
 
   // initalize droppable zones inside a library
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -69,6 +74,19 @@ export default function DegreePlan() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
+
+  function getCurrentUnits(targetZoneId) {
+    let totalUnits = 0;
+
+    for (const [key, zone] of Object.entries(droppableZones)) {
+      if (key === targetZoneId) {
+        for (const item of zone.items) {
+          totalUnits += item.units
+        }
+      }
+    }
+    return totalUnits;
+  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// Define drag and drop handlers /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,21 +119,19 @@ export default function DegreePlan() {
       }
     }
 
-    // Check if any of the draggable items are active
+    // Check if the current item is in the original classes list
     const isInDraggableList = draggableItems.some((item) => item.id === active.id)
 
-    // Check if dropped on a quarter
+    // Check if the current item is over a droppable zone
     let targetZoneId = Object.keys(droppableZones).find(
       (key) => droppableZones[key].id === over.id
     )
 
-    // Check if dropped on the original column droppable zone
+    // Check if the current item is over the classes list zone
     const isDroppedOnOriginalColumn = over.id === 'original-column'
 
     // find draggable item that current draggable item is hovering over
     const targetItem = draggableItems.find((item) => item.id === over.id)
-    console.log("target item", targetItem)
-
 
     // If not dropped directly on a zone, check if dropped on an item inside a zone
     // This allows dropping into zones even when hovering over items inside them
@@ -133,9 +149,9 @@ export default function DegreePlan() {
       if (sourceZoneId) {
         // Moving from zone to original column at specific position
         // Check if original column has space (if item is already there, it's reordering)
-        const willExceedLimit = !isInDraggableList && draggableItems.length >= MAX_ITEMS_PER_CONTAINER
-        if (!willExceedLimit) {
+        if (!isInDraggableList) {
           const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)
+          console.log(item)
           if (item) {
             setDroppableZones((zones) => ({
               ...zones,
@@ -181,6 +197,7 @@ export default function DegreePlan() {
       // Check if we're trying to reorder within the same zone by hovering over another item
       const targetZone = droppableZones[targetZoneId]
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
+      const totalUnits = getCurrentUnits(targetZoneId);
       
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // Reordering within the same zone by hovering over another item
