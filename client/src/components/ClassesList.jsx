@@ -3,9 +3,9 @@ import { Droppable } from "./Droppable"
 export function ClassesList({ getClassesForContainer}) {
     return (
         <Droppable key="home" id="home" title="Available Classes">
-          {getClassesForContainer(null)}
+          {getClassesForContainer("home")}
           
-          {getClassesForContainer(null).length === 0 && (
+          {getClassesForContainer("home").length === 0 && (
             <span>All classes assigned</span>
           )}
         </Droppable>
