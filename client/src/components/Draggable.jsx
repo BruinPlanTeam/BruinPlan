@@ -1,18 +1,33 @@
-import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
+import React, { useState } from 'react'
+import { useSortable} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import '../DegreePlan.css'
 
-export function Draggable({ id, children }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: id,
-  });
-  
+export function Draggable({ id, item }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
   const style = {
-    transform: CSS.Translate.toString(transform),
-  };
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
 
   return (
-    <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      {children}
-    </button>
-  );
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="draggable-item"
+    >
+      {item.name}
+    </div>
+  )
 }

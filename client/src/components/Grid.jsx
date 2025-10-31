@@ -1,21 +1,22 @@
-import { Droppable } from "./Droppable";
-import { ClassesList } from './ClassesList';
+import { Droppable } from './Droppable'
 
-export function Grid({ containers, getClassesForContainer }) {
+import '../Major.jsx'
+import '../DegreePlan.css'
+
+export function Grid({ droppableZones }) {
     return (
-        <div>
-          <ClassesList getClassesForContainer={getClassesForContainer} />
-          {containers.map((containerId) => {
-            const classesInContainer = getClassesForContainer(containerId);
-            return (
-              <Droppable key={containerId} id={containerId} title={containerId}>
-                {classesInContainer}
-                {classesInContainer.length === 0 && (
-                  <span>Drop here</span>
-                )}
-              </Droppable>
-            );
-          })}
+      <div className="droppable-zones-container">
+        <h2>4 Year Plan</h2>
+        <div className="zones-grid">
+          {Object.values(droppableZones).map((zone) => (
+            <Droppable
+              key={zone.id}
+              id={zone.id}
+              title={zone.title}
+              items={zone.items}
+            />
+          ))}
         </div>
+      </div>
     );
 }

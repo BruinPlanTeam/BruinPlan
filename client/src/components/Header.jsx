@@ -4,13 +4,6 @@ import { MajorCatalog } from './MajorCatalog';
 import '../App.css' 
 
 export function Header() {
-    function refreshPage() {
-        console.log("refreshed!")
-
-        // I think there is a better way to do this, this will wipe the state
-        window.location.reload();
-    }
-
     return (
         <div className='header-container'>
             <BruinplanLogo className='header-logo'/>

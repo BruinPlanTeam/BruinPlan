@@ -1,0 +1,140 @@
+.app-container {
+  margin-left: 0;
+  padding: 1rem;
+}
+
+.app-container h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* Left side - Droppable zones */
+.droppable-zones-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.droppable-zones-container h2 {
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.droppable-zone {
+  min-height: 150px;
+  min-width: 250px;
+  padding: 1rem;
+  background: rgb(255, 255, 255);
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.droppable-zone.drag-over {
+  border-color: #4caf50;
+  background-color: #e8f5e9;
+}
+
+.droppable-zone h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.dropped-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 80px;
+  flex: 1;
+}
+
+.dropped-item {
+  padding: 0.75rem 1rem;
+  background: #4caf50;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Right side - Draggable items */
+.draggable-items-container {
+  flex: 0 0 300px;
+  max-width: 250px;
+}
+
+.draggable-items-container h2 {
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.draggable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Original column styling */
+.droppable-zone#original-column {
+  flex: 0 0 300px;
+  max-width: 300px;
+  min-height: 400px;
+}
+
+.draggable-item {
+  padding: 1rem 1.5rem;
+  background: #2196f3;
+  color: white;
+  border-radius: 8px;
+  cursor: grab;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.draggable-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+}
+
+.draggable-item.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .draggable-items-container {
+    max-width: 100%;
+  }
+}
+
