@@ -1,7 +1,9 @@
 import * as React from 'react'
+import {DndContext} from '@dnd-kit/core';
 
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import HomeScreen  from './components/HomeScreen';
+import DegreePlan from './components/DegreePlan';
 
 // Import components
 import { MajorProvider } from './Major';
@@ -11,9 +13,14 @@ import './App.css'
 
 function App() {
   return (
-      <MajorProvider>
-        <HomeScreen />
-      </MajorProvider>
+      <BrowserRouter>
+        <MajorProvider>
+            <Routes>
+              <Route path="/" element={<HomeScreen />} />
+              <Route path="/degreeplan" element={<DegreePlan />} />
+            </Routes>
+        </MajorProvider>
+      </BrowserRouter>
   );
 }
 

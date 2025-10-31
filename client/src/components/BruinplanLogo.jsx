@@ -1,9 +1,11 @@
 import React from 'react';
 import logoSrc from '../assets/bruinplanlogoitalicizedcropped.png';
+import { useNavigate } from 'react-router-dom';
 
-function BruinplanLogo({ onRefresh }) {
+function BruinplanLogo() {
+  const navigate = useNavigate();
   return (
-    <img src={logoSrc} alt="Bruin Plan" onClick={onRefresh} style={{ height: '100%' }} />
+    <img src={logoSrc} alt="Bruin Plan" onClick={() => navigate('/')} style={{ height: '100%' }} />
   );
 }
 
