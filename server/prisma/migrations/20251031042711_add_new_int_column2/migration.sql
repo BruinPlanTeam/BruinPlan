@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `testing` ADD COLUMN `extra` INTEGER NOT NULL DEFAULT 0;
