@@ -103,6 +103,8 @@ export default function DegreePlan() {
 
   const handleDragEnd = (event) => {
     const { active, over } = event
+    let currentName = null;
+    let currentUnits = null;
 
     // if the item is still being dragged don't assign it to a box 
     if (!over) {
@@ -114,6 +116,8 @@ export default function DegreePlan() {
     let sourceZoneId = null
     for (const [key, zone] of Object.entries(droppableZones)) {
       if (zone.items.some((item) => item.id === active.id)) {
+        currentName = zone.items[0].name
+        currentUnits = zone.items[0].units
         sourceZoneId = key
         break
       }
@@ -121,6 +125,12 @@ export default function DegreePlan() {
 
     // Check if the current item is in the original classes list
     const isInDraggableList = draggableItems.some((item) => item.id === active.id)
+    if (isInDraggableList) {
+      currentName = draggableItems.find((value) => value.id == active.id).name
+      currentUnits = draggableItems.find((value) => value.id == active.id).units
+    } 
+
+    console.log(currentName)
 
     // Check if the current item is over a droppable zone
     let targetZoneId = Object.keys(droppableZones).find(
@@ -197,7 +207,8 @@ export default function DegreePlan() {
       // Check if we're trying to reorder within the same zone by hovering over another item
       const targetZone = droppableZones[targetZoneId]
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
-      const totalUnits = getCurrentUnits(targetZoneId);
+      const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
+      console.log(totalUnits);
       
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // Reordering within the same zone by hovering over another item
