@@ -238,37 +238,17 @@ export default function DegreePlan() {
       const targetZone = droppableZones[targetZoneId]
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
-      console.log(totalUnits);
       
-      if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
-        // Reordering within the same zone by hovering over another item
-        setDroppableZones((zones) => {
-          const zone = zones[targetZoneId]
-          const oldIndex = zone.items.findIndex((item) => item.id === active.id)
-          const newIndex = zone.items.findIndex((item) => item.id === over.id)
-          if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-            return {
-              ...zones,
-              [targetZoneId]: {
-                ...zone,
-                items: arrayMove(zone.items, oldIndex, newIndex),
-              },
-            }
-          }
-          return zones
-        })
-      } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
+      if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
-        const targetZone = droppableZones[targetZoneId]
-        if (targetZone.items.length < MAX_ITEMS_PER_CONTAINER) {
+        if (totalUnits < MAX_UNITS) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
       } else if (isInDraggableList) {
         // Moving from draggable list to zone (either dropped on zone or item in zone)
         // Check if target zone has space
-        const targetZone = droppableZones[targetZoneId]
-        if (targetZone.items.length < MAX_ITEMS_PER_CONTAINER) {
+        if (totalUnits < MAX_UNITS) {
           const item = draggableItems.find((item) => item.id === active.id)
           if (item) {
             moveFromClassesListToGrid(targetZoneId, item, event);
