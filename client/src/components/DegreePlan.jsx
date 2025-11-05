@@ -14,6 +14,7 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 
+import { Header } from './Header'
 import { Grid } from './Grid'
 import { Droppable } from './Droppable'
 import { useMajor } from '../Major.jsx'
@@ -37,16 +38,16 @@ export default function DegreePlan() {
 
   // initialize items, will need to replace with a database call    
   const [draggableItems, setDraggableItems] = useState([
-    { id: '1', name: 'COM SCI 31', units: 4 },
-    { id: '2', name: 'COM SCI 32', units: 4},
-    { id: '3', name: 'COM SCI 33', units: 4 },
-    { id: '4', name: 'COM SCI 35L', units: 4 },
-    { id: '5', name: 'COM SCI 111', units: 4 },
-    { id: '6', name: 'COM SCI 180', units: 4 },
-    { id: '7', name: 'COM SCI 118', units: 4 },
-    { id: '8', name: 'COM SCI M151B', units: 4 },
-    { id: '9', name: 'COM SCI M152A', units: 4 },
-    { id: '10', name: 'COM SCI 181', units: 4 },
+    { id: '1', name: 'COM SCI 31', units: 4, prereqs: [] },
+    { id: '2', name: 'COM SCI 32', units: 4, prereqs: [] },
+    { id: '3', name: 'COM SCI 33', units: 4, prereqs: [] },
+    { id: '4', name: 'COM SCI 35L', units: 4, prereqs: [] },
+    { id: '5', name: 'COM SCI 111', units: 4, prereqs: ['1', '2', '3'] },
+    { id: '6', name: 'COM SCI 180', units: 4, prereqs: [] },
+    { id: '7', name: 'COM SCI 118', units: 4, prereqs: [] },
+    { id: '8', name: 'COM SCI M151B', units: 4, prereqs: [] },
+    { id: '9', name: 'COM SCI M152A', units: 4, prereqs: [] },
+    { id: '10', name: 'COM SCI 181', units: 4, prereqs: [] },
   ]);
 
   // initalize droppable zones inside a library
@@ -89,8 +90,18 @@ export default function DegreePlan() {
   }
 
 
+  function arePrereqsCompleted(currentPrereqs) {
+    for (const prereq of currentPrereqs) {
+      if (draggableItems.some(item => item.id === prereq)) {
+        console.log(`Class #${prereq} is still in the list`);
+        return false
+      }
+    }
+    return true;
+  }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// Helper functions for moving classes /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// Helper functions for moving classes ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   function moveFromGridToClassList(sourceZoneId, item, event) {
@@ -168,6 +179,7 @@ export default function DegreePlan() {
     const { active, over } = event
     let currentName = null;
     let currentUnits = null;
+    let currentPrereqs = null;
 
     // if the item is still being dragged don't assign it to a box 
     if (!over) {
@@ -181,6 +193,7 @@ export default function DegreePlan() {
       if (zone.items.some((item) => item.id === active.id)) {
         currentName = zone.items[0].name
         currentUnits = zone.items[0].units
+        currentPrereqs = zone.items[0].prereqs
         sourceZoneId = key
         break
       }
@@ -189,11 +202,11 @@ export default function DegreePlan() {
     // Check if the current item is in the original classes list
     const isInDraggableList = draggableItems.some((item) => item.id === active.id)
     if (isInDraggableList) {
-      currentName = draggableItems.find((value) => value.id == active.id).name
-      currentUnits = draggableItems.find((value) => value.id == active.id).units
+      let item = draggableItems.find((value) => value.id == active.id);
+      currentName = item.name;
+      currentUnits = item.units;
+      currentPrereqs = item.prereqs;
     } 
-
-    console.log(currentName)
 
     // Check if the current item is over a droppable zone
     let targetZoneId = Object.keys(droppableZones).find(
@@ -235,20 +248,20 @@ export default function DegreePlan() {
     } else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
       // Check if we're trying to reorder within the same zone by hovering over another item
-      const targetZone = droppableZones[targetZoneId]
-      const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
+  
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
+      const prereqsCompleted = arePrereqsCompleted(currentPrereqs);
       
       if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
-        if (totalUnits < MAX_UNITS) {
+        if (totalUnits < MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
       } else if (isInDraggableList) {
         // Moving from draggable list to zone (either dropped on zone or item in zone)
         // Check if target zone has space
-        if (totalUnits < MAX_UNITS) {
+        if (totalUnits < MAX_UNITS && prereqsCompleted) {
           const item = draggableItems.find((item) => item.id === active.id)
           if (item) {
             moveFromClassesListToGrid(targetZoneId, item, event);
@@ -276,6 +289,7 @@ export default function DegreePlan() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
+      <Header/ >
       <div className="app-container">
         <h1>{major}</h1>
         <div className="content-wrapper">
