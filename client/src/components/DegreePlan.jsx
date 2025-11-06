@@ -101,7 +101,7 @@ export default function DegreePlan() {
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// Helper functions for moving classes ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//// Helper functions for moving classes around ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   function moveFromGridToClassList(sourceZoneId, item, event) {
@@ -128,12 +128,30 @@ export default function DegreePlan() {
     })
   }
 
+  function reorderZone(targetZoneId, event) {
+    setDroppableZones((zones) => {
+      const zone = zones[targetZoneId]
+      const oldIndex = zone.items.findIndex((item) => item.id === event.active.id)
+      const newIndex = zone.items.findIndex((item) => item.id === event.over.id)
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        return {
+          ...zones,
+          [targetZoneId]: {
+            ...zone,
+            items: arrayMove(zone.items, oldIndex, newIndex),
+          },
+        }
+      }
+      return zones
+    })
+  }
+
   function moveFromZoneToZone(sourceZoneId, targetZoneId, event) {
     setDroppableZones((zones) => {
       const sourceZone = zones[sourceZoneId]
       const targetZone = zones[targetZoneId]
       const item = sourceZone.items.find((item) => item.id === event.active.id)
-      
+
       if (item) {
         return {
           ...zones,
@@ -248,11 +266,17 @@ export default function DegreePlan() {
     } else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
       // Check if we're trying to reorder within the same zone by hovering over another item
-  
+
+      const targetZone = droppableZones[targetZoneId]
+      const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
+
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
       const prereqsCompleted = arePrereqsCompleted(currentPrereqs);
-      
-      if (sourceZoneId && sourceZoneId !== targetZoneId) {
+
+      if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
+        // Reordering within the same zone by hovering over another item
+        reorderZone(targetZoneId, event);
+      } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
         if (totalUnits < MAX_UNITS && prereqsCompleted) {
