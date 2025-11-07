@@ -36,11 +36,11 @@ export const Header = () => {
   return (
     <CardNav
       logo={logo}
-      logoAlt="Company Logo"
+      logoAlt="Bruin Plan"
       items={items}
-      baseColor="#fff"
-      menuColor="#000"
-      buttonBgColor="#111"
+      baseColor="rgba(255, 255, 255, 0.1)"
+      menuColor="#fff"
+      buttonBgColor="#fff"
       buttonTextColor="#fff"
       ease="power3.out"
     />
