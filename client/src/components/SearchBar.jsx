@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
+import AnimatedList from './AnimatedList';
 import { useMajor } from '../Major';
 import '../styles/SearchBar.css' 
 
@@ -175,17 +176,13 @@ export function SearchBar() {
     <div className='search-bar-container'>
       <input className='search-bar' type="text" value={inputValue} onChange={handleChange} placeholder="Enter a Major" />
       {suggestions.length > 0 && (
-        <ul className='suggestions-list'>
-          {suggestions.map((major) =>
-            <li
-              key={major}
-              className="suggestion-item"
-              onClick={() => handleSelect(major)}
-            >
-            {major}
-          </li>
-          )}
-        </ul>
+        <AnimatedList
+          items={suggestions}
+          onItemSelect={(item) => handleSelect(item)}
+          showGradients={false}    
+          enableArrowNavigation={true}      
+          displayScrollbar={false}
+      />
       )}
     </div>
   );
