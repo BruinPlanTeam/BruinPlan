@@ -1,6 +1,8 @@
 .scroll-list-container {
-    position: relative;
+    position: absolute;
     width: 500px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   .scroll-list {
