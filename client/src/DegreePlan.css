@@ -35,7 +35,7 @@
   grid-template-rows: repeat(4, 1fr);
   gap: 1rem;
   padding-left: 10%;
-  padding-right:5%
+  padding-right: 5%
 }
 
 .droppable-zone {

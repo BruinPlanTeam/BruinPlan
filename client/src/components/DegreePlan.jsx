@@ -23,7 +23,6 @@ import '../Major.jsx'
 import '../DegreePlan.css'
 
 
-const MAX_ITEMS_PER_CONTAINER = 5 
 const MAX_UNITS = 21;
 
 const QUARTERS = {
@@ -112,6 +111,9 @@ export default function DegreePlan() {
         items: zones[sourceZoneId].items.filter((i) => i.id !== event.active.id),
       },
     }))
+    if (draggableItems.length == 0) {
+      console.log(draggableItems)
+    } 
     setDraggableItems((items) => {
       const newIndex = items.findIndex((item) => item.id === event.over.id)
       const newItems = [...items]
@@ -263,7 +265,21 @@ export default function DegreePlan() {
         // Reordering within draggable list
         reorderClassesList(event);
       }
-    } else if (targetZoneId) {
+    } else if (isDroppedOnOriginalColumn && sourceZoneId) {
+      // Moving from zone back to original column (dropped on zone, not item)
+      // Check if original column has space
+        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)  
+        if (item) {
+          setDroppableZones((zones) => ({
+            ...zones,  
+            [sourceZoneId]: { 
+              ...zones[sourceZoneId],  
+              items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
+            },  
+          }))  
+          setDraggableItems((items) => [...items, item])  
+        }  
+    }  else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
       // Check if we're trying to reorder within the same zone by hovering over another item
 
