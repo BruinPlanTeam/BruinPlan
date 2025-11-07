@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 import { useMajor } from '../Major';
-import '../App.css' 
+import '../styles/SearchBar.css' 
 
 const UCLA_MAJORS = [
   "African American Studies",
@@ -172,8 +172,8 @@ export function SearchBar() {
   };
 
   return (
-    <div className='search-container'>
-      <input className='search-input' type="text" value={inputValue} onChange={handleChange} placeholder="Enter a Major" />
+    <div className='search-bar-container'>
+      <input className='search-bar' type="text" value={inputValue} onChange={handleChange} placeholder="Enter a Major" />
       {suggestions.length > 0 && (
         <ul className='suggestions-list'>
           {suggestions.map((major) =>

@@ -10,16 +10,6 @@
   margin: 0 auto; 
 }
 
-/* Style for the input field */
-.search-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  box-sizing: border-box; 
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 /* Style for the dropdown list */
 .suggestions-list {
   position: absolute;

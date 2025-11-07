@@ -13,8 +13,7 @@
     display: block;
     height: 60px;
     padding: 0;
-    background-color: white;
-    border: 0.5px solid rgba(255, 255, 255, 0.1);
+    border: 0.5px solid rgba(255, 255, 255, 0.611);
     border-radius: 0.75rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -83,7 +82,6 @@
   
   .card-nav-cta-button {
     background-color: #111;
-    color: white;
     border: none;
     border-radius: calc(0.75rem - 0.35rem);
     padding: 0 1rem;

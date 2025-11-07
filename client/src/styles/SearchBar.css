@@ -1,0 +1,25 @@
+.search-bar-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30%;
+    max-width: 800px;
+    z-index: 8;
+    box-sizing: border-box;
+    padding-top: 22%;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center; /* Vertically centers the input and button */
+    padding: 14px 16px;
+    background-color: #212a36; /* A light, clean background */
+    border-radius: 500px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
+    border: 1px solid #000000;
+    height: 50px;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box; 
+    outline: none;
+}

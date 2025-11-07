@@ -22,6 +22,7 @@ export default function HomeScreen() {
             />
 
             <Header />
+            <SearchBar />
             </div>
         </>
     );
