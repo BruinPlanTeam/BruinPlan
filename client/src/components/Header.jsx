@@ -4,12 +4,12 @@ import logo from '../assets/logo.svg';
 export const Header = () => {
   const items = [
     {
-      label: "About",
+      label: "Browse Majors",
       bgColor: "#0D0716",
       textColor: "#fff",
       links: [
-        { label: "Company", ariaLabel: "About Company" },
-        { label: "Careers", ariaLabel: "About Careers" }
+        { label: "UCLA Catalog", ariaLabel: "UCLA Catalog", href: "https://catalog.registrar.ucla.edu/"},
+        { label: "Bruinwalk", ariaLabel: "About Careers", href: "https://bruinwalk.com/" }
       ]
     },
     {

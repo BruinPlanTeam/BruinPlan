@@ -4,6 +4,11 @@ import { useState } from 'react'
 import DotGrid from './DotGrid.jsx'
 import { SearchBar } from './SearchBar';
 import { Header } from './Header';
+import SearchBarTitle from './SearchBarTitle.jsx'
+
+const handleAnimationComplete = () => {
+    console.log('Animation completed!');
+};
 
 export default function HomeScreen() {
     return (
@@ -16,13 +21,23 @@ export default function HomeScreen() {
                 activeColor="#124569"  
                 proximity={150} 
                 shockRadius={89}  
-                shockStrength={5}  
+                shockStrength={4}  
                 resistance={750}  
                 returnDuration={1.5}
             />
 
             <Header />
-            <SearchBar />
+            <div className="search-wrapper">
+                {/* <SearchBarTitle 
+                    text="Bruin Plan"
+                    delay={150}
+                    animateBy="words"   
+                    direction="top"   
+                    onAnimationComplete={handleAnimationComplete}
+                    className="search-bar-title"
+                /> */}
+                <SearchBar />
+            </div>
             </div>
         </>
     );

@@ -10,6 +10,17 @@
     box-sizing: border-box;
 }
 
+.search-wrapper {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;   
+    gap: 1rem;      
+  }
+
+.search-bar-title {
+    position: relative;
+}
+
 .search-bar {
     display: flex;
     align-items: center; /* Vertically centers the input and button */
