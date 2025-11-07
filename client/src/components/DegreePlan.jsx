@@ -14,6 +14,7 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 
+import { Header } from './Header'
 import { Grid } from './Grid'
 import { Droppable } from './Droppable'
 import { useMajor } from '../Major.jsx'
@@ -37,16 +38,16 @@ export default function DegreePlan() {
 
   // initialize items, will need to replace with a database call    
   const [draggableItems, setDraggableItems] = useState([
-    { id: '1', name: 'COM SCI 31', units: 4 },
-    { id: '2', name: 'COM SCI 32', units: 4},
-    { id: '3', name: 'COM SCI 33', units: 4 },
-    { id: '4', name: 'COM SCI 35L', units: 4 },
-    { id: '5', name: 'COM SCI 111', units: 4 },
-    { id: '6', name: 'COM SCI 180', units: 4 },
-    { id: '7', name: 'COM SCI 118', units: 4 },
-    { id: '8', name: 'COM SCI M151B', units: 4 },
-    { id: '9', name: 'COM SCI M152A', units: 4 },
-    { id: '10', name: 'COM SCI 181', units: 4 },
+    { id: '1', name: 'COM SCI 31', units: 4, prereqs: [] },
+    { id: '2', name: 'COM SCI 32', units: 4, prereqs: [] },
+    { id: '3', name: 'COM SCI 33', units: 4, prereqs: [] },
+    { id: '4', name: 'COM SCI 35L', units: 4, prereqs: [] },
+    { id: '5', name: 'COM SCI 111', units: 4, prereqs: ['1', '2', '3'] },
+    { id: '6', name: 'COM SCI 180', units: 4, prereqs: [] },
+    { id: '7', name: 'COM SCI 118', units: 4, prereqs: [] },
+    { id: '8', name: 'COM SCI M151B', units: 4, prereqs: [] },
+    { id: '9', name: 'COM SCI M152A', units: 4, prereqs: [] },
+    { id: '10', name: 'COM SCI 181', units: 4, prereqs: [] },
   ]);
 
   // initalize droppable zones inside a library
@@ -88,6 +89,97 @@ export default function DegreePlan() {
     return totalUnits;
   }
 
+
+  function arePrereqsCompleted(currentPrereqs) {
+    for (const prereq of currentPrereqs) {
+      if (draggableItems.some(item => item.id === prereq)) {
+        console.log(`Class #${prereq} is still in the list`);
+        return false
+      }
+    }
+    return true;
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// Helper functions for moving classes around ////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  function moveFromGridToClassList(sourceZoneId, item, event) {
+    setDroppableZones((zones) => ({
+      ...zones,
+      [sourceZoneId]: {
+        ...zones[sourceZoneId],
+        items: zones[sourceZoneId].items.filter((i) => i.id !== event.active.id),
+      },
+    }))
+    setDraggableItems((items) => {
+      const newIndex = items.findIndex((item) => item.id === event.over.id)
+      const newItems = [...items]
+      newItems.splice(newIndex, 0, item)
+      return newItems
+    })
+  }
+
+  function reorderClassesList(event) {
+    setDraggableItems((items) => {
+      const oldIndex = items.findIndex((item) => item.id === event.active.id)
+      const newIndex = items.findIndex((item) => item.id === event.over.id)
+      return arrayMove(items, oldIndex, newIndex)
+    })
+  }
+
+  function reorderZone(targetZoneId, event) {
+    setDroppableZones((zones) => {
+      const zone = zones[targetZoneId]
+      const oldIndex = zone.items.findIndex((item) => item.id === event.active.id)
+      const newIndex = zone.items.findIndex((item) => item.id === event.over.id)
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        return {
+          ...zones,
+          [targetZoneId]: {
+            ...zone,
+            items: arrayMove(zone.items, oldIndex, newIndex),
+          },
+        }
+      }
+      return zones
+    })
+  }
+
+  function moveFromZoneToZone(sourceZoneId, targetZoneId, event) {
+    setDroppableZones((zones) => {
+      const sourceZone = zones[sourceZoneId]
+      const targetZone = zones[targetZoneId]
+      const item = sourceZone.items.find((item) => item.id === event.active.id)
+
+      if (item) {
+        return {
+          ...zones,
+          [sourceZoneId]: {
+            ...sourceZone,
+            items: sourceZone.items.filter((i) => i.id !== event.active.id),
+          },
+          [targetZoneId]: {
+            ...targetZone,
+            items: [...targetZone.items, item],
+          },
+        }
+      }
+      return zones
+    })
+  }
+
+  function moveFromClassesListToGrid(targetZoneId, item, event) {
+    setDraggableItems((items) => items.filter((i) => i.id !== event.active.id))
+    setDroppableZones((zones) => ({
+      ...zones,
+      [targetZoneId]: {
+        ...zones[targetZoneId],
+        items: [...zones[targetZoneId].items, item],
+      },
+    }))
+  }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// Define drag and drop handlers /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,6 +195,9 @@ export default function DegreePlan() {
 
   const handleDragEnd = (event) => {
     const { active, over } = event
+    let currentName = null;
+    let currentUnits = null;
+    let currentPrereqs = null;
 
     // if the item is still being dragged don't assign it to a box 
     if (!over) {
@@ -114,6 +209,9 @@ export default function DegreePlan() {
     let sourceZoneId = null
     for (const [key, zone] of Object.entries(droppableZones)) {
       if (zone.items.some((item) => item.id === active.id)) {
+        currentName = zone.items[0].name
+        currentUnits = zone.items[0].units
+        currentPrereqs = zone.items[0].prereqs
         sourceZoneId = key
         break
       }
@@ -121,6 +219,12 @@ export default function DegreePlan() {
 
     // Check if the current item is in the original classes list
     const isInDraggableList = draggableItems.some((item) => item.id === active.id)
+    if (isInDraggableList) {
+      let item = draggableItems.find((value) => value.id == active.id);
+      currentName = item.name;
+      currentUnits = item.units;
+      currentPrereqs = item.prereqs;
+    } 
 
     // Check if the current item is over a droppable zone
     let targetZoneId = Object.keys(droppableZones).find(
@@ -151,148 +255,40 @@ export default function DegreePlan() {
         // Check if original column has space (if item is already there, it's reordering)
         if (!isInDraggableList) {
           const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)
-          console.log(item)
           if (item) {
-            setDroppableZones((zones) => ({
-              ...zones,
-              [sourceZoneId]: {
-                ...zones[sourceZoneId],
-                items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),
-              },
-            }))
-            setDraggableItems((items) => {
-              const newIndex = items.findIndex((item) => item.id === over.id)
-              const newItems = [...items]
-              newItems.splice(newIndex, 0, item)
-              return newItems
-            })
+            moveFromGridToClassList(sourceZoneId, item, event);
           }
         }
       } else if (isInDraggableList) {
         // Reordering within draggable list
-        setDraggableItems((items) => {
-          const oldIndex = items.findIndex((item) => item.id === active.id)
-          const newIndex = items.findIndex((item) => item.id === over.id)
-          return arrayMove(items, oldIndex, newIndex)
-        })
-      }
-    } else if (isDroppedOnOriginalColumn && sourceZoneId) {
-      // Moving from zone back to original column (dropped on zone, not item)
-      // Check if original column has space
-      if (draggableItems.length < MAX_ITEMS_PER_CONTAINER) {
-        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)
-        if (item) {
-          setDroppableZones((zones) => ({
-            ...zones,
-            [sourceZoneId]: {
-              ...zones[sourceZoneId],
-              items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),
-            },
-          }))
-          setDraggableItems((items) => [...items, item])
-        }
+        reorderClassesList(event);
       }
     } else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
       // Check if we're trying to reorder within the same zone by hovering over another item
+
       const targetZone = droppableZones[targetZoneId]
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
-      const totalUnits = getCurrentUnits(targetZoneId);
-      
+
+      const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
+      const prereqsCompleted = arePrereqsCompleted(currentPrereqs);
+
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // Reordering within the same zone by hovering over another item
-        setDroppableZones((zones) => {
-          const zone = zones[targetZoneId]
-          const oldIndex = zone.items.findIndex((item) => item.id === active.id)
-          const newIndex = zone.items.findIndex((item) => item.id === over.id)
-          if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-            return {
-              ...zones,
-              [targetZoneId]: {
-                ...zone,
-                items: arrayMove(zone.items, oldIndex, newIndex),
-              },
-            }
-          }
-          return zones
-        })
+        reorderZone(targetZoneId, event);
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
-        const targetZone = droppableZones[targetZoneId]
-        if (targetZone.items.length < MAX_ITEMS_PER_CONTAINER) {
-          setDroppableZones((zones) => {
-            const sourceZone = zones[sourceZoneId]
-            const targetZone = zones[targetZoneId]
-            const item = sourceZone.items.find((item) => item.id === active.id)
-            
-            if (item) {
-              return {
-                ...zones,
-                [sourceZoneId]: {
-                  ...sourceZone,
-                  items: sourceZone.items.filter((i) => i.id !== active.id),
-                },
-                [targetZoneId]: {
-                  ...targetZone,
-                  items: [...targetZone.items, item],
-                },
-              }
-            }
-            return zones
-          })
+        if (totalUnits < MAX_UNITS && prereqsCompleted) {
+          moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
       } else if (isInDraggableList) {
         // Moving from draggable list to zone (either dropped on zone or item in zone)
         // Check if target zone has space
-        const targetZone = droppableZones[targetZoneId]
-        if (targetZone.items.length < MAX_ITEMS_PER_CONTAINER) {
+        if (totalUnits < MAX_UNITS && prereqsCompleted) {
           const item = draggableItems.find((item) => item.id === active.id)
           if (item) {
-            setDraggableItems((items) => items.filter((i) => i.id !== active.id))
-            setDroppableZones((zones) => ({
-              ...zones,
-              [targetZoneId]: {
-                ...zones[targetZoneId],
-                items: [...zones[targetZoneId].items, item],
-              },
-            }))
-          }
-        }
-      } else if (!sourceZoneId && !isInDraggableList) {
-        // Edge case: item is being moved from somewhere else to a zone
-        // This shouldn't normally happen, but handle it gracefully
-        const targetZone = droppableZones[targetZoneId]
-        if (targetZone.items.length < MAX_ITEMS_PER_CONTAINER) {
-          // Try to find the item in any zone (fallback)
-          let itemToMove = null
-          for (const zone of Object.values(droppableZones)) {
-            const found = zone.items.find((item) => item.id === active.id)
-            if (found) {
-              itemToMove = found
-              break
-            }
-          }
-          if (itemToMove) {
-            // Remove from source zone
-            setDroppableZones((zones) => {
-              const updatedZones = { ...zones }
-              for (const [key, zone] of Object.entries(zones)) {
-                if (zone.items.some((item) => item.id === active.id)) {
-                  updatedZones[key] = {
-                    ...zone,
-                    items: zone.items.filter((i) => i.id !== active.id),
-                  }
-                  break
-                }
-              }
-              // Add to target zone
-              updatedZones[targetZoneId] = {
-                ...zones[targetZoneId],
-                items: [...zones[targetZoneId].items, itemToMove],
-              }
-              return updatedZones
-            })
+            moveFromClassesListToGrid(targetZoneId, item, event);
           }
         }
       }
@@ -317,6 +313,7 @@ export default function DegreePlan() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
+      <Header/ >
       <div className="app-container">
         <h1>{major}</h1>
         <div className="content-wrapper">
