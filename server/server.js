@@ -38,16 +38,21 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello from server!' });
 });
 
-
-app.get('/testing', async (req, res) => { 
+app.get('/majors', async (req, res) => {
+  console.log('endpoint reached')
   try {
-    const results = await prisma.testing.findMany();
-
-    res.json(results);
-  } catch (error) {
-    console.error("Error retrieving data:", error);
+    const results = await prisma.major.findMany({
+      select:{ 
+        name: true
+      }
+    });
+    const majorNames = results.map(major => major.name);
+    res.json(majorNames)
+  } catch (error){
+    console.error("Error retrieving majors", error)
   }
 });
+
 
 
 app.listen(PORT, '0.0.0.0', () => {
