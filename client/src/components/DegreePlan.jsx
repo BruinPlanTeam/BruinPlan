@@ -54,6 +54,13 @@ export default function DegreePlan() {
     { id: '10', name: 'COM SCI 181', units: 4, prereqs: [] },
   ]);
 
+  useEffect(() =>  {
+    function handleOnBeforeUnload(event){
+      event.preventDefault()
+    }
+    window.addEventListener('beforeunload', handleOnBeforeUnload, { capture: true})
+  }, [])
+
 
   useEffect(() =>  {
     async function fetchData(){
@@ -66,6 +73,7 @@ export default function DegreePlan() {
         console.error("Error retrieving majors: ", {major},  e)
       }
     }
+    if (!major) return
     fetchData()
   }, [])
 
