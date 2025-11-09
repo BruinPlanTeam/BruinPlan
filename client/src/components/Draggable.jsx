@@ -27,7 +27,7 @@ export function Draggable({ id, item }) {
       {...listeners}
       className="draggable-item"
     >
-      {item.name}
+      {item.code}
     </div>
   )
 }
