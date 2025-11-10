@@ -10,8 +10,111 @@ datasource db {
   url      = env("DB_URL")
 }
 
-model testing {
-  id   Int     @id @default(autoincrement())
-  name String? @db.VarChar(10)
-  extra Int @default(0)
+model User {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique 
+  username        String   @unique
+  password        String  //gotta protect this probably
+
+  plans           Plan[]
 }
+
+model Plan {
+  id              Int      @id @default(autoincrement())
+  name            String
+  
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+  
+  majorId         Int
+  major           Major    @relation(fields: [majorId], references: [id])
+  
+  quarters        Quarter[]
+}
+
+model Major {
+  id              Int      @id @default(autoincrement())
+  name            String
+  school          String  
+  
+  plans           Plan[]
+  majorRequirements MajorRequirement[]
+}
+
+model Quarter {
+  id              Int      @id @default(autoincrement())
+  quarterNumber   Int      //1 to 12? 16?
+
+  planId          Int
+  plan            Plan     @relation(fields: [planId], references: [id])
+  
+  planClasses     PlanClass[]
+}
+
+model Requirement {
+  id              Int      @id @default(autoincrement())
+  name            String  //kind of requiremnt
+  type            String  //ex: Lower Div, GE
+  coursesToChoose Int     
+
+  majorRequirements MajorRequirement[]
+  requirementClasses RequirementClasses[]
+}
+
+model Class {
+  id              Int      @id @default(autoincrement())
+  units           Float
+  code            String   @unique //CS 31
+  description     String   //name for now (Intro to CS) but could include more
+
+  planClasses     PlanClass[]
+  prereqs     Prereq[] @relation("Prereq") // prereqs for this class
+  requiredFor  Prereq[] @relation("RequiredFor") // classes that require this class
+  requirementClasses RequirementClasses[]
+}
+
+model PlanClass {
+  quarterId Int
+  quarter   Quarter @relation(fields: [quarterId], references: [id])
+
+  classId   Int
+  class     Class   @relation(fields: [classId], references: [id])
+
+  status    String //not sure if we need this or not but maybe to mark if class was taken yet?
+
+  @@id([quarterId, classId]) //pk
+}
+
+model MajorRequirement {
+  majorId Int
+  major Major @relation(fields: [majorId], references: [id])
+
+  reqId Int
+  req Requirement @relation(fields: [reqId], references: [id])
+
+  displayOrder Int
+
+  @@id([majorId, reqId]) //pk
+}
+
+model RequirementClasses {
+  reqId         Int
+  requirement   Requirement @relation(fields: [reqId], references: [id])
+
+  classId       Int
+  class         Class       @relation(fields: [classId], references: [id])
+
+  @@id([reqId, classId])
+}
+
+model Prereq {
+  //recrusive
+  prereqId         Int
+  prereq   Class @relation("Prereq", fields: [prereqId], references: [id])
+
+  requiredForId      Int
+  requiredFor   Class @relation("RequiredFor", fields: [requiredForId], references: [id])
+
+  @@id([prereqId, requiredForId])
+}
+
