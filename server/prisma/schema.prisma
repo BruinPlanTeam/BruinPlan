@@ -92,7 +92,7 @@ model MajorRequirement {
   reqId Int
   req Requirement @relation(fields: [reqId], references: [id])
 
-  order Int
+  displayOrder Int
 
   @@id([majorId, reqId]) //pk
 }
