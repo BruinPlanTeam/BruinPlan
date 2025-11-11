@@ -22,6 +22,7 @@ import { useMajor } from '../Major.jsx'
 
 import '../Major.jsx'
 import '../DegreePlan.css'
+import { data } from 'react-router-dom'
 
 
 const MAX_UNITS = 21;
@@ -38,20 +39,6 @@ export default function DegreePlan() {
 
   const [classes, setClasses] = useState([])
   const [requirements, setRequirements] = useState([])
-
-  // initialize items, will need to replace with a database call    
-  const [draggableItems, setDraggableItems] = useState([
-    { id: '1', name: 'COM SCI 31', units: 4, prereqs: [] },
-    { id: '2', name: 'COM SCI 32', units: 4, prereqs: [] },
-    { id: '3', name: 'COM SCI 33', units: 4, prereqs: [] },
-    { id: '4', name: 'COM SCI 35L', units: 4, prereqs: [] },
-    { id: '5', name: 'COM SCI 111', units: 4, prereqs: ['1', '2', '3'] },
-    { id: '6', name: 'COM SCI 180', units: 4, prereqs: [] },
-    { id: '7', name: 'COM SCI 118', units: 4, prereqs: [] },
-    { id: '8', name: 'COM SCI M151B', units: 4, prereqs: [] },
-    { id: '9', name: 'COM SCI M152A', units: 4, prereqs: [] },
-    { id: '10', name: 'COM SCI 181', units: 4, prereqs: [] },
-  ]);
 
   useEffect(() =>  {
     function handleOnBeforeUnload(event){
@@ -76,6 +63,8 @@ export default function DegreePlan() {
     fetchData()
   }, [])
 
+  console.log("Classes: ", classes);
+  console.log("Reqs: ", requirements);
 
   // initalize droppable zones inside a library
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -313,6 +302,7 @@ export default function DegreePlan() {
 
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
       //const prereqsCompleted = arePrereqsCompleted(currentPrereqs);
+      const prereqsCompleted = true;
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // Reordering within the same zone by hovering over another item
