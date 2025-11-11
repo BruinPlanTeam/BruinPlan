@@ -8,27 +8,38 @@ export const Header = () => {
       bgColor: "#0D0716",
       textColor: "#fff",
       links: [
-        { label: "UCLA Catalog", ariaLabel: "UCLA Catalog", href: "https://catalog.registrar.ucla.edu/"},
-        { label: "Bruinwalk", ariaLabel: "About Careers", href: "https://bruinwalk.com/" }
+        { label: "UCLA Catalog", ariaLabel: "UCLA Catalog", href: "https://catalog.registrar.ucla.edu/" },
+        { label: "Bruinwalk", ariaLabel: "Bruinwalk", href: "https://bruinwalk.com/" }
       ]
     },
     {
-      label: "Projects", 
-      bgColor: "#170D27",
+      label: "Guidance",
+      bgColor: "#150B25",
       textColor: "#fff",
       links: [
-        { label: "Featured", ariaLabel: "Featured Projects" },
-        { label: "Case Studies", ariaLabel: "Project Case Studies" }
+        { 
+          label: "Sample 4-Year Schedules", 
+          ariaLabel: "Sample 4-Year Schedules", 
+          href: "https://www.ugeducation.ucla.edu/degreepath/majors/"
+        },
+        { 
+          label: "Degree Planning Tips", 
+          ariaLabel: "Degree Planning Tips", 
+          href: "https://newstudents.ucla.edu/wp-content/uploads/2017/10/Degree-Planner.pdf"
+        },
+        { 
+          label: "Pre-Health Requirements", 
+          ariaLabel: "Pre-Health Requirements", 
+          href: "https://prehealth.ucla.edu/wp-content/uploads/2024/10/Pre-Health-Requirements-rev.-10.1.24.pdf"
+        }
       ]
     },
     {
       label: "Contact",
-      bgColor: "#271E37", 
+      bgColor: "#271E37",
       textColor: "#fff",
       links: [
-        { label: "Email", ariaLabel: "Email us" },
-        { label: "Twitter", ariaLabel: "Twitter" },
-        { label: "LinkedIn", ariaLabel: "LinkedIn" }
+        { label: "Email", ariaLabel: "Email us", href: "mailto:info@bruinplan.com" }
       ]
     }
   ];
@@ -46,4 +57,3 @@ export const Header = () => {
     />
   );
 };
-
