@@ -97,6 +97,7 @@ export default function DegreePlan() {
     for (const [key, zone] of Object.entries(droppableZones)) {
       if (key === targetZoneId) {
         for (const item of zone.items) {
+          console.log(`${item.code} => ${item.units}`)
           totalUnits += item.units
         }
       }
@@ -239,17 +240,22 @@ export default function DegreePlan() {
     }
 
     // get the id of where the object came from
-    let sourceZoneId = null
+    let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
-      if (zone.items.some((item) => item.id === active.id)) {
-        currentName = zone.items[0].code
-        currentId = zone.items[0].id
-        currentUnits = zone.items[0].units
-        currentPrereqs = zone.items[0].prereqIds
-        sourceZoneId = key
-        break
+      const matchedItem = zone.items.find((item) => item.id === active.id);
+      if (matchedItem) {
+        currentName = matchedItem.code;
+        currentId = matchedItem.id;
+        currentUnits = matchedItem.units;
+        currentPrereqs = matchedItem.prereqIds;
+        sourceZoneId = key;
+        break;
       }
     }
+    
+
+    console.log("current name: ", currentName)
+
 
     // Check if the current item is in the original classes list
     const isInDraggableList = classes.some((item) => item.id === active.id)
@@ -321,7 +327,6 @@ export default function DegreePlan() {
 
       // NEED TO CHANGE PREREQ HANDLING: A CLASS CANNOT HAVE ITSELF AS A PREREQ
       currentPrereqs = currentPrereqs.filter(prereq => prereq != currentId);
-      console.log(currentPrereqs)
 
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
       const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);
@@ -332,13 +337,15 @@ export default function DegreePlan() {
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
-        if (totalUnits < MAX_UNITS && prereqsCompleted) {
+        console.log(`this is the breakdown: in the zone: ${getCurrentUnits(targetZoneId)} and current: ${currentUnits}`)
+        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
       } else if (isInDraggableList) {
         // Moving from draggable list to zone (either dropped on zone or item in zone)
         // Check if target zone has space
-        if (totalUnits < MAX_UNITS ) {
+        console.log(totalUnits)
+        if (totalUnits <= MAX_UNITS ) {
           const item = classes.find((item) => item.id === active.id)
           if (item) {
             moveFromClassesListToGrid(targetZoneId, item, event);
