@@ -26,6 +26,8 @@ import { data } from 'react-router-dom'
 
 
 const MAX_UNITS = 21;
+const MAX_ROWS = 4;
+const MAX_COLS = 4;
 
 const QUARTERS = {
   1 : 'Fall',
@@ -62,9 +64,6 @@ export default function DegreePlan() {
     if (!major) return
     fetchData()
   }, [])
-
-  console.log("Classes: ", classes);
-  console.log("Reqs: ", requirements);
 
   // initalize droppable zones inside a library
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -105,16 +104,33 @@ export default function DegreePlan() {
     return totalUnits;
   }
 
-  //
-  //function arePrereqsCompleted(currentPrereqs) {
-    //for (const prereq of currentPrereqs) {
-      //if (draggableItems.some(item => item.id === prereq)) {
-        //console.log(`Class #${prereq} is still in the list`);
-       // return false
-     // }
-    //}
-   // return true;
-  //}
+  function arePrereqsCompleted(targetZoneId, currentId, currentPrereqs) {
+    let takenClasses = [];
+    let unsatisfiedPrereqs = [];
+
+    outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
+      for (let col = 1; col <= MAX_COLS; col ++) {
+        const zone = `zone-${row}-${col}`;
+        const zoneObj = droppableZones[zone];
+        const classesInZone = zoneObj.items.flatMap(item => item.id);
+        takenClasses.push(classesInZone);
+        if (zone === targetZoneId) break outerLoop;
+      }
+    }
+
+    takenClasses = takenClasses.filter(item => item != currentId).flat().filter(Boolean);
+    
+    for (const prereq of currentPrereqs) {
+      if (takenClasses.findIndex(item => item === prereq) == -1) {
+        unsatisfiedPrereqs.push(prereq);
+      }
+    }
+
+    if (unsatisfiedPrereqs.length == 0) return true;
+  
+    console.log("You have unsatisfied prereqs: ", unsatisfiedPrereqs);
+    return false;
+  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// Helper functions for moving classes around ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,6 +228,7 @@ export default function DegreePlan() {
   const handleDragEnd = (event) => {
     const { active, over } = event
     let currentName = null;
+    let currentId = null;
     let currentUnits = null;
     let currentPrereqs = null;
 
@@ -226,6 +243,7 @@ export default function DegreePlan() {
     for (const [key, zone] of Object.entries(droppableZones)) {
       if (zone.items.some((item) => item.id === active.id)) {
         currentName = zone.items[0].code
+        currentId = zone.items[0].id
         currentUnits = zone.items[0].units
         currentPrereqs = zone.items[0].prereqIds
         sourceZoneId = key
@@ -238,6 +256,7 @@ export default function DegreePlan() {
     if (isInDraggableList) {
       let item = classes.find((value) => value.id == active.id);
       currentName = item.code;
+      currentId = item.id
       currentUnits = item.units;
       currentPrereqs = item.prereqIds;
     } 
@@ -300,9 +319,12 @@ export default function DegreePlan() {
       const targetZone = droppableZones[targetZoneId]
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
 
+      // NEED TO CHANGE PREREQ HANDLING: A CLASS CANNOT HAVE ITSELF AS A PREREQ
+      currentPrereqs = currentPrereqs.filter(prereq => prereq != currentId);
+      console.log(currentPrereqs)
+
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
-      //const prereqsCompleted = arePrereqsCompleted(currentPrereqs);
-      const prereqsCompleted = true;
+      const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // Reordering within the same zone by hovering over another item
