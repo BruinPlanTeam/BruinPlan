@@ -97,7 +97,6 @@ export default function DegreePlan() {
     for (const [key, zone] of Object.entries(droppableZones)) {
       if (key === targetZoneId) {
         for (const item of zone.items) {
-          console.log(`${item.code} => ${item.units}`)
           totalUnits += item.units
         }
       }
@@ -252,10 +251,6 @@ export default function DegreePlan() {
         break;
       }
     }
-    
-
-    console.log("current name: ", currentName)
-
 
     // Check if the current item is in the original classes list
     const isInDraggableList = classes.some((item) => item.id === active.id)
@@ -316,7 +311,7 @@ export default function DegreePlan() {
               items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
             },  
           }))  
-          setDraggableItems((items) => [...items, item])  
+          setClasses((items) => [...items, item])  
         }  
     }  else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
@@ -337,14 +332,12 @@ export default function DegreePlan() {
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
-        console.log(`this is the breakdown: in the zone: ${getCurrentUnits(targetZoneId)} and current: ${currentUnits}`)
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
       } else if (isInDraggableList) {
         // Moving from draggable list to zone (either dropped on zone or item in zone)
         // Check if target zone has space
-        console.log(totalUnits)
         if (totalUnits <= MAX_UNITS ) {
           const item = classes.find((item) => item.id === active.id)
           if (item) {
