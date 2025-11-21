@@ -108,28 +108,64 @@ export default function DegreePlan() {
     let takenClasses = [];
     let unsatisfiedPrereqs = [];
 
+    // Collect all classes that have been taken BEFORE the target zone
     outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
       for (let col = 1; col <= MAX_COLS; col ++) {
         const zone = `zone-${row}-${col}`;
+        // Break BEFORE adding classes from target zone
+        if (zone === targetZoneId) break outerLoop;
+        
         const zoneObj = droppableZones[zone];
         const classesInZone = zoneObj.items.flatMap(item => item.id);
         takenClasses.push(classesInZone);
-        if (zone === targetZoneId) break outerLoop;
       }
     }
 
-    takenClasses = takenClasses.filter(item => item != currentId).flat().filter(Boolean);
+    // Flatten and remove currentId from taken classes
+    takenClasses = takenClasses.flat().filter(item => item != currentId).filter(Boolean);
     
+    // Check if all prerequisites are satisfied
     for (const prereq of currentPrereqs) {
-      if (takenClasses.findIndex(item => item === prereq) == -1) {
+      // Use loose equality to handle string/number type mismatches
+      if (!takenClasses.find(item => item == prereq)) {
         unsatisfiedPrereqs.push(prereq);
       }
     }
 
-    if (unsatisfiedPrereqs.length == 0) return true;
+    if (unsatisfiedPrereqs.length > 0) {
+      console.log("Unsatisfied prerequisites:", unsatisfiedPrereqs);
+      return false;
+    }
+
+    // Check if this class is a prerequisite for any class in or after the target zone
+    let foundTarget = false;
+    for (let row = 1; row <= MAX_ROWS; row++) {
+      for (let col = 1; col <= MAX_COLS; col++) {
+        const zone = `zone-${row}-${col}`;
+        
+        // Mark when we've reached the target zone
+        if (zone === targetZoneId) {
+          foundTarget = true;
+        }
+        
+        // Check all zones at or after the target
+        if (foundTarget) {
+          const zoneObj = droppableZones[zone];
+          for (const classItem of zoneObj.items) {
+            // Skip checking the current class against itself
+            if (classItem.id == currentId) continue;
+            
+            // Check if currentId is a prerequisite for this class
+            if (classItem.prereqIds && classItem.prereqIds.some(prereqId => prereqId == currentId)) {
+              console.log(`Cannot move: This class is a prerequisite for ${classItem.code} in ${zone}`);
+              return false;
+            }
+          }
+        }
+      }
+    }
   
-    console.log("You have unsatisfied prereqs: ", unsatisfiedPrereqs);
-    return false;
+    return true;
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
