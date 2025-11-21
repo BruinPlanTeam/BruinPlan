@@ -22,10 +22,12 @@ import { useMajor } from '../Major.jsx'
 
 import '../Major.jsx'
 import '../DegreePlan.css'
+import { data } from 'react-router-dom'
 
 
-const MAX_ITEMS_PER_CONTAINER = 5 
 const MAX_UNITS = 21;
+const MAX_ROWS = 4;
+const MAX_COLS = 4;
 
 const QUARTERS = {
   1 : 'Fall',
@@ -39,20 +41,6 @@ export default function DegreePlan() {
 
   const [classes, setClasses] = useState([])
   const [requirements, setRequirements] = useState([])
-
-  // initialize items, will need to replace with a database call    
-  const [draggableItems, setDraggableItems] = useState([
-    { id: '1', name: 'COM SCI 31', units: 4, prereqs: [] },
-    { id: '2', name: 'COM SCI 32', units: 4, prereqs: [] },
-    { id: '3', name: 'COM SCI 33', units: 4, prereqs: [] },
-    { id: '4', name: 'COM SCI 35L', units: 4, prereqs: [] },
-    { id: '5', name: 'COM SCI 111', units: 4, prereqs: ['1', '2', '3'] },
-    { id: '6', name: 'COM SCI 180', units: 4, prereqs: [] },
-    { id: '7', name: 'COM SCI 118', units: 4, prereqs: [] },
-    { id: '8', name: 'COM SCI M151B', units: 4, prereqs: [] },
-    { id: '9', name: 'COM SCI M152A', units: 4, prereqs: [] },
-    { id: '10', name: 'COM SCI 181', units: 4, prereqs: [] },
-  ]);
 
   useEffect(() =>  {
     function handleOnBeforeUnload(event){
@@ -76,7 +64,6 @@ export default function DegreePlan() {
     if (!major) return
     fetchData()
   }, [])
-
 
   // initalize droppable zones inside a library
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -117,16 +104,33 @@ export default function DegreePlan() {
     return totalUnits;
   }
 
-  //
-  //function arePrereqsCompleted(currentPrereqs) {
-    //for (const prereq of currentPrereqs) {
-      //if (draggableItems.some(item => item.id === prereq)) {
-        //console.log(`Class #${prereq} is still in the list`);
-       // return false
-     // }
-    //}
-   // return true;
-  //}
+  function arePrereqsCompleted(targetZoneId, currentId, currentPrereqs) {
+    let takenClasses = [];
+    let unsatisfiedPrereqs = [];
+
+    outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
+      for (let col = 1; col <= MAX_COLS; col ++) {
+        const zone = `zone-${row}-${col}`;
+        const zoneObj = droppableZones[zone];
+        const classesInZone = zoneObj.items.flatMap(item => item.id);
+        takenClasses.push(classesInZone);
+        if (zone === targetZoneId) break outerLoop;
+      }
+    }
+
+    takenClasses = takenClasses.filter(item => item != currentId).flat().filter(Boolean);
+    
+    for (const prereq of currentPrereqs) {
+      if (takenClasses.findIndex(item => item === prereq) == -1) {
+        unsatisfiedPrereqs.push(prereq);
+      }
+    }
+
+    if (unsatisfiedPrereqs.length == 0) return true;
+  
+    console.log("You have unsatisfied prereqs: ", unsatisfiedPrereqs);
+    return false;
+  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// Helper functions for moving classes around ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +228,7 @@ export default function DegreePlan() {
   const handleDragEnd = (event) => {
     const { active, over } = event
     let currentName = null;
+    let currentId = null;
     let currentUnits = null;
     let currentPrereqs = null;
 
@@ -234,14 +239,16 @@ export default function DegreePlan() {
     }
 
     // get the id of where the object came from
-    let sourceZoneId = null
+    let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
-      if (zone.items.some((item) => item.id === active.id)) {
-        currentName = zone.items[0].code
-        currentUnits = zone.items[0].units
-        currentPrereqs = zone.items[0].prereqIds
-        sourceZoneId = key
-        break
+      const matchedItem = zone.items.find((item) => item.id === active.id);
+      if (matchedItem) {
+        currentName = matchedItem.code;
+        currentId = matchedItem.id;
+        currentUnits = matchedItem.units;
+        currentPrereqs = matchedItem.prereqIds;
+        sourceZoneId = key;
+        break;
       }
     }
 
@@ -250,6 +257,7 @@ export default function DegreePlan() {
     if (isInDraggableList) {
       let item = classes.find((value) => value.id == active.id);
       currentName = item.code;
+      currentId = item.id
       currentUnits = item.units;
       currentPrereqs = item.prereqIds;
     } 
@@ -291,15 +299,32 @@ export default function DegreePlan() {
         // Reordering within draggable list
         reorderClassesList(event);
       }
-    } else if (targetZoneId) {
+    } else if (isDroppedOnOriginalColumn && sourceZoneId) {
+      // Moving from zone back to original column (dropped on zone, not item)
+      // Check if original column has space
+        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)  
+        if (item) {
+          setDroppableZones((zones) => ({
+            ...zones,  
+            [sourceZoneId]: { 
+              ...zones[sourceZoneId],  
+              items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
+            },  
+          }))  
+          setClasses((items) => [...items, item])  
+        }  
+    }  else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
       // Check if we're trying to reorder within the same zone by hovering over another item
 
       const targetZone = droppableZones[targetZoneId]
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
 
+      // NEED TO CHANGE PREREQ HANDLING: A CLASS CANNOT HAVE ITSELF AS A PREREQ
+      currentPrereqs = currentPrereqs.filter(prereq => prereq != currentId);
+
       const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
-      //const prereqsCompleted = arePrereqsCompleted(currentPrereqs);
+      const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // Reordering within the same zone by hovering over another item
@@ -307,13 +332,13 @@ export default function DegreePlan() {
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // Moving from one zone to another
         // Check if target zone has space
-        if (totalUnits < MAX_UNITS && prereqsCompleted) {
+        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
       } else if (isInDraggableList) {
         // Moving from draggable list to zone (either dropped on zone or item in zone)
         // Check if target zone has space
-        if (totalUnits < MAX_UNITS ) {
+        if (totalUnits <= MAX_UNITS ) {
           const item = classes.find((item) => item.id === active.id)
           if (item) {
             moveFromClassesListToGrid(targetZoneId, item, event);
