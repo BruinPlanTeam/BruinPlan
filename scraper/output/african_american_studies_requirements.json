@@ -1,0 +1,60 @@
+{
+  "major_name": "General Catalog 2025-26",
+  "school": "College and Schools",
+  "requirements": [
+    {
+      "name": "Preparation for the Major",
+      "type": "Lower Division",
+      "coursesToChoose": 1,
+      "classes": [
+        {
+          "code": "AMER 1",
+          "description": "Introduction to Black Studies",
+          "units": 4.0
+        },
+        {
+          "code": "AMER 96W",
+          "description": "Variable Topics in Black Studies",
+          "units": 4.0
+        },
+        {
+          "code": "AMER 2A",
+          "description": "Africa and Middle East",
+          "units": 4.0
+        },
+        {
+          "code": "AMER 2B",
+          "description": "Race and U.S. Military Intervention in Africa",
+          "units": 4.0
+        },
+        {
+          "code": "AMER 2C",
+          "description": "Black Folks Kung Fu Fightin': Black America, Martial Arts, and Popular Culture",
+          "units": 4.0
+        },
+        {
+          "code": "AMER M5",
+          "description": "Social Organization of Black Communities",
+          "units": 4.0
+        },
+        {
+          "code": "AMER 6",
+          "description": "Trends in Black Intellectual Thought",
+          "units": 4.0
+        },
+        {
+          "code": "AMER M25",
+          "description": "Perceptions of Blackness in the Ancient World",
+          "units": 4.0
+        }
+      ]
+    },
+    {
+      "name": "The Major",
+      "type": "Required",
+      "coursesToChoose": 1,
+      "classes": []
+    }
+  ],
+  "requirementGroups": []
+}

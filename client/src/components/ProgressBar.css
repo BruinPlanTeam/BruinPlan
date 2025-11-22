@@ -1,0 +1,151 @@
+.progress-bar-container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(168, 178, 209, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  max-width: 100%;
+  margin: 1.5rem 0;
+}
+
+/* Header */
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.progress-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ccd6f6;
+  margin: 0;
+}
+
+.overall-percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #64ffda;
+}
+
+/* Overall Progress Section */
+.progress-section {
+  margin-bottom: 1rem;
+}
+
+.overall-section {
+  padding: 0;
+}
+
+/* Progress Track */
+.progress-track {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #64ffda 0%, #4dd4ac 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progress-fill.overall-fill {
+  background: linear-gradient(90deg, #64ffda 0%, #00d4ff 100%);
+}
+
+/* Progress Groups */
+.progress-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.progress-group {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(168, 178, 209, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.progress-group:hover {
+  border-color: rgba(168, 178, 209, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.group-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.group-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.group-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ccd6f6;
+}
+
+.group-stats {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #8892b0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #8892b0;
+}
+
+.empty-state p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+}
+
+.empty-hint {
+  font-size: 0.85rem;
+  color: #8892b0;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .progress-groups {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .progress-bar-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .progress-header h2 {
+    font-size: 1rem;
+  }
+
+  .overall-percentage {
+    font-size: 1.25rem;
+  }
+
+  .progress-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .group-name {
+    font-size: 0.85rem;
+  }
+}
