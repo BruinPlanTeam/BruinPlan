@@ -17,6 +17,7 @@ import {
 
 import { Header } from './Header'
 import { Droppable } from './Droppable'
+import { ProgressBar } from './ProgressBar'
 import { useMajor } from '../Major.jsx'
 
 import '../Major.jsx'
@@ -401,14 +402,16 @@ export default function DegreePlan() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <Header />
-      <div className="app-container">
-        <div className="plan-header">
-          <h1>{major}</h1>
-          <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
-        </div>
-        
-        <div className="content-wrapper">
+        <div className="app-container">
+          <div className="plan-header">
+            <h1>{major}</h1>
+            <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
+          </div>
+
+          {/* Progress Bar */}
+          <ProgressBar requirements={requirements} droppableZones={droppableZones} />
+          
+          <div className="content-wrapper">
           {/* 4-Year Plan Grid */}
           <div className="plan-grid">
             {[1, 2, 3, 4].map((year) => (
