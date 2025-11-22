@@ -275,40 +275,93 @@
   border-radius: 12px;
 }
 
-.sidebar-zone {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(168, 178, 209, 0.2);
-  border-radius: 0 0 12px 12px;
-  padding: 1rem;
+/* Course Categories Container */
+.course-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   overflow-y: auto;
   max-height: calc(100vh - 300px);
-  flex: 1;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0 0 12px 12px;
 }
 
-.sidebar-zone .zone-header {
+.course-category {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(168, 178, 209, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(100, 255, 218, 0.05);
+  border-bottom: 1px solid rgba(168, 178, 209, 0.15);
+}
+
+.category-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64ffda;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8892b0;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+}
+
+/* Category Droppable Zone */
+.course-category .droppable-zone {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.75rem;
+  min-height: auto;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.course-category .droppable-zone .zone-header {
   display: none;
 }
 
-.sidebar-zone .zone-content {
-  gap: 0.75rem;
+.course-category .droppable-zone .zone-content {
+  gap: 0.5rem;
 }
 
 /* Scrollbar Styling */
-.sidebar-zone::-webkit-scrollbar {
-  width: 8px;
+.course-categories::-webkit-scrollbar,
+.course-category .droppable-zone::-webkit-scrollbar {
+  width: 6px;
 }
 
-.sidebar-zone::-webkit-scrollbar-track {
+.course-categories::-webkit-scrollbar-track,
+.course-category .droppable-zone::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.sidebar-zone::-webkit-scrollbar-thumb {
+.course-categories::-webkit-scrollbar-thumb,
+.course-category .droppable-zone::-webkit-scrollbar-thumb {
   background: rgba(100, 255, 218, 0.3);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.sidebar-zone::-webkit-scrollbar-thumb:hover {
+.course-categories::-webkit-scrollbar-thumb:hover,
+.course-category .droppable-zone::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 255, 218, 0.5);
 }
 

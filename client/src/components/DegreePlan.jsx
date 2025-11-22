@@ -41,6 +41,13 @@ export default function DegreePlan() {
 
   const [classes, setClasses] = useState([])
   const [requirements, setRequirements] = useState([])
+  const [categorizedClasses, setCategorizedClasses] = useState({
+    'Preparation': [],
+    'Major': [],
+    'Tech Breadth': [],
+    'Sci-Tech': [],
+    'GE': []
+  })
 
   useEffect(() =>  {
     function handleOnBeforeUnload(event){
@@ -56,6 +63,7 @@ export default function DegreePlan() {
         const data = await getMajorData(major)
         setClasses(data.availableClasses)
         setRequirements(data.majorRequirements)
+        categorizeClasses(data.availableClasses, data.majorRequirements)
         console.log("Acquired major data")
       } catch(e){
         console.error("Error retrieving majors: ", {major},  e)
@@ -64,6 +72,68 @@ export default function DegreePlan() {
     if (!major) return
     fetchData()
   }, [])
+
+  // Categorize classes based on requirements
+  const categorizeClasses = (allClasses, allRequirements) => {
+    const categories = {
+      'Preparation': [],
+      'Major': [],
+      'Tech Breadth': [],
+      'Sci-Tech': [],
+      'GE': []
+    };
+
+    // Create a map of classId to requirement types
+    const classToReqType = new Map();
+    
+    allRequirements.forEach(req => {
+      const type = req.type || 'Other';
+      const category = mapTypeToCategory(type, req.name);
+      
+      req.fulfilledByClassIds?.forEach(classId => {
+        if (!classToReqType.has(classId)) {
+          classToReqType.set(classId, category);
+        }
+      });
+    });
+
+    // Categorize each class
+    allClasses.forEach(cls => {
+      const category = classToReqType.get(Number(cls.id)) || 'GE';
+      if (categories[category]) {
+        categories[category].push(cls);
+      } else {
+        categories['GE'].push(cls);
+      }
+    });
+
+    setCategorizedClasses(categories);
+  };
+
+  // Map requirement type/name to category
+  const mapTypeToCategory = (type, name) => {
+    const nameLower = name.toLowerCase();
+    const typeLower = type.toLowerCase();
+
+    if (nameLower.includes('preparation') || nameLower.includes('prep')) {
+      return 'Preparation';
+    }
+    if (nameLower.includes('tech') && nameLower.includes('breadth')) {
+      return 'Tech Breadth';
+    }
+    if (nameLower.includes('sci') || nameLower.includes('science')) {
+      return 'Sci-Tech';
+    }
+    if (typeLower.includes('ge') || nameLower.includes('general education')) {
+      return 'GE';
+    }
+    if (typeLower.includes('lower') || typeLower.includes('upper') || 
+        typeLower.includes('major') || typeLower.includes('required')) {
+      return 'Major';
+    }
+    
+    return 'GE';
+  };
 
   // initalize droppable zones inside a library
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -288,14 +358,21 @@ export default function DegreePlan() {
       }
     }
 
-    // Check if the current item is in the original classes list
-    const isInDraggableList = classes.some((item) => item.id === active.id)
-    if (isInDraggableList) {
-      let item = classes.find((value) => value.id == active.id);
-      currentName = item.code;
-      currentId = item.id
-      currentUnits = item.units;
-      currentPrereqs = item.prereqIds;
+    // Check if the current item is in any of the categorized lists
+    let isInDraggableList = false;
+    let foundItem = null;
+    
+    for (const [category, courseList] of Object.entries(categorizedClasses)) {
+      const item = courseList.find((course) => course.id === active.id);
+      if (item) {
+        isInDraggableList = true;
+        foundItem = item;
+        currentName = item.code;
+        currentId = item.id;
+        currentUnits = item.units;
+        currentPrereqs = item.prereqIds;
+        break;
+      }
     } 
 
     // Check if the current item is over a droppable zone
@@ -303,15 +380,22 @@ export default function DegreePlan() {
       (key) => droppableZones[key].id === over.id
     )
 
-    // Check if the current item is over the classes list zone
-    const isDroppedOnOriginalColumn = over.id === 'original-column'
+    // Check if the current item is over any category zone
+    const isDroppedOnCategoryZone = over.id && over.id.startsWith('category-');
 
     // find draggable item that current draggable item is hovering over
-    const targetItem = classes.find((item) => item.id === over.id)
+    let targetItem = null;
+    for (const courseList of Object.values(categorizedClasses)) {
+      const item = courseList.find((course) => course.id === over.id);
+      if (item) {
+        targetItem = item;
+        break;
+      }
+    }
 
     // If not dropped directly on a zone, check if dropped on an item inside a zone
     // This allows dropping into zones even when hovering over items inside them
-    if (!targetZoneId && !isDroppedOnOriginalColumn && !targetItem) {
+    if (!targetZoneId && !isDroppedOnCategoryZone && !targetItem) {
       // Find which zone contains the item we're hovering over
       for (const [key, zone] of Object.entries(droppableZones)) {
         if (zone.items.some((item) => item.id === over.id)) {
@@ -332,10 +416,9 @@ export default function DegreePlan() {
           }
         }
       } else if (isInDraggableList) {
-        // Reordering within draggable list
-        reorderClassesList(event);
+        // Reordering within category lists - do nothing, they're separate zones
       }
-    } else if (isDroppedOnOriginalColumn && sourceZoneId) {
+    } else if (isDroppedOnCategoryZone && sourceZoneId) {
       // Moving from zone back to original column (dropped on zone, not item)
       // Check if original column has space
         const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)  
@@ -346,8 +429,19 @@ export default function DegreePlan() {
               ...zones[sourceZoneId],  
               items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
             },  
-          }))  
-          setClasses((items) => [...items, item])  
+          }))
+          // Add back to appropriate category
+          setCategorizedClasses(prev => {
+            const updated = { ...prev };
+            for (const [category, courseList] of Object.entries(updated)) {
+              if (courseList.some(c => c.id === item.id)) {
+                return updated; // Already in a category
+              }
+            }
+            // Add to GE if not found
+            updated['GE'] = [...updated['GE'], item];
+            return updated;
+          });
         }  
     }  else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
@@ -371,14 +465,27 @@ export default function DegreePlan() {
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
         }
-      } else if (isInDraggableList) {
-        // Moving from draggable list to zone (either dropped on zone or item in zone)
-        // Check if target zone has space
-        if (totalUnits <= MAX_UNITS ) {
-          const item = classes.find((item) => item.id === active.id)
-          if (item) {
-            moveFromClassesListToGrid(targetZoneId, item, event);
-          }
+      } else if (isInDraggableList && foundItem) {
+        // Moving from category list to zone (either dropped on zone or item in zone)
+        // Check if target zone has space and prereqs are met
+        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
+          // Remove from category list
+          setCategorizedClasses(prev => {
+            const updated = { ...prev };
+            for (const [category, courseList] of Object.entries(updated)) {
+              updated[category] = courseList.filter(c => c.id !== foundItem.id);
+            }
+            return updated;
+          });
+          
+          // Add to zone
+          setDroppableZones((zones) => ({
+            ...zones,
+            [targetZoneId]: {
+              ...zones[targetZoneId],
+              items: [...zones[targetZoneId].items, foundItem],
+            },
+          }));
         }
       }
     }
@@ -386,9 +493,11 @@ export default function DegreePlan() {
     setActiveId(null)
   }
 
-  // Find active item from either draggable list or zones
+  // Find active item from either category lists or zones
   const activeItem = activeId
-    ? classes.find((item) => item.id === activeId) ||
+    ? Object.values(categorizedClasses)
+        .flat()
+        .find((item) => item.id === activeId) ||
       Object.values(droppableZones)
         .flatMap((zone) => zone.items)
         .find((item) => item.id === activeId)
@@ -444,11 +553,25 @@ export default function DegreePlan() {
               <h2>Available Courses</h2>
               <span className="course-count">{classes.length}</span>
             </div>
-            <Droppable
-              id="original-column"
-              title=""
-              items={classes}
-            />
+            
+            {/* Categorized Course Lists */}
+            <div className="course-categories">
+              {Object.entries(categorizedClasses).map(([category, courseList]) => (
+                courseList.length > 0 && (
+                  <div key={category} className="course-category">
+                    <div className="category-header">
+                      <h3>{category}</h3>
+                      <span className="category-count">{courseList.length}</span>
+                    </div>
+                    <Droppable
+                      id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                      title=""
+                      items={courseList}
+                    />
+                  </div>
+                )
+              ))}
+            </div>
           </div>
         </div>
 
