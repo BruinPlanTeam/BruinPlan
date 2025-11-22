@@ -118,7 +118,7 @@ export function AIChatPanel({ isOpen, onClose }) {
         <div className="chat-input-container">
           <textarea
             className="chat-input"
-            placeholder="Ask about courses, prerequisites, or planning..."
+            placeholder="Ask about course planning."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}

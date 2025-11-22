@@ -15,7 +15,6 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 
-import { Header } from './Header'
 import { Droppable } from './Droppable'
 import { ProgressBar } from './ProgressBar'
 import { AIChatButton } from './AIChatButton'
@@ -24,7 +23,6 @@ import { useMajor } from '../Major.jsx'
 
 import '../Major.jsx'
 import '../DegreePlan.css'
-import { data } from 'react-router-dom'
 
 
 const MAX_UNITS = 21;
@@ -81,7 +79,6 @@ export default function DegreePlan() {
       'Preparation': [],
       'Major': [],
       'Tech Breadth': [],
-      'Sci-Tech': [],
       'GE': []
     };
 
@@ -123,9 +120,6 @@ export default function DegreePlan() {
     if (nameLower.includes('tech') && nameLower.includes('breadth')) {
       return 'Tech Breadth';
     }
-    if (nameLower.includes('sci') || nameLower.includes('science')) {
-      return 'Sci-Tech';
-    }
     if (typeLower.includes('ge') || nameLower.includes('general education')) {
       return 'GE';
     }
@@ -155,6 +149,7 @@ export default function DegreePlan() {
 
   const [activeId, setActiveId] = useState(null)
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [electricZone, setElectricZone] = useState(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -261,6 +256,8 @@ export default function DegreePlan() {
         items: zones[sourceZoneId].items.filter((i) => i.id !== event.active.id),
       },
     }))
+    console.log("Item type: ", item.type);
+    console.log("Item name: ", item.name);
     setClasses((items) => {
       const newIndex = items.findIndex((item) => item.id === event.over.id)
       const newItems = [...items]
@@ -475,6 +472,9 @@ export default function DegreePlan() {
         // Check if target zone has space
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
+          // Show electric border effect
+          setElectricZone(targetZoneId);
+          setTimeout(() => setElectricZone(null), 500);
         }
       } else if (isInDraggableList && foundItem) {
         // Moving from category list to zone (either dropped on zone or item in zone)
@@ -497,6 +497,10 @@ export default function DegreePlan() {
               items: [...zones[targetZoneId].items, foundItem],
             },
           }));
+          
+          // Show electric border effect
+          setElectricZone(targetZoneId);
+          setTimeout(() => setElectricZone(null), 500);
         }
       }
     }
@@ -550,6 +554,7 @@ export default function DegreePlan() {
                         items={zone.items}
                         units={units}
                         maxUnits={MAX_UNITS}
+                        showElectric={electricZone === zoneId}
                       />
                     );
                   })}
