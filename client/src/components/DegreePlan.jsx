@@ -18,6 +18,7 @@ import {
 import { Header } from './Header'
 import { Droppable } from './Droppable'
 import { ProgressBar } from './ProgressBar'
+import { AIChatButton } from './AIChatButton'
 import { useMajor } from '../Major.jsx'
 
 import '../Major.jsx'
@@ -160,6 +161,11 @@ export default function DegreePlan() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
+
+  const handleAIChatClick = () => {
+    console.log('AI Chat button clicked!');
+    // TODO: Open chat panel
+  }
 
   function getCurrentUnits(targetZoneId) {
     let totalUnits = 0;
@@ -583,6 +589,9 @@ export default function DegreePlan() {
             </div>
           ) : null}
         </DragOverlay>
+
+        {/* AI Chat Button */}
+        <AIChatButton onClick={handleAIChatClick} />
       </div>
     </DndContext>
   )
