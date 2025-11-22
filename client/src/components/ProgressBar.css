@@ -3,7 +3,6 @@
   border: 1px solid rgba(168, 178, 209, 0.2);
   border-radius: 12px;
   padding: 1rem 1.5rem;
-  backdrop-filter: blur(10px);
   max-width: 100%;
   margin: 1.5rem 0;
 }
@@ -27,7 +26,6 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #64ffda;
-  text-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
 }
 
 /* Overall Progress Section */
@@ -52,14 +50,12 @@
   height: 100%;
   background: linear-gradient(90deg, #64ffda 0%, #4dd4ac 100%);
   border-radius: 4px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s ease;
   position: relative;
-  box-shadow: 0 0 8px rgba(100, 255, 218, 0.4);
 }
 
 .progress-fill.overall-fill {
   background: linear-gradient(90deg, #64ffda 0%, #00d4ff 100%);
-  box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
 }
 
 /* Progress Groups */
@@ -75,7 +71,7 @@
   border: 1px solid rgba(168, 178, 209, 0.1);
   border-radius: 8px;
   padding: 0.75rem;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .progress-group:hover {

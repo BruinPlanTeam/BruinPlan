@@ -11,23 +11,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.4);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.15s ease, width 0.15s ease;
   z-index: 1000;
   overflow: visible;
 }
 
 .ai-chat-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(100, 255, 218, 0.6);
+  transform: translateY(-3px);
   width: auto;
   border-radius: 30px;
   padding: 0 1.5rem;
 }
 
 .ai-chat-button:active {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(100, 255, 218, 0.5);
+  transform: translateY(-1px);
 }
 
 .button-content {
@@ -41,11 +38,6 @@
 .ai-icon {
   color: #0a192f;
   flex-shrink: 0;
-  transition: transform 0.3s ease;
-}
-
-.ai-chat-button:hover .ai-icon {
-  transform: rotate(10deg);
 }
 
 .button-label {
@@ -53,21 +45,9 @@
   font-size: 0.95rem;
   font-weight: 600;
   white-space: nowrap;
-  animation: slideIn 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Pulse ring animation */
+/* Pulse ring animation - simplified */
 .pulse-ring {
   position: absolute;
   top: 50%;
@@ -77,17 +57,18 @@
   height: 60px;
   border-radius: 50%;
   border: 2px solid #64ffda;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 2s ease-out infinite;
   z-index: 1;
+  pointer-events: none;
 }
 
 @keyframes pulse {
   0% {
     transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
+    opacity: 0.8;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.8);
+    transform: translate(-50%, -50%) scale(1.6);
     opacity: 0;
   }
 }
@@ -110,4 +91,3 @@
     height: 56px;
   }
 }
-

@@ -17,7 +17,6 @@
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .plan-subtitle {
@@ -61,7 +60,6 @@
   border-radius: 8px;
   padding: 1rem 0.5rem;
   min-width: 50px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .quarters-row {
@@ -80,20 +78,16 @@
   min-height: 200px;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  transition: border-color 0.15s ease;
 }
 
 .droppable-zone:hover {
   border-color: rgba(168, 178, 209, 0.4);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .droppable-zone.drag-over {
   border-color: #64ffda;
-  background: rgba(100, 255, 218, 0.05);
-  box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
-  transform: scale(1.02);
+  background: rgba(100, 255, 218, 0.08);
 }
 
 /* Zone Status Classes */
@@ -169,7 +163,6 @@
   border: 2px dashed rgba(168, 178, 209, 0.2);
   border-radius: 8px;
   padding: 2rem;
-  transition: all 0.3s ease;
 }
 
 .droppable-zone.drag-over .zone-empty {
@@ -179,19 +172,17 @@
 
 /* Draggable Item / Course Card */
 .draggable-item {
-  background: linear-gradient(135deg, #2d4059 0%, #1f3042 100%);
+  background: rgba(45, 64, 89, 0.6);
   border: 1px solid rgba(100, 255, 218, 0.2);
   border-radius: 8px;
   padding: 0.75rem;
   cursor: grab;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease, border-color 0.1s ease;
   user-select: none;
 }
 
 .draggable-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(100, 255, 218, 0.2);
   border-color: rgba(100, 255, 218, 0.4);
 }
 
@@ -200,9 +191,7 @@
 }
 
 .draggable-item.dragging {
-  opacity: 0.6;
-  transform: rotate(3deg) scale(1.05);
-  box-shadow: 0 8px 24px rgba(100, 255, 218, 0.3);
+  opacity: 0.5;
 }
 
 .course-header {
