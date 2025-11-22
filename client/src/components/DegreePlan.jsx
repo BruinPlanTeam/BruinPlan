@@ -19,6 +19,7 @@ import { Header } from './Header'
 import { Droppable } from './Droppable'
 import { ProgressBar } from './ProgressBar'
 import { AIChatButton } from './AIChatButton'
+import { AIChatPanel } from './AIChatPanel'
 import { useMajor } from '../Major.jsx'
 
 import '../Major.jsx'
@@ -153,6 +154,7 @@ export default function DegreePlan() {
   })
 
   const [activeId, setActiveId] = useState(null)
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -163,8 +165,11 @@ export default function DegreePlan() {
   )
 
   const handleAIChatClick = () => {
-    console.log('AI Chat button clicked!');
-    // TODO: Open chat panel
+    setIsChatOpen(true);
+  }
+
+  const handleCloseChatPanel = () => {
+    setIsChatOpen(false);
   }
 
   function getCurrentUnits(targetZoneId) {
@@ -592,6 +597,9 @@ export default function DegreePlan() {
 
         {/* AI Chat Button */}
         <AIChatButton onClick={handleAIChatClick} />
+
+        {/* AI Chat Panel */}
+        <AIChatPanel isOpen={isChatOpen} onClose={handleCloseChatPanel} />
       </div>
     </DndContext>
   )
