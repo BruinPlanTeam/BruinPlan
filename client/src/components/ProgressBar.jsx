@@ -5,9 +5,15 @@ export function ProgressBar({ requirements, droppableZones }) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
 
+  // Create a dependency that changes whenever droppableZones content changes
+  const zonesKey = JSON.stringify(
+    Object.values(droppableZones).map(zone => zone.items.map(item => item.id))
+  );
+
   useEffect(() => {
     calculateProgress();
-  }, [requirements, droppableZones]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requirements, zonesKey]);
 
   const calculateProgress = () => {
     if (!requirements || requirements.length === 0) return;

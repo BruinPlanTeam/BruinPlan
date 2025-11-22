@@ -149,7 +149,7 @@ export default function DegreePlan() {
 
   const [activeId, setActiveId] = useState(null)
   const [isChatOpen, setIsChatOpen] = useState(false)
-  const [electricZone, setElectricZone] = useState(null)
+  const [electricCourseId, setElectricCourseId] = useState(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -415,42 +415,94 @@ export default function DegreePlan() {
 
     if (targetItem) {
       if (sourceZoneId) {
-        // Moving from zone to original column at specific position
-        // Check if original column has space (if item is already there, it's reordering)
-        if (!isInDraggableList) {
-          const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)
-          if (item) {
-            moveFromGridToClassList(sourceZoneId, item, event);
-          }
+        // Moving from zone back to sidebar (dropped on specific item)
+        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)
+        if (item) {
+          // Remove from zone
+          setDroppableZones((zones) => ({
+            ...zones,
+            [sourceZoneId]: {
+              ...zones[sourceZoneId],
+              items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),
+            },
+          }))
+          
+          // Find correct category and add back
+          setCategorizedClasses(prev => {
+            const updated = { ...prev };
+            
+            // Check if already exists
+            for (const courseList of Object.values(updated)) {
+              if (courseList.some(c => c.id === item.id)) {
+                return updated;
+              }
+            }
+            
+            // Find correct category
+            let correctCategory = 'GE';
+            for (const req of requirements) {
+              if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
+                correctCategory = mapTypeToCategory(req.type, req.name);
+                break;
+              }
+            }
+            
+            // Add to correct category
+            if (updated[correctCategory]) {
+              updated[correctCategory] = [...updated[correctCategory], item];
+            } else {
+              updated['GE'] = [...updated['GE'], item];
+            }
+            
+            return updated;
+          });
         }
       } else if (isInDraggableList) {
         // Reordering within category lists - do nothing, they're separate zones
       }
     } else if (isDroppedOnCategoryZone && sourceZoneId) {
-      // Moving from zone back to original column (dropped on zone, not item)
-      // Check if original column has space
-        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)  
-        if (item) {
-          setDroppableZones((zones) => ({
-            ...zones,  
-            [sourceZoneId]: { 
-              ...zones[sourceZoneId],  
-              items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
-            },  
-          }))
-          // Add back to appropriate category
-          setCategorizedClasses(prev => {
-            const updated = { ...prev };
-            for (const [category, courseList] of Object.entries(updated)) {
-              if (courseList.some(c => c.id === item.id)) {
-                return updated; // Already in a category
-              }
+      // Moving from zone back to category sidebar
+      const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)  
+      if (item) {
+        // Remove from zone
+        setDroppableZones((zones) => ({
+          ...zones,  
+          [sourceZoneId]: { 
+            ...zones[sourceZoneId],  
+            items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
+          },  
+        }))
+        
+        // Find the correct category for this class
+        setCategorizedClasses(prev => {
+          const updated = { ...prev };
+          
+          // Check if already in a category
+          for (const [category, courseList] of Object.entries(updated)) {
+            if (courseList.some(c => c.id === item.id)) {
+              return updated; // Already in correct category
             }
-            // Add to GE if not found
+          }
+          
+          // Find correct category based on requirements
+          let correctCategory = 'GE'; // default
+          for (const req of requirements) {
+            if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
+              correctCategory = mapTypeToCategory(req.type, req.name);
+              break;
+            }
+          }
+          
+          // Add to correct category
+          if (updated[correctCategory]) {
+            updated[correctCategory] = [...updated[correctCategory], item];
+          } else {
             updated['GE'] = [...updated['GE'], item];
-            return updated;
-          });
-        }  
+          }
+          
+          return updated;
+        });
+      }
     }  else if (targetZoneId) {
       // Dropped on a zone (either directly or via hovering over an item in the zone)
       // Check if we're trying to reorder within the same zone by hovering over another item
@@ -472,9 +524,9 @@ export default function DegreePlan() {
         // Check if target zone has space
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
-          // Show electric border effect
-          setElectricZone(targetZoneId);
-          setTimeout(() => setElectricZone(null), 500);
+          // Show electric border effect on the dropped course
+          setElectricCourseId(currentId);
+          setTimeout(() => setElectricCourseId(null), 1000);
         }
       } else if (isInDraggableList && foundItem) {
         // Moving from category list to zone (either dropped on zone or item in zone)
@@ -498,9 +550,9 @@ export default function DegreePlan() {
             },
           }));
           
-          // Show electric border effect
-          setElectricZone(targetZoneId);
-          setTimeout(() => setElectricZone(null), 500);
+          // Show electric border effect on the dropped course
+          setElectricCourseId(currentId);
+          setTimeout(() => setElectricCourseId(null), 1000);
         }
       }
     }
@@ -554,7 +606,7 @@ export default function DegreePlan() {
                         items={zone.items}
                         units={units}
                         maxUnits={MAX_UNITS}
-                        showElectric={electricZone === zoneId}
+                        electricCourseId={electricCourseId}
                       />
                     );
                   })}
