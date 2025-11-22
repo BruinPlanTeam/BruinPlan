@@ -16,7 +16,6 @@ import {
 } from '@dnd-kit/sortable'
 
 import { Header } from './Header'
-import { Grid } from './Grid'
 import { Droppable } from './Droppable'
 import { useMajor } from '../Major.jsx'
 
@@ -402,21 +401,60 @@ export default function DegreePlan() {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <Header/ >
+      <Header />
       <div className="app-container">
-        <h1>{major}</h1>
+        <div className="plan-header">
+          <h1>{major}</h1>
+          <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
+        </div>
+        
         <div className="content-wrapper">
-          <Grid droppableZones={droppableZones}/>
-          <Droppable
-            id="original-column"  
-            title="Classes"
-            items={classes}
-          />
+          {/* 4-Year Plan Grid */}
+          <div className="plan-grid">
+            {[1, 2, 3, 4].map((year) => (
+              <div key={year} className="year-row">
+                <div className="year-label">Year {year}</div>
+                <div className="quarters-row">
+                  {[1, 2, 3, 4].map((quarter) => {
+                    const zoneId = `zone-${year}-${quarter}`;
+                    const zone = droppableZones[zoneId];
+                    const units = getCurrentUnits(zoneId);
+                    return (
+                      <Droppable
+                        key={zoneId}
+                        id={zoneId}
+                        title={zone.title}
+                        items={zone.items}
+                        units={units}
+                        maxUnits={MAX_UNITS}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Available Courses Sidebar */}
+          <div className="sidebar-container">
+            <div className="sidebar-header">
+              <h2>Available Courses</h2>
+              <span className="course-count">{classes.length}</span>
+            </div>
+            <Droppable
+              id="original-column"
+              title=""
+              items={classes}
+            />
+          </div>
         </div>
 
         <DragOverlay>
           {activeId ? (
-            <div className="draggable-item dragging">{activeItem?.code}</div>
+            <div className="draggable-item dragging">
+              <span className="course-code">{activeItem?.code}</span>
+              <span className="course-units">{activeItem?.units}u</span>
+            </div>
           ) : null}
         </DragOverlay>
       </div>
