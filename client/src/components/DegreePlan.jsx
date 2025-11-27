@@ -1,4 +1,4 @@
-import React, { useState, useEffect, act } from 'react'
+import React, { useState, useEffect } from 'react'
 import { getMajorData } from '../services/majorDetailService.js'
 
 import {
@@ -11,7 +11,6 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import {
-  arrayMove,
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 
@@ -21,13 +20,16 @@ import { AIChatButton } from './AIChatButton'
 import { AIChatPanel } from './AIChatPanel'
 import { useMajor } from '../Major.jsx'
 
+// Custom hooks
+import { useCourseValidation } from '../hooks/useCourseValidation'
+import { useCategorizedCourses } from '../hooks/useCategorizedCourses'
+import { useDragAndDrop } from '../hooks/useDragAndDrop'
+import { getCurrentUnits } from '../utils/courseUtils'
+
 import '../Major.jsx'
 import '../DegreePlan.css'
 
-
 const MAX_UNITS = 21;
-const MAX_ROWS = 4;
-const MAX_COLS = 4;
 
 const QUARTERS = {
   1 : 'Fall',
@@ -41,14 +43,29 @@ export default function DegreePlan() {
 
   const [classes, setClasses] = useState([])
   const [requirements, setRequirements] = useState([])
-  const [categorizedClasses, setCategorizedClasses] = useState({
-    'Preparation': [],
-    'Major': [],
-    'Tech Breadth': [],
-    'Sci-Tech': [],
-    'GE': []
-  })
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
+  // Use custom hooks for categorization
+  const {
+    categorizedClasses,
+    categorizeClasses,
+    addCourseToCategory,
+    removeCourseFromCategories,
+    mapTypeToCategory
+  } = useCategorizedCourses();
+
+  // Use custom hooks for validation (needs to be after droppableZones)
+  // We'll initialize this after drag and drop hook
+
+  // Configure drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  // Prevent unload without warning
   useEffect(() =>  {
     function handleOnBeforeUnload(event){
       event.preventDefault()
@@ -56,7 +73,7 @@ export default function DegreePlan() {
     window.addEventListener('beforeunload', handleOnBeforeUnload, { capture: true})
   }, [])
 
-
+  // Fetch major data
   useEffect(() =>  {
     async function fetchData(){
       try{
@@ -71,93 +88,30 @@ export default function DegreePlan() {
     }
     if (!major) return
     fetchData()
-  }, [])
+  }, [major, categorizeClasses])
 
-  // Categorize classes based on requirements
-  const categorizeClasses = (allClasses, allRequirements) => {
-    const categories = {
-      'Preparation': [],
-      'Major': [],
-      'Tech Breadth': [],
-      'GE': []
-    };
+  // Initialize drag and drop
+  const {
+    droppableZones,
+    activeId,
+    activeItem,
+    electricCourseId,
+    handleDragStart,
+    handleDragOver,
+    createHandleDragEnd,
+  } = useDragAndDrop(
+    categorizedClasses,
+    addCourseToCategory,
+    removeCourseFromCategories,
+    requirements,
+    mapTypeToCategory
+  );
 
-    // Create a map of classId to requirement types
-    const classToReqType = new Map();
-    
-    allRequirements.forEach(req => {
-      const type = req.type || 'Other';
-      const category = mapTypeToCategory(type, req.name);
-      
-      req.fulfilledByClassIds?.forEach(classId => {
-        if (!classToReqType.has(classId)) {
-          classToReqType.set(classId, category);
-        }
-      });
-    });
+  // Create validation hook with droppableZones
+  const { arePrereqsCompleted } = useCourseValidation(droppableZones);
 
-    // Categorize each class
-    allClasses.forEach(cls => {
-      const category = classToReqType.get(Number(cls.id)) || 'GE';
-      if (categories[category]) {
-        categories[category].push(cls);
-      } else {
-        categories['GE'].push(cls);
-      }
-    });
-
-    setCategorizedClasses(categories);
-  };
-
-  // Map requirement type/name to category
-  const mapTypeToCategory = (type, name) => {
-    const nameLower = name.toLowerCase();
-    const typeLower = type.toLowerCase();
-
-    if (nameLower.includes('preparation') || nameLower.includes('prep')) {
-      return 'Preparation';
-    }
-    if (nameLower.includes('tech') && nameLower.includes('breadth')) {
-      return 'Tech Breadth';
-    }
-    if (typeLower.includes('ge') || nameLower.includes('general education')) {
-      return 'GE';
-    }
-    if (typeLower.includes('lower') || typeLower.includes('upper') || 
-        typeLower.includes('major') || typeLower.includes('required')) {
-      return 'Major';
-    }
-    
-    return 'GE';
-  };
-
-  // initalize droppable zones inside a library
-  const [droppableZones, setDroppableZones] = useState(() => {
-    const zones = {}
-    for (let row = 1; row <= 4; row++) {
-      for (let col = 1; col <= 4; col++) {
-        const zoneId = `zone-${row}-${col}`
-        zones[zoneId] = {
-          id: zoneId,
-          title: `${QUARTERS[col]}`,
-          items: [],
-        }
-      }
-    }
-    return zones
-  })
-
-  const [activeId, setActiveId] = useState(null)
-  const [isChatOpen, setIsChatOpen] = useState(false)
-  const [electricCourseId, setElectricCourseId] = useState(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    // allows users to move the items with their keyboard
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
+  // Create the drag end handler with validation
+  const handleDragEnd = createHandleDragEnd(arePrereqsCompleted);
 
   const handleAIChatClick = () => {
     setIsChatOpen(true);
@@ -166,409 +120,6 @@ export default function DegreePlan() {
   const handleCloseChatPanel = () => {
     setIsChatOpen(false);
   }
-
-  function getCurrentUnits(targetZoneId) {
-    let totalUnits = 0;
-
-    for (const [key, zone] of Object.entries(droppableZones)) {
-      if (key === targetZoneId) {
-        for (const item of zone.items) {
-          totalUnits += item.units
-        }
-      }
-    }
-    return totalUnits;
-  }
-
-  function arePrereqsCompleted(targetZoneId, currentId, currentPrereqs) {
-    let takenClasses = [];
-    let unsatisfiedPrereqs = [];
-
-    // Collect all classes that have been taken BEFORE the target zone
-    outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
-      for (let col = 1; col <= MAX_COLS; col ++) {
-        const zone = `zone-${row}-${col}`;
-        // Break BEFORE adding classes from target zone
-        if (zone === targetZoneId) break outerLoop;
-        
-        const zoneObj = droppableZones[zone];
-        const classesInZone = zoneObj.items.flatMap(item => item.id);
-        takenClasses.push(classesInZone);
-      }
-    }
-
-    // Flatten and remove currentId from taken classes
-    takenClasses = takenClasses.flat().filter(item => item != currentId).filter(Boolean);
-    
-    // Check if all prerequisites are satisfied
-    for (const prereq of currentPrereqs) {
-      // Use loose equality to handle string/number type mismatches
-      if (!takenClasses.find(item => item == prereq)) {
-        unsatisfiedPrereqs.push(prereq);
-      }
-    }
-
-    if (unsatisfiedPrereqs.length > 0) {
-      console.log("Unsatisfied prerequisites:", unsatisfiedPrereqs);
-      return false;
-    }
-
-    // Check if this class is a prerequisite for any class in or after the target zone
-    let foundTarget = false;
-    for (let row = 1; row <= MAX_ROWS; row++) {
-      for (let col = 1; col <= MAX_COLS; col++) {
-        const zone = `zone-${row}-${col}`;
-        
-        // Mark when we've reached the target zone
-        if (zone === targetZoneId) {
-          foundTarget = true;
-        }
-        
-        // Check all zones at or after the target
-        if (foundTarget) {
-          const zoneObj = droppableZones[zone];
-          for (const classItem of zoneObj.items) {
-            // Skip checking the current class against itself
-            if (classItem.id == currentId) continue;
-            
-            // Check if currentId is a prerequisite for this class
-            if (classItem.prereqIds && classItem.prereqIds.some(prereqId => prereqId == currentId)) {
-              console.log(`Cannot move: This class is a prerequisite for ${classItem.code} in ${zone}`);
-              return false;
-            }
-          }
-        }
-      }
-    }
-  
-    return true;
-  }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// Helper functions for moving classes around ////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  function moveFromGridToClassList(sourceZoneId, item, event) {
-    setDroppableZones((zones) => ({
-      ...zones,
-      [sourceZoneId]: {
-        ...zones[sourceZoneId],
-        items: zones[sourceZoneId].items.filter((i) => i.id !== event.active.id),
-      },
-    }))
-    console.log("Item type: ", item.type);
-    console.log("Item name: ", item.name);
-    setClasses((items) => {
-      const newIndex = items.findIndex((item) => item.id === event.over.id)
-      const newItems = [...items]
-      newItems.splice(newIndex, 0, item)
-      return newItems
-    })
-  }
-
-  function reorderClassesList(event) {
-    setClasses((items) => {
-      const oldIndex = items.findIndex((item) => item.id === event.active.id)
-      const newIndex = items.findIndex((item) => item.id === event.over.id)
-      return arrayMove(items, oldIndex, newIndex)
-    })
-  }
-
-  function reorderZone(targetZoneId, event) {
-    setDroppableZones((zones) => {
-      const zone = zones[targetZoneId]
-      const oldIndex = zone.items.findIndex((item) => item.id === event.active.id)
-      const newIndex = zone.items.findIndex((item) => item.id === event.over.id)
-      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-        return {
-          ...zones,
-          [targetZoneId]: {
-            ...zone,
-            items: arrayMove(zone.items, oldIndex, newIndex),
-          },
-        }
-      }
-      return zones
-    })
-  }
-
-  function moveFromZoneToZone(sourceZoneId, targetZoneId, event) {
-    setDroppableZones((zones) => {
-      const sourceZone = zones[sourceZoneId]
-      const targetZone = zones[targetZoneId]
-      const item = sourceZone.items.find((item) => item.id === event.active.id)
-
-      if (item) {
-        return {
-          ...zones,
-          [sourceZoneId]: {
-            ...sourceZone,
-            items: sourceZone.items.filter((i) => i.id !== event.active.id),
-          },
-          [targetZoneId]: {
-            ...targetZone,
-            items: [...targetZone.items, item],
-          },
-        }
-      }
-      return zones
-    })
-  }
-
-  function moveFromClassesListToGrid(targetZoneId, item, event) {
-    setClasses((items) => items.filter((i) => i.id !== event.active.id))
-    setDroppableZones((zones) => ({
-      ...zones,
-      [targetZoneId]: {
-        ...zones[targetZoneId],
-        items: [...zones[targetZoneId].items, item],
-      },
-    }))
-  }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// Define drag and drop handlers /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id)
-  }
-
-  const handleDragOver = (event) => {
-    const { active, over } = event
-  }
-
-  const handleDragEnd = (event) => {
-    const { active, over } = event
-    let currentName = null;
-    let currentId = null;
-    let currentUnits = null;
-    let currentPrereqs = null;
-
-    // if the item is still being dragged don't assign it to a box 
-    if (!over) {
-      setActiveId(null)
-      return
-    }
-
-    // get the id of where the object came from
-    let sourceZoneId = null;
-    for (const [key, zone] of Object.entries(droppableZones)) {
-      const matchedItem = zone.items.find((item) => item.id === active.id);
-      if (matchedItem) {
-        currentName = matchedItem.code;
-        currentId = matchedItem.id;
-        currentUnits = matchedItem.units;
-        currentPrereqs = matchedItem.prereqIds;
-        sourceZoneId = key;
-        break;
-      }
-    }
-
-    // Check if the current item is in any of the categorized lists
-    let isInDraggableList = false;
-    let foundItem = null;
-    
-    for (const [category, courseList] of Object.entries(categorizedClasses)) {
-      const item = courseList.find((course) => course.id === active.id);
-      if (item) {
-        isInDraggableList = true;
-        foundItem = item;
-        currentName = item.code;
-        currentId = item.id;
-        currentUnits = item.units;
-        currentPrereqs = item.prereqIds;
-        break;
-      }
-    } 
-
-    // Check if the current item is over a droppable zone
-    let targetZoneId = Object.keys(droppableZones).find(
-      (key) => droppableZones[key].id === over.id
-    )
-
-    // Check if the current item is over any category zone
-    const isDroppedOnCategoryZone = over.id && over.id.startsWith('category-');
-
-    // find draggable item that current draggable item is hovering over
-    let targetItem = null;
-    for (const courseList of Object.values(categorizedClasses)) {
-      const item = courseList.find((course) => course.id === over.id);
-      if (item) {
-        targetItem = item;
-        break;
-      }
-    }
-
-    // If not dropped directly on a zone, check if dropped on an item inside a zone
-    // This allows dropping into zones even when hovering over items inside them
-    if (!targetZoneId && !isDroppedOnCategoryZone && !targetItem) {
-      // Find which zone contains the item we're hovering over
-      for (const [key, zone] of Object.entries(droppableZones)) {
-        if (zone.items.some((item) => item.id === over.id)) {
-          targetZoneId = key
-          break
-        }
-      }
-    }
-
-    if (targetItem) {
-      if (sourceZoneId) {
-        // Moving from zone back to sidebar (dropped on specific item)
-        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)
-        if (item) {
-          // Remove from zone
-          setDroppableZones((zones) => ({
-            ...zones,
-            [sourceZoneId]: {
-              ...zones[sourceZoneId],
-              items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),
-            },
-          }))
-          
-          // Find correct category and add back
-          setCategorizedClasses(prev => {
-            const updated = { ...prev };
-            
-            // Check if already exists
-            for (const courseList of Object.values(updated)) {
-              if (courseList.some(c => c.id === item.id)) {
-                return updated;
-              }
-            }
-            
-            // Find correct category
-            let correctCategory = 'GE';
-            for (const req of requirements) {
-              if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
-                correctCategory = mapTypeToCategory(req.type, req.name);
-                break;
-              }
-            }
-            
-            // Add to correct category
-            if (updated[correctCategory]) {
-              updated[correctCategory] = [...updated[correctCategory], item];
-            } else {
-              updated['GE'] = [...updated['GE'], item];
-            }
-            
-            return updated;
-          });
-        }
-      } else if (isInDraggableList) {
-        // Reordering within category lists - do nothing, they're separate zones
-      }
-    } else if (isDroppedOnCategoryZone && sourceZoneId) {
-      // Moving from zone back to category sidebar
-      const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id)  
-      if (item) {
-        // Remove from zone
-        setDroppableZones((zones) => ({
-          ...zones,  
-          [sourceZoneId]: { 
-            ...zones[sourceZoneId],  
-            items: zones[sourceZoneId].items.filter((i) => i.id !== active.id),  
-          },  
-        }))
-        
-        // Find the correct category for this class
-        setCategorizedClasses(prev => {
-          const updated = { ...prev };
-          
-          // Check if already in a category
-          for (const [category, courseList] of Object.entries(updated)) {
-            if (courseList.some(c => c.id === item.id)) {
-              return updated; // Already in correct category
-            }
-          }
-          
-          // Find correct category based on requirements
-          let correctCategory = 'GE'; // default
-          for (const req of requirements) {
-            if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
-              correctCategory = mapTypeToCategory(req.type, req.name);
-              break;
-            }
-          }
-          
-          // Add to correct category
-          if (updated[correctCategory]) {
-            updated[correctCategory] = [...updated[correctCategory], item];
-          } else {
-            updated['GE'] = [...updated['GE'], item];
-          }
-          
-          return updated;
-        });
-      }
-    }  else if (targetZoneId) {
-      // Dropped on a zone (either directly or via hovering over an item in the zone)
-      // Check if we're trying to reorder within the same zone by hovering over another item
-
-      const targetZone = droppableZones[targetZoneId]
-      const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id)
-
-      // NEED TO CHANGE PREREQ HANDLING: A CLASS CANNOT HAVE ITSELF AS A PREREQ
-      currentPrereqs = currentPrereqs.filter(prereq => prereq != currentId);
-
-      const totalUnits = getCurrentUnits(targetZoneId) + currentUnits;
-      const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);
-
-      if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
-        // Reordering within the same zone by hovering over another item
-        reorderZone(targetZoneId, event);
-      } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
-        // Moving from one zone to another
-        // Check if target zone has space
-        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
-          moveFromZoneToZone(sourceZoneId, targetZoneId, event);
-          // Show electric border effect on the dropped course
-          setElectricCourseId(currentId);
-          setTimeout(() => setElectricCourseId(null), 1000);
-        }
-      } else if (isInDraggableList && foundItem) {
-        // Moving from category list to zone (either dropped on zone or item in zone)
-        // Check if target zone has space and prereqs are met
-        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
-          // Remove from category list
-          setCategorizedClasses(prev => {
-            const updated = { ...prev };
-            for (const [category, courseList] of Object.entries(updated)) {
-              updated[category] = courseList.filter(c => c.id !== foundItem.id);
-            }
-            return updated;
-          });
-          
-          // Add to zone
-          setDroppableZones((zones) => ({
-            ...zones,
-            [targetZoneId]: {
-              ...zones[targetZoneId],
-              items: [...zones[targetZoneId].items, foundItem],
-            },
-          }));
-          
-          // Show electric border effect on the dropped course
-          setElectricCourseId(currentId);
-          setTimeout(() => setElectricCourseId(null), 1000);
-        }
-      }
-    }
-
-    setActiveId(null)
-  }
-
-  // Find active item from either category lists or zones
-  const activeItem = activeId
-    ? Object.values(categorizedClasses)
-        .flat()
-        .find((item) => item.id === activeId) ||
-      Object.values(droppableZones)
-        .flatMap((zone) => zone.items)
-        .find((item) => item.id === activeId)
-    : null
 
   return (
     <DndContext
@@ -597,7 +148,7 @@ export default function DegreePlan() {
                   {[1, 2, 3, 4].map((quarter) => {
                     const zoneId = `zone-${year}-${quarter}`;
                     const zone = droppableZones[zoneId];
-                    const units = getCurrentUnits(zoneId);
+                    const units = getCurrentUnits(zoneId, droppableZones);
                     return (
                       <Droppable
                         key={zoneId}
@@ -661,5 +212,3 @@ export default function DegreePlan() {
     </DndContext>
   )
 }
-
-
