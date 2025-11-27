@@ -12,7 +12,6 @@ export function ProgressBar({ requirements, droppableZones }) {
 
   useEffect(() => {
     calculateProgress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requirements, zonesKey]);
 
   const calculateProgress = () => {

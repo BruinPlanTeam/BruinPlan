@@ -30,7 +30,7 @@ export function Draggable({ id, item, showElectric }) {
     >
       <div className="course-header">
         <span className="course-code">{item.code}</span>
-        <span className="course-units">{item.units}u</span>
+        <span className="course-units">{item.units}</span>
       </div>
       {item.description && (
         <div className="course-description">{item.description}</div>

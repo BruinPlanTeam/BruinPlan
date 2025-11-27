@@ -25,6 +25,7 @@ import { useCourseValidation } from '../hooks/useCourseValidation'
 import { useCategorizedCourses } from '../hooks/useCategorizedCourses'
 import { useDragAndDrop } from '../hooks/useDragAndDrop'
 import { getCurrentUnits } from '../utils/courseUtils'
+import { getJson } from "../utils/getGridData"
 
 import '../Major.jsx'
 import '../DegreePlan.css'
@@ -93,6 +94,7 @@ export default function DegreePlan() {
   // Initialize drag and drop
   const {
     droppableZones,
+    setDroppableZones,
     activeId,
     activeItem,
     electricCourseId,
@@ -115,6 +117,7 @@ export default function DegreePlan() {
 
   const handleAIChatClick = () => {
     setIsChatOpen(true);
+    getJson(droppableZones);
   }
 
   const handleCloseChatPanel = () => {
@@ -198,7 +201,7 @@ export default function DegreePlan() {
           {activeId ? (
             <div className="draggable-item dragging">
               <span className="course-code">{activeItem?.code}</span>
-              <span className="course-units">{activeItem?.units}u</span>
+              <span className="course-units">{activeItem?.units}</span>
             </div>
           ) : null}
         </DragOverlay>
