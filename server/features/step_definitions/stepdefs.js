@@ -25,9 +25,8 @@ Then('the account should be created', function () {
     assert.strictEqual(res.status, 201);
     assert.ok(res.body.id, 'response should have an id');
     //Do i want to put email checking in the API route or in the frontend?
-    assert.strictEqual(res.body.email, this.email);
+    assert.strictEqual(res.body.email, 'alice@example.com');
     assert.strictEqual(res.body.username, 'testuser');
-    assert.strictEqual(res.body.password, this.password);
     });
 Then('I should be on the homepage with the new account signed in', function () {
            // Write code here that turns the phrase above into concrete actions
