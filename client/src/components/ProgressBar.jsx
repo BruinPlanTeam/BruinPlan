@@ -30,7 +30,7 @@ export function ProgressBar({ requirements, droppableZones }) {
 
     requirements.forEach(req => {
       const type = req.type || 'Other';
-      
+
       if (!typeGroups[type]) {
         typeGroups[type] = {
           type,
@@ -57,12 +57,13 @@ export function ProgressBar({ requirements, droppableZones }) {
         isComplete
       });
 
-      typeGroups[type].completed += isComplete ? 1 : 0;
-      typeGroups[type].total += 1;
+      typeGroups[type].completed += completed;
+      typeGroups[type].total += coursesToChoose;
 
-      totalRequired += 1;
-      totalCompleted += isComplete ? 1 : 0;
+      totalRequired += coursesToChoose;
+      totalCompleted += completed;
     });
+
 
     setProgressByType(typeGroups);
     setOverallProgress(totalRequired > 0 ? (totalCompleted / totalRequired) * 100 : 0);
@@ -70,12 +71,8 @@ export function ProgressBar({ requirements, droppableZones }) {
 
   const getTypeColor = (type) => {
     const colors = {
-      'Lower Division': '#4fc3f7',
-      'Upper Division': '#9c27b0',
-      'Elective': '#66bb6a',
-      'Required': '#ffa726',
-      'Honors': '#f06292',
-      'Capstone': '#ab47bc',
+      'Prep': '#4fc3f7',
+      'Major': '#9c27b0',
       'GE': '#7986cb'
     };
     return colors[type] || '#64ffda';

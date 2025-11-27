@@ -234,8 +234,9 @@
 /* Sidebar */
 .sidebar-container {
   flex: 0 0 320px;
-  min-width: 220px; /* Prevent sidebar from getting too narrow */
+  min-width: 220px; 
   display: flex;
+  flex-direction: column;
   flex-direction: column;
   max-height: calc(100vh - 200px);
   position: sticky;
