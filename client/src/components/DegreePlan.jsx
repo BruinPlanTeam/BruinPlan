@@ -19,6 +19,7 @@ import { ProgressBar } from './ProgressBar'
 import { AIChatButton } from './AIChatButton'
 import { AIChatPanel } from './AIChatPanel'
 import { useMajor } from '../Major.jsx'
+import { Grid } from './Grid'
 
 // Custom hooks
 import { useCourseValidation } from '../hooks/useCourseValidation'
@@ -143,31 +144,7 @@ export default function DegreePlan() {
           
           <div className="content-wrapper">
           {/* 4-Year Plan Grid */}
-          <div className="plan-grid">
-            {[1, 2, 3, 4].map((year) => (
-              <div key={year} className="year-row">
-                <div className="year-label">Year {year}</div>
-                <div className="quarters-row">
-                  {[1, 2, 3, 4].map((quarter) => {
-                    const zoneId = `zone-${year}-${quarter}`;
-                    const zone = droppableZones[zoneId];
-                    const units = getCurrentUnits(zoneId, droppableZones);
-                    return (
-                      <Droppable
-                        key={zoneId}
-                        id={zoneId}
-                        title={zone.title}
-                        items={zone.items}
-                        units={units}
-                        maxUnits={MAX_UNITS}
-                        electricCourseId={electricCourseId}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <Grid droppableZones={droppableZones} electricCourseId={electricCourseId} />
 
           {/* Available Courses Sidebar */}
           <div className="sidebar-container">
