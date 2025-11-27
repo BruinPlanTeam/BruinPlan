@@ -31,15 +31,6 @@ import { getJson } from "../utils/getGridData"
 import '../Major.jsx'
 import '../DegreePlan.css'
 
-const MAX_UNITS = 21;
-
-const QUARTERS = {
-  1 : 'Fall',
-  2 : 'Winter',
-  3 : 'Spring',
-  4 : 'Summer'
-}
-
 export default function DegreePlan() {
   const { major } = useMajor();
 

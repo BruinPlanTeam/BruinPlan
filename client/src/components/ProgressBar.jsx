@@ -4,6 +4,7 @@ import './ProgressBar.css';
 export function ProgressBar({ requirements, droppableZones }) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
+  const [expandedGroups, setExpandedGroups] = useState({});
 
   // Create a dependency that changes whenever droppableZones content changes
   const zonesKey = JSON.stringify(
@@ -63,6 +64,7 @@ export function ProgressBar({ requirements, droppableZones }) {
       totalCompleted += completed;
     });
 
+    console.log("typeGroups: ", typeGroups) 
 
     setProgressByType(typeGroups);
     setOverallProgress(totalRequired > 0 ? (totalCompleted / totalRequired) * 100 : 0);
@@ -75,6 +77,13 @@ export function ProgressBar({ requirements, droppableZones }) {
       'GE': '#7986cb'
     };
     return colors[type] || '#64ffda';
+  };
+
+  const toggleGroup = (type) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
   };
 
 
@@ -101,11 +110,18 @@ export function ProgressBar({ requirements, droppableZones }) {
       <div className="progress-groups">
         {Object.values(progressByType).map(group => {
           const percentage = group.total > 0 ? (group.completed / group.total) * 100 : 0;
+          const isExpanded = expandedGroups[group.type];
           
           return (
             <div key={group.type} className="progress-group">
-              <div className="group-header">
+              <div 
+                className="group-header clickable"
+                onClick={() => toggleGroup(group.type)}
+              >
                 <div className="group-title">
+                  <span className={`dropdown-arrow ${isExpanded ? 'expanded' : ''}`}>
+                    ▼
+                  </span>
                   <span className="group-name">{group.type}</span>
                   <span className="group-stats">
                     {group.completed}/{group.total}
@@ -121,6 +137,37 @@ export function ProgressBar({ requirements, droppableZones }) {
                   />
                 </div>
               </div>
+
+              {/* Individual Requirements Dropdown */}
+              {isExpanded && (
+                <div className="requirements-dropdown">
+                  {group.requirements.map((req, index) => {
+                    const reqPercentage = req.total > 0 ? (req.completed / req.total) * 100 : 0;
+                    return (
+                      <div key={index} className="requirement-item">
+                        <div className="requirement-header">
+                          <span className={`requirement-status ${req.isComplete ? 'complete' : 'incomplete'}`}>
+                            {req.isComplete ? '✓' : '○'}
+                          </span>
+                          <span className="requirement-name">{req.name}</span>
+                          <span className="requirement-stats">
+                            {req.completed}/{req.total}
+                          </span>
+                        </div>
+                        <div className="requirement-progress-track">
+                          <div 
+                            className="requirement-progress-fill"
+                            style={{ 
+                              width: `${reqPercentage}%`,
+                              backgroundColor: getTypeColor(group.type)
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
