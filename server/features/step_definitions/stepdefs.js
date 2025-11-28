@@ -4,14 +4,23 @@ const app = require('../../app');
 const request = require('supertest')
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
+
+async function teardown(){
+    try{
+    await prisma.user.deleteMany({
+    where: { email: 'alice@example.com' },
+        });
+    }
+    finally {
+        await prisma.$disconnect();
+    }
+}
 
 //Scenario: you should be able to create a new user
 
 Given('there is no user yet with an email alice@example.com', async function () {
-     await prisma.user.deleteMany({
-    where: { email: 'alice@example.com' },
-        });
+    teardown();
     });
 When('I try to create a new user that has the email alice@example.com', async function () {      
     const newUser = {
@@ -101,7 +110,7 @@ Then('I should be on the homepage with the new account signed in', function () {
 
 //Scenario: You should be not able to log in to a nonexistent user account
 Given('there is no user with an email alice@example.com', function () {
-           //Do nothing here, leave it empty
+        teardown()
          });
 When('I try to log in with the email alice@example.com', async function () {
         this.response = await request(app)
