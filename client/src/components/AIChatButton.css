@@ -1,0 +1,93 @@
+.ai-chat-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #64ffda 0%, #4dd4ac 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, width 0.15s ease;
+  z-index: 1000;
+  overflow: visible;
+}
+
+.ai-chat-button:hover {
+  transform: translateY(-3px);
+  width: auto;
+  border-radius: 30px;
+  padding: 0 1.5rem;
+}
+
+.ai-chat-button:active {
+  transform: translateY(-1px);
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.ai-icon {
+  color: #0a192f;
+  flex-shrink: 0;
+}
+
+.button-label {
+  color: #0a192f;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Pulse ring animation - simplified */
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #64ffda;
+  animation: pulse 2s ease-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+.ai-chat-button:hover .pulse-ring {
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ai-chat-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+  }
+
+  .pulse-ring {
+    width: 56px;
+    height: 56px;
+  }
+}

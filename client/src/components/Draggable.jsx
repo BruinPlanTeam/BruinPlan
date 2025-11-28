@@ -27,7 +27,13 @@ export function Draggable({ id, item }) {
       {...listeners}
       className="draggable-item"
     >
-      {item.code}
+      <div className="course-header">
+        <span className="course-code">{item.code}</span>
+        <span className="course-units">{item.units}u</span>
+      </div>
+      {item.description && (
+        <div className="course-description">{item.description}</div>
+      )}
     </div>
   )
 }

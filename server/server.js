@@ -81,7 +81,7 @@ app.get('/majors/:majorName', async (req, res) => {
                   include: {
                     prereqs: {
                       select: { 
-                        prereqId: true 
+                        requiredForId: true 
                       }
                     }
                     }
@@ -120,7 +120,7 @@ app.get('/majors/:majorName', async (req, res) => {
             majorRequirementsMap.get(req.id).fulfilledByClassIds.push(classData.id);
 
             if (!uniqueClassesMap.has(classData.id)) {
-                const prereqIds = classData.prereqs.map(p => p.prereqId);
+                const prereqIds = classData.prereqs.map(p => p.requiredForId);
                 
                 uniqueClassesMap.set(classData.id, {
                     id: String(classData.id),

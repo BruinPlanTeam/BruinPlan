@@ -59,7 +59,32 @@ model Requirement {
 
   majorRequirements MajorRequirement[]
   requirementClasses RequirementClasses[]
+  requirementsInGroup RequirementsInGroup[]
 }
+
+model RequirementGroup {
+  id Int @id @default(autoincrement())
+
+  name String
+  highNumberInReq Int
+  lowNumberInReq Int
+  numberOfHighReqs Int
+  numberOfLowReqs Int
+  total Int
+
+  requirementsInGroup RequirementsInGroup[]
+}
+
+model RequirementsInGroup {
+  reqId Int
+  requirement   Requirement @relation(fields: [reqId], references: [id])
+
+  reqGroupId   Int
+  reqGroup     RequirementGroup   @relation(fields: [reqGroupId], references: [id])
+
+  @@id([reqId, reqGroupId]) //pk
+}
+
 
 model Class {
   id              Int      @id @default(autoincrement())
