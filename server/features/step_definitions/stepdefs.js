@@ -72,12 +72,13 @@ When('I try to create a new user that has the same email alice@example.com', asy
 Then('the account should not be created', function () {
   const res = this.response;
 
-  assert.notStrictEqual(res.status, 201, 'duplicate user should not be created');
+  assert.strictEqual(res.status, 409, 'duplicate user should not be created');
 
   //There should be no new user id in the response body
   assert.ok(!res.body.id, 'response should not contain an id for a newly created user');
     });
 Then('I should see an error message showing that the email is already in use', function () {
+    const res = this.response;
     assert.strictEqual(res.status, 409);
     });
 Then('I should remain on the sign-up page', function () {
