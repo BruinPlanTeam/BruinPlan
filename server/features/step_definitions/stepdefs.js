@@ -2,11 +2,16 @@ const assert = require('assert');
 const { Given, When, Then } = require('@cucumber/cucumber');
 const app = require('../../app');
 const request = require('supertest')
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient()
 
 //Scenario: you should be able to create a new user
 
 Given('there is no user yet with an email alice@example.com', async function () {
-    //don't do any requests, leave it empty
+     await prisma.user.deleteMany({
+    where: { email: 'alice@example.com' },
+        });
     });
 When('I try to create a new user that has the email alice@example.com', async function () {      
     const newUser = {
