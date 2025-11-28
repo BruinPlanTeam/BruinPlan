@@ -78,8 +78,8 @@ Then('the account should not be created', function () {
   assert.ok(!res.body.id, 'response should not contain an id for a newly created user');
     });
 Then('I should see an error message showing that the email is already in use', function () {
-    const res = this.response;
-    assert.strictEqual(res.status, 409);
+        //This is something you want to test by simulating the browser, so don't assert an HTTPS error message (that's done above)
+        return 'pending';
     });
 Then('I should remain on the sign-up page', function () {
            return 'pending';

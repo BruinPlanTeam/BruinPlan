@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express');
 const dotenv = require('dotenv');
 const mysql = require('mysql2');
@@ -199,6 +200,9 @@ app.get('/majors/:majorName', async (req, res) => {
   }
 });
 // --- END MODIFIED ENDPOINT ---
+=======
+const app = require('./app');
+>>>>>>> 932c48b (refactored second Then, should be browser simulated)
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
