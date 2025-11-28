@@ -24,7 +24,6 @@ Then('the account should be created', function () {
 
     assert.strictEqual(res.status, 201);
     assert.ok(res.body.id, 'response should have an id');
-    //Do i want to put email checking in the API route or in the frontend?
     assert.strictEqual(res.body.email, 'alice@example.com');
     assert.strictEqual(res.body.username, 'testuser');
     });
