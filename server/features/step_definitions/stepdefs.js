@@ -94,16 +94,23 @@ Given('there is a user with an email alice@example.com', async function () {
         password: 'password123',
     };
 
-    this.response = await request(app)
+    await request(app)
         .post('/users')
         .send(newUser);
     });
 When('I try to log in with the email alice@example.com', async function () {
-            this.response = await request(app)
-            .get('/users')
-         });
+    const loginAttempt = {
+        "email": "alice@example.com",
+        "password": "password123"
+    };
+
+        this.response = await request(app)
+        .post('/users/login')
+        .send(loginAttempt)
+    });
 Then('I should be logged in', function () {
-           assert.strictEqual()
+        const res = this.response;
+        assert.strictEqual(res.status, 200, 'should successfully log in')
          });
 Then('I should be on the homepage with the new account signed in', function () {
            //Figure out how to test browser
