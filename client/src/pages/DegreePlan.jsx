@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
-import { useMajor } from '../providers/Major.jsx';
-import { useCategorizedCourses } from '../hooks/useCategorizedCourses.js';
-import { useCourseValidation } from '../hooks/useCourseValidation.js';
-import { useDragAndDrop } from '../hooks/useDragAndDrop.js';
-
 import PlanGrid from '../components/PlanGrid.jsx';
 import CourseSidebar from '../components/CourseSidebar.jsx';
 
@@ -62,7 +57,7 @@ export default function DegreePlan() {
 
   const getPlans = () => {
     const tempSavedPlan = {
-      "zone-1-1": { id: "zone-1-1", title: "Fall", items: [{id: 14, code: "MATH 31A", units: 4, description: "ayo???", prereqIds: []}] },
+      "zone-1-1": { id: "zone-1-1", title: "Fall", items: [{id: 4, code: "MATH 31A", units: 4, description: "ayo???", prereqIds: []}] },
       "zone-1-2": { id: "zone-1-2", title: "Fall", items: [] },
       "zone-1-3": { id: "zone-1-3", title: "Fall", items: [] },
       "zone-1-4": { id: "zone-1-4", title: "Fall", items: [] },

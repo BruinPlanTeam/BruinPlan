@@ -34,6 +34,22 @@ export function usePlanManager() {
 
     const loadPlan = (droppableZonesData) => {
         setDroppableZones(droppableZonesData);
+        
+        const idsToRemove = [];
+    
+        for (let row = 1; row <= 4; row++) {
+            for (let col = 1; col <= 4; col++) {
+              const zoneId = `zone-${row}-${col}`;
+              
+              if (droppableZonesData[zoneId]) {
+                  for (const item of droppableZonesData[zoneId].items) {
+                    idsToRemove.push(String(item.id));
+                  }
+              }
+            }
+        }
+    
+        idsToRemove.forEach(id => removeCourseFromCategories(id));
     }
 
     return {

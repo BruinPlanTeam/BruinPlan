@@ -115,6 +115,7 @@ export function useCategorizedCourses(major) {
    * @param {string} courseId - The ID of the course to remove
    */
   const removeCourseFromCategories = useCallback((courseId) => {
+    console.log("got here with: ", courseId);
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       for (const [category, courseList] of Object.entries(updated)) {
