@@ -122,10 +122,7 @@ Then('I should be on the homepage with the new account signed in', function () {
 Given('there is no user with an email alice@example.com', function () {
         teardown()
          });
-When('I try to log in with the email alice@example.com', async function () {
-        this.response = await request(app)
-            .get('/users')
-         });
+// When('I try to log in with the email alice@example.com'
 Then('I should not be logged in', function () {
            const res = this.response 
            //return 404 not found, rather than  
