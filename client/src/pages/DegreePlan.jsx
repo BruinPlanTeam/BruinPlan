@@ -9,6 +9,7 @@ import PlanGrid from '../components/PlanGrid.jsx';
 import CourseSidebar from '../components/CourseSidebar.jsx';
 
 import { ProgressBar } from '../components/ProgressBar.jsx';
+import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
 import {
@@ -38,6 +39,7 @@ export default function DegreePlan() {
 
   const {
     droppableZones,
+    setDroppableZones,
     activeId,
     activeItem,
     electricCourseId,
@@ -69,6 +71,34 @@ export default function DegreePlan() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  const handleLoadScreen = (droppableZonesData) => {
+    console.log("hello from degree planner")
+
+    setDroppableZones(droppableZonesData);
+  }
+
+  const getPlans = () => {
+    const tempSavedPlan = {
+      "zone-1-1": { id: "zone-1-1", title: "Fall", items: [{id: 14, code: "MATH 31A", units: 4}] },
+      "zone-1-2": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-1-3": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-1-4": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-2-1": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-2-2": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-2-3": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-2-4": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-3-1": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-3-2": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-3-3": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-3-4": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-4-1": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-4-2": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-4-3": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-4-4": { id: "zone-1-1", title: "Fall", items: [] },
+    };
+    handleLoadScreen(tempSavedPlan);
+  }
+
 
   return (
     <DndContext
@@ -85,6 +115,7 @@ export default function DegreePlan() {
           </div>
 
           <ProgressBar requirements={requirements} droppableZones={droppableZones} />
+          <SavedPlansButton handleLoadScreen={handleLoadScreen} getPlans={getPlans}/>
           
           <div className="content-wrapper">
             

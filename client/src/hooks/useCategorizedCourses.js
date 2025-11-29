@@ -21,7 +21,6 @@ export function useCategorizedCourses(major) {
 
   const [requirements, setRequirements] = useState([]);
 
-
   useEffect(() =>  {
     async function fetchData(){
       try{

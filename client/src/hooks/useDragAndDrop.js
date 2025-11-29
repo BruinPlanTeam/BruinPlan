@@ -15,10 +15,10 @@ const QUARTERS = {
  * Note: Pass validation function separately to avoid circular dependencies
  */
 export function useDragAndDrop(
-  categorizedClasses,
-  addCourseToCategory,
-  removeCourseFromCategories,
-  requirements,
+    categorizedClasses,
+    addCourseToCategory,
+    removeCourseFromCategories,
+    requirements,
 ) {
   // Initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -294,6 +294,7 @@ export function useDragAndDrop(
 
   return {
     droppableZones,
+    setDroppableZones,
     activeId,
     activeItem,
     electricCourseId,
