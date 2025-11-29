@@ -1,17 +1,20 @@
+import { useState, useEffect, useRef } from 'react'; // Import these
 import { useMajor } from "../providers/Major";
 import { useCategorizedCourses } from "./useCategorizedCourses";
 import { useDragAndDrop } from "./useDragAndDrop";
 import { useCourseValidation } from "./useCourseValidation";
 
-
 export function usePlanManager() {
-    const { major } = useMajor();
+    const { major, setMajor } = useMajor(); 
+
+    const isLoadingPlan = useRef(false);
 
     const { 
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories,
-        requirements 
+        requirements,
+        fetchData 
     } = useCategorizedCourses(major);
 
     const {
@@ -32,25 +35,40 @@ export function usePlanManager() {
 
     const { arePrereqsCompleted } = useCourseValidation(droppableZones);
 
-    const loadPlan = (droppableZonesData) => {
+    const loadPlan = (droppableZonesData, newMajor) => {
+        // TODO: Im not sure how the data is stored, will change how I handle populating the side bar
+        isLoadingPlan.current = true;
+
+        if (newMajor && newMajor !== major) {
+            setMajor(newMajor); 
+        }
+
         setDroppableZones(droppableZonesData);
+    }
+
+    useEffect(() => {
+        if (isLoadingPlan.current) { 
+            if (categorizedClasses) {     
+                const idsToRemove = [];
         
-        const idsToRemove = [];
-    
-        for (let row = 1; row <= 4; row++) {
-            for (let col = 1; col <= 4; col++) {
-              const zoneId = `zone-${row}-${col}`;
-              
-              if (droppableZonesData[zoneId]) {
-                  for (const item of droppableZonesData[zoneId].items) {
-                    idsToRemove.push(String(item.id));
-                  }
-              }
+                for (let row = 1; row <= 4; row++) {
+                    for (let col = 1; col <= 4; col++) {
+                        const zoneId = `zone-${row}-${col}`;
+                        const zone = droppableZones[zoneId];
+                        
+                        if (zone && zone.items) {
+                            for (const item of zone.items) {
+                                idsToRemove.push(String(item.id));
+                            }
+                        }
+                    }
+                }
+            
+                idsToRemove.forEach(id => removeCourseFromCategories(id));   
+                isLoadingPlan.current = false;
             }
         }
-    
-        idsToRemove.forEach(id => removeCourseFromCategories(id));
-    }
+    }, [droppableZones, categorizedClasses, major]); 
 
     return {
         major,

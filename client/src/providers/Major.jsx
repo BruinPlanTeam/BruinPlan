@@ -20,7 +20,7 @@ export function MajorProvider({ children }) {
         console.log("major: ", selectedMajor)
     };
 
-    const value = { major, handleMajorSelect };
+    const value = { major, setMajor, handleMajorSelect };
 
     return (
         <MajorContext.Provider value={value}>
