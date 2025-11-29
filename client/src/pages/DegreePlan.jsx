@@ -23,21 +23,17 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import '../styles/DegreePlan.css';
+import { usePlanManager } from '../hooks/planManager.js';
 
 
 export default function DegreePlan() {
-  
-  const { major } = useMajor();
   const [isChatOpen, setIsChatOpen] = useState(false);
-  
-  const { 
-    categorizedClasses, 
-    addCourseToCategory, 
-    removeCourseFromCategories,
-    requirements 
-  } = useCategorizedCourses(major);
 
   const {
+    major,
+    loadPlan,
+    categorizedClasses, 
+    requirements,
     droppableZones,
     setDroppableZones,
     activeId,
@@ -46,15 +42,8 @@ export default function DegreePlan() {
     handleDragStart,
     handleDragOver,
     createHandleDragEnd,
-  } = useDragAndDrop(
-    categorizedClasses, 
-    addCourseToCategory, 
-    removeCourseFromCategories, 
-    requirements 
-  );
-  
-  const { arePrereqsCompleted } = useCourseValidation(droppableZones);
-
+    arePrereqsCompleted
+  } = usePlanManager();
 
   useEffect(() =>  {
     function handleOnBeforeUnload(event){ event.preventDefault(); }
@@ -71,32 +60,26 @@ export default function DegreePlan() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const handleLoadScreen = (droppableZonesData) => {
-    console.log("hello from degree planner")
-
-    setDroppableZones(droppableZonesData);
-  }
-
   const getPlans = () => {
     const tempSavedPlan = {
-      "zone-1-1": { id: "zone-1-1", title: "Fall", items: [{id: 14, code: "MATH 31A", units: 4}] },
-      "zone-1-2": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-1-3": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-1-4": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-2-1": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-2-2": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-2-3": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-2-4": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-3-1": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-3-2": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-3-3": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-3-4": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-4-1": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-4-2": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-4-3": { id: "zone-1-1", title: "Fall", items: [] },
-      "zone-4-4": { id: "zone-1-1", title: "Fall", items: [] },
+      "zone-1-1": { id: "zone-1-1", title: "Fall", items: [{id: 14, code: "MATH 31A", units: 4, description: "ayo???", prereqIds: []}] },
+      "zone-1-2": { id: "zone-1-2", title: "Fall", items: [] },
+      "zone-1-3": { id: "zone-1-3", title: "Fall", items: [] },
+      "zone-1-4": { id: "zone-1-4", title: "Fall", items: [] },
+      "zone-2-1": { id: "zone-2-1", title: "Fall", items: [] },
+      "zone-2-2": { id: "zone-2-2", title: "Fall", items: [] },
+      "zone-2-3": { id: "zone-2-3", title: "Fall", items: [] },
+      "zone-2-4": { id: "zone-2-4", title: "Fall", items: [] },
+      "zone-3-1": { id: "zone-3-1", title: "Fall", items: [] },
+      "zone-3-2": { id: "zone-3-2", title: "Fall", items: [] },
+      "zone-3-3": { id: "zone-3-3", title: "Fall", items: [] },
+      "zone-3-4": { id: "zone-3-4", title: "Fall", items: [] },
+      "zone-4-1": { id: "zone-4-1", title: "Fall", items: [] },
+      "zone-4-2": { id: "zone-4-2", title: "Fall", items: [] },
+      "zone-4-3": { id: "zone-4-3", title: "Fall", items: [] },
+      "zone-4-4": { id: "zone-4-4", title: "Fall", items: [] },
     };
-    handleLoadScreen(tempSavedPlan);
+    loadPlan(tempSavedPlan);
   }
 
 
@@ -115,7 +98,7 @@ export default function DegreePlan() {
           </div>
 
           <ProgressBar requirements={requirements} droppableZones={droppableZones} />
-          <SavedPlansButton handleLoadScreen={handleLoadScreen} getPlans={getPlans}/>
+          <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
           
           <div className="content-wrapper">
             

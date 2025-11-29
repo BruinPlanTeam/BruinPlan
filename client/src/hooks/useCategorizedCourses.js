@@ -71,8 +71,6 @@ export function useCategorizedCourses(major) {
       }
     });
 
-    console.log("FINAL CATEGORIES:", categories); 
-    console.log("TOTAL CLASSES:", Object.values(categories).flat().length);
     setCategorizedClasses(categories);
   }, []);
 
