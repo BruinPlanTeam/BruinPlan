@@ -19,7 +19,6 @@ export function useDragAndDrop(
   addCourseToCategory,
   removeCourseFromCategories,
   requirements,
-  mapTypeToCategory
 ) {
   // Initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -45,7 +44,10 @@ export function useDragAndDrop(
    */
   const triggerElectricEffect = useCallback((courseId) => {
     setElectricCourseId(courseId);
-    setTimeout(() => setElectricCourseId(null), 1000);
+    setTimeout(() => {
+      setElectricCourseId(null);
+      console.log(`[ELECTRIC EFFECT] Resetting ID.`);
+    }, 1000);
   }, []);
 
   /**
@@ -288,7 +290,6 @@ export function useDragAndDrop(
 
   return {
     droppableZones,
-    setDroppableZones,
     activeId,
     activeItem,
     electricCourseId,

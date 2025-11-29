@@ -5,6 +5,7 @@
  * @returns {number} Total units in the zone
  */
 export function getCurrentUnits(targetZoneId, droppableZones) {
+  if (!droppableZones) return 0;
   let totalUnits = 0;
 
   for (const [key, zone] of Object.entries(droppableZones)) {

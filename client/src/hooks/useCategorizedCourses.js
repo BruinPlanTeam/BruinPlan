@@ -1,43 +1,40 @@
-import { useState, useCallback } from 'react';
-
+import { useState, useEffect, useCallback } from 'react';
+import { getMajorData } from '../services/majorDetailService.js';
 /**
  * Map requirement type/name to a display category
  * @param {string} type - The requirement type
  * @param {string} name - The requirement name
  * @returns {string} The category name
  */
-function mapTypeToCategory(type, name) {
-  const nameLower = name.toLowerCase();
-  const typeLower = type.toLowerCase();
-
-  if (nameLower.includes('preparation') || nameLower.includes('prep')) {
-    return 'Preparation';
-  }
-  if (nameLower.includes('tech') && nameLower.includes('breadth')) {
-    return 'Tech Breadth';
-  }
-  if (typeLower.includes('ge') || nameLower.includes('general education')) {
-    return 'GE';
-  }
-  if (typeLower.includes('lower') || typeLower.includes('upper') || 
-      typeLower.includes('major') || typeLower.includes('required')) {
-    return 'Major';
-  }
-  
-  return 'GE';
-}
 
 /**
  * Custom hook for managing categorized courses
  */
-export function useCategorizedCourses() {
+export function useCategorizedCourses(major) {
   const [categorizedClasses, setCategorizedClasses] = useState({
-    'Preparation': [],
+    'Prep': [],
     'Major': [],
     'Tech Breadth': [],
     'Sci-Tech': [],
     'GE': []
   });
+
+  const [requirements, setRequirements] = useState([]);
+
+
+  useEffect(() =>  {
+    async function fetchData(){
+      try{
+        const data = await getMajorData(major);
+        setRequirements(data.majorRequirements);
+        categorizeClasses(data.availableClasses, data.majorRequirements);
+      } catch(e){
+        console.error("Error retrieving majors: ", {major}, e);
+      }
+    }
+    if (!major) return;
+      fetchData();
+  }, []);
 
   /**
    * Categorize classes based on requirements
@@ -46,7 +43,7 @@ export function useCategorizedCourses() {
    */
   const categorizeClasses = useCallback((allClasses, allRequirements) => {
     const categories = {
-      'Preparation': [],
+      'Prep': [],
       'Major': [],
       'Tech Breadth': [],
       'GE': []
@@ -56,9 +53,8 @@ export function useCategorizedCourses() {
     const classToReqType = new Map();
     
     allRequirements.forEach(req => {
-      const type = req.type || 'Other';
-      const category = mapTypeToCategory(type, req.name);
-      
+      const category = req.type;
+
       req.fulfilledByClassIds?.forEach(classId => {
         if (!classToReqType.has(classId)) {
           classToReqType.set(classId, category);
@@ -76,6 +72,8 @@ export function useCategorizedCourses() {
       }
     });
 
+    console.log("FINAL CATEGORIES:", categories); 
+    console.log("TOTAL CLASSES:", Object.values(categories).flat().length);
     setCategorizedClasses(categories);
   }, []);
 
@@ -99,7 +97,7 @@ export function useCategorizedCourses() {
       let correctCategory = 'GE';
       for (const req of requirements) {
         if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
-          correctCategory = mapTypeToCategory(req.type, req.name);
+          correctCategory = req.type;
           break;
         }
       }
@@ -131,11 +129,9 @@ export function useCategorizedCourses() {
 
   return {
     categorizedClasses,
-    setCategorizedClasses,
-    categorizeClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    mapTypeToCategory: (type, name) => mapTypeToCategory(type, name) // Export for use in component
+    requirements
   };
 }
 

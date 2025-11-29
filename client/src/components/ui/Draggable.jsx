@@ -38,6 +38,8 @@ export function Draggable({ id, item, showElectric }) {
     </div>
   );
 
+
+  console.log(`[DRAGGABLE] Rendering Item ID: ${item.id} (${typeof item.id})`);
   // Wrap with ElectricBorder if showElectric is true
   if (showElectric) {
     return (
@@ -53,5 +55,9 @@ export function Draggable({ id, item, showElectric }) {
     );
   }
 
+
+
+
+  
   return courseCard;
 }

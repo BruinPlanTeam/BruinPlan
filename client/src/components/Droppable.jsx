@@ -1,9 +1,9 @@
 import React from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { Draggable } from './Draggable'
-import ElectricBorder from './ElectricBorder'
-import '../../styles/DegreePlan.css'
+import { Draggable } from './ui/Draggable'
+import ElectricBorder from './ui/ElectricBorder'
+import '../styles/DegreePlan.css'
 
 const MAX_UNITS = 21;
 const MIN_UNITS = 12;
