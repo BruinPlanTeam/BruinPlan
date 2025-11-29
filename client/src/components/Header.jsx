@@ -7,8 +7,6 @@ export const Header = () => {
   const items = [
     {
       label: "Browse Majors",
-      bgColor: "rgba(10, 18, 28, 0.92)", 
-      textColor: "#EAF6FF",
       links: [
         { label: "UCLA Catalog", href: "https://catalog.registrar.ucla.edu/" },
         { label: "Bruinwalk", href: "https://bruinwalk.com/" }
@@ -16,8 +14,6 @@ export const Header = () => {
     },
     {
       label: "Guidance",
-      bgColor: "rgba(8, 15, 22, 0.95)",
-      textColor: "#EAF6FF",
       links: [
         { label: "Sample 4-Year Schedules", href: "https://www.ugeducation.ucla.edu/degreepath/majors/" },
         { label: "Degree Planning Tips", href: "https://newstudents.ucla.edu/wp-content/uploads/2017/10/Degree-Planner.pdf" },

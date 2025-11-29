@@ -1,73 +1,84 @@
+/* outer container for the scrolling list */
 .scroll-list-container {
-    position: absolute;
-    width: 500px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .scroll-list {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 16px;
-  }
-  
-  .scroll-list::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .scroll-list::-webkit-scrollbar-track {
-    background: #060010;
-  }
-  
-  .scroll-list::-webkit-scrollbar-thumb {
-    background: #271e37;
-    border-radius: 4px;
-  }
-  
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .item {
-    padding: 16px;
-    background-color: rgb(255, 255, 255, 0.1);
-    border-radius: 8px;
-    margin-bottom: 1rem;
-  }
-  
-  .item.selected {
-    background-color: #07142b35;
-  }
-  
-  .item-text {
-    color: white;
-    margin: 0;
-  }
-  
-  .top-gradient {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50px;
-    background: linear-gradient(to bottom, #2d4e5006);
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-  
-  .bottom-gradient {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    background: linear-gradient(to top, #000410, transparent);
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-  
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* the scrollable area itself */
+.scroll-list {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+/* scrollbar tweaks */
+.scroll-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-list::-webkit-scrollbar-track {
+  background: #050a12;
+}
+
+.scroll-list::-webkit-scrollbar-thumb {
+  background: #1d304a;
+  border-radius: 4px;
+}
+
+/* hide scrollbar when needed */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* each suggestion row */
+.item {
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+
+  background: rgba(7, 13, 20, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+
+  color: #eaf6ff;
+  cursor: pointer;
+}
+
+.item.selected {
+  background: rgba(39, 116, 174, 0.9);
+}
+
+/* text inside an item */
+.item-text {
+  margin: 0;
+}
+
+/* optional top/bottom fade, keeps the same look */
+.top-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(5, 10, 18, 0.9), transparent);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.bottom-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to top, rgba(5, 10, 18, 0.9), transparent);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}

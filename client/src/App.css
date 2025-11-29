@@ -1,82 +1,80 @@
+/* root app container */
 #root {
   margin: 0 auto;
   text-align: center;
 }
 
-/* for the Search Bar Component */
+/* shared search container wrapper */
 .search-container {
   position: relative;
-  width: 400px; 
-  margin: 0 auto; 
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-/* Style for the dropdown list */
+/* dropdown with major suggestions */
 .suggestions-list {
   position: absolute;
-  top: 100%; 
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-  list-style-type: disc;
+  list-style: none;
+
   margin: 0;
-  padding: 0;
-  max-height: 200px; 
+  padding: 6px 0;
+  max-height: 260px;
   overflow-y: auto;
-  z-index: 1000; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  background: rgba(7, 13, 20, 0.98);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+  z-index: 40;
 }
 
-/* Style for each item in the list */
+/* each suggestion row */
 .suggestion-item {
-  width: 80%; 
+  padding: 8px 14px;
   cursor: pointer;
-  padding: 5px;
   text-align: left;
-  border-color: #f0f0f087;
+
+  color: #eaf6ff;
+  font-size: 0.95rem;
 }
 
-/* Add a hover effect for each item */
+/* hover state */
 .suggestion-item:hover {
-  background-color: #f0f0f087;
-  border-radius: 4px;
+  background: rgba(39, 116, 174, 0.9);
+  border-radius: 10px;
 }
 
-/* Styles for the Header */
+/* header styles (used on other screens if needed) */
 .header-container {
-  padding: 0.75%;
-  position: fixed;
   display: flex;
-  align-items: center; 
-  top: 1%;
-  left: 1%;
-  right: 1%;
-  height: 4.5%;
-  border-radius: 4px;
-  background-color: #f0f0f028;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #ccc;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+
+  background: transparent;
+  border: none;
 }
 
-/* Hold items on the rights side of the Header */
 .right-header-container {
-  float: right;
-  padding-left: 83%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .header-logo {
   height: 100%;
 }
 
-/* styles for droppable containers */
+/* droppable column containers in the degree planner */
 .droppable-container {
-  border: 1px solid #d1d5db; /* A soft gray */
-  border-radius: 8px;         /* Rounded corners */
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  
-  /* This is just for looks: ensures a minimum height */
-  min-height: 150px; 
+  min-height: 150px;
 }
-

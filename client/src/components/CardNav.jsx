@@ -37,7 +37,7 @@ const CardNav = ({
         contentEl.style.position = 'static';
         contentEl.style.height = 'auto';
 
-        // force reflow
+        // force layout so scrollHeight is correct
         // eslint-disable-next-line no-unused-expressions
         contentEl.offsetHeight;
 
@@ -74,7 +74,7 @@ const CardNav = ({
     tl.to(
       cardsRef.current,
       { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 },
-      '-=0.1'
+      '-=0.1',
     );
 
     return tl;
@@ -122,6 +122,7 @@ const CardNav = ({
   const toggleMenu = () => {
     const tl = tlRef.current;
     if (!tl) return;
+
     if (!isExpanded) {
       setIsHamburgerOpen(true);
       setIsExpanded(true);
@@ -168,15 +169,6 @@ const CardNav = ({
               key={`${item.label}-${idx}`}
               className="nav-card"
               ref={setCardRef(idx)}
-              style={{
-                background: 'rgba(13, 23, 33, 0.75)',
-                color: '#EAF6FF',
-                borderRadius: '16px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(10px)', 
-                boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
-                padding: '20px',
-              }}
             >
               <div className="nav-card-label">{item.label}</div>
               <div className="nav-card-links">
