@@ -212,37 +212,46 @@ app.post('/users/login', async (req, res) => {
   }
 
   try {
-    //look for user
+    //find user by email
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email }, // assumes email is unique in your Prisma schema
     });
 
     if (!user) {
+      // don't reveal whether email or password is wrong
       return res.status(401).json({ error: 'invalid email or password' });
     }
-    //check pw
+
+    // 2. compare provided password with stored hash
+    // if your schema uses `password` to store the hash:
     const passwordMatches = await bcrypt.compare(password, user.password);
+    // if your schema uses `hashedPassword` instead, do:
+    // const passwordMatches = await bcrypt.compare(password, user.hashedPassword);
 
     if (!passwordMatches) {
       return res.status(401).json({ error: 'invalid email or password' });
     }
 
-    //send safe object to user
-    const { password, ...safeUser } = user;
+    // 3. build a safe user object without password/hash
+    const { password: _password, ...safeUser } = user;
+    // or const { hashedPassword, ...safeUser } = user; if you use that name
 
-    //create JWT that saves user info inside of it as payload
-    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-    res.json({accessToken: accessToken})
+    // 4. create JWT with minimal payload
+    const payload = { userId: user.id, email: user.email };
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: '1h', // optional but recommended
+    });
 
-    //Send JWT and user
+    // 5. send a single response
     return res.status(200).json({
       user: safeUser,
-      token: accessToken
+      token: accessToken,
     });
   } catch (err) {
     console.error('Error during login', err);
     return res.status(500).json({ error: 'internal server error' });
   }
 });
+
 
 module.exports = app;
