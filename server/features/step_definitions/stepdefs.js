@@ -20,7 +20,7 @@ async function teardown(){
 //Scenario 1: you should be able to create a new user
 
 Given('there is no user yet with an email alice@example.com', async function () {
-    teardown();
+    await teardown();
     });
 When('I try to create a new user that has the email alice@example.com', async function () {      
     const newUser = {
@@ -41,10 +41,10 @@ Then('the account should be created', function () {
     assert.strictEqual(res.body.email, 'alice@example.com');
     assert.strictEqual(res.body.username, 'testuser');
     });
-Then('I should be on the homepage with the new account signed in', function () {
-           // Write code here that turns the phrase above into concrete actions
-           return 'pending';
-         });
+// Then('I should be on the homepage with the new account signed in', function () {
+//            // Write code here that turns the phrase above into concrete actions
+//            return 'pending';
+//          });
 
 //Scenario 2: You can't create a user that already exists
 Given('a user already exists with an email alice@example.com', async function () {
@@ -77,13 +77,13 @@ Then('the account should not be created', function () {
   //There should be no new user id in the response body
   assert.ok(!res.body.id, 'response should not contain an id for a newly created user');
     });
-Then('I should see an error message showing that the email is already in use', function () {
-        //This is something you want to test by simulating the browser, so don't assert an HTTPS error message (that's done above)
-        return 'pending';
-    });
-Then('I should remain on the sign-up page', function () {
-           return 'pending';
-         });
+// Then('I should see an error message showing that the email is already in use', function () {
+//         //This is something you want to test by simulating the browser, so don't assert an HTTPS error message (that's done above)
+//         return 'pending';
+//     });
+// Then('I should remain on the sign-up page', function () {
+//            return 'pending';
+//          });
 
 //Scenario 3: You should be able to log in to an existing user account
 
@@ -112,23 +112,23 @@ Then('I should be logged in', function () {
         const res = this.response;
         assert.strictEqual(res.status, 200, 'should successfully log in')
          });
-Then('I should be on the homepage with the new account signed in', function () {
-           //Figure out how to test browser
-         });
+// Then('I should be on the homepage with the new account signed in', function () {
+//            //Figure out how to test browser
+//          });
 
 
 //Scenario 4: You should be not able to log in to a nonexistent user account
 
-Given('there is no user with an email alice@example.com', function () {
-        teardown()
+Given('there is no user with an email alice@example.com', async function () {
+        await teardown()
          });
-// When('I try to log in with the email alice@example.com'
+// When('I try to log in with the email alice@example.com');
 Then('I should not be logged in', function () {
            const res = this.response 
            //return 404 not found, rather than  
            assert.strictEqual(res.status, 401, 'should return 401 for trying to operate without credentials.')
          });
-Then('I should stay on the login page', function () {
-           // Write code here that turns the phrase above into concrete actions
-           return 'pending';
-         });
+// Then('I should stay on the login page', function () {
+//            // Write code here that turns the phrase above into concrete actions
+//            return 'pending';
+//          });
