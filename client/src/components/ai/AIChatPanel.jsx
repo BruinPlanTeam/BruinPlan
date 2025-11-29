@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './AIChatPanel.css';
+import '../../styles/AIChatPanel.css';
 
 export function AIChatPanel({ isOpen, onClose }) {
   const [messages, setMessages] = useState([

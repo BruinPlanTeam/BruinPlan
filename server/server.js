@@ -81,15 +81,20 @@ app.get('/majors/:majorName', async (req, res) => {
                   include: {
                     prereqs: {
                       select: { 
-                        requiredForId: true 
+                        prereqId: true 
                       }
-                    }
                     }
                   }
                 }
               }
+            },
+            requirementsInGroup: { 
+              include: {
+                reqGroup: true 
+              }
             }
           }
+        }
       }
     });
 
@@ -97,20 +102,41 @@ app.get('/majors/:majorName', async (req, res) => {
       throw Error("No major requirements found")
     }
     
-    const  uniqueClassesMap = new Map(); 
-
+    const uniqueClassesMap = new Map(); 
     const majorRequirementsMap = new Map();
+    const uniqueGroupsMap = new Map();
 
     for (const majorReq of data) {
         const req = majorReq.req;
         
+        const groupIds = [];
+        // CORRECTED: Loop over the correct relation name
+        for (const groupLink of req.requirementsInGroup) { 
+            const group = groupLink.reqGroup;
+            groupIds.push(group.id);
+
+            if (!uniqueGroupsMap.has(group.id)) {
+                uniqueGroupsMap.set(group.id, {
+                    id: group.id,
+                    name: group.name,
+                    total: group.total,
+                    highNumberInReq: group.highNumberInReq,
+                    lowNumberInReq: group.lowNumberInReq,
+                    numberOfHighReqs: group.numberOfHighReqs,
+                    numberOfLowReqs: group.numberOfLowReqs,
+                    requirementIds: [] 
+                });
+            }
+            uniqueGroupsMap.get(group.id).requirementIds.push(req.id);
+        }
        
         majorRequirementsMap.set(req.id, {
             id: req.id,
             name: req.name,
             type: req.type,
             coursesToChoose: req.coursesToChoose,
-            fulfilledByClassIds: []
+            fulfilledByClassIds: [],
+            groupIds: groupIds
         });
         
         
@@ -120,7 +146,7 @@ app.get('/majors/:majorName', async (req, res) => {
             majorRequirementsMap.get(req.id).fulfilledByClassIds.push(classData.id);
 
             if (!uniqueClassesMap.has(classData.id)) {
-                const prereqIds = classData.prereqs.map(p => p.requiredForId);
+                const prereqIds = classData.prereqs.map(p => p.prereqId);
                 
                 uniqueClassesMap.set(classData.id, {
                     id: String(classData.id),
@@ -138,16 +164,22 @@ app.get('/majors/:majorName', async (req, res) => {
 
     const majorRequirements = Array.from(majorRequirementsMap.values());
     const availableClasses = Array.from(uniqueClassesMap.values());
-    // Add a separator to make the output easy to spot!
+    const requirementGroups = Array.from(uniqueGroupsMap.values());
+
+    for (const group of requirementGroups) {
+      group.requirementIds = [...new Set(group.requirementIds)];
+    }
+
     console.log("--- DATA RETRIEVAL SUCCESS ---");
     console.log("Major Name:", majorName);
-
-    // Use JSON.stringify for clean, un-truncated output
     console.log("Available Classes (JSON):", JSON.stringify(availableClasses, null, 2)); 
     console.log("Major Requirements (JSON):", JSON.stringify(majorRequirements, null, 2));
+    console.log("Requirement Groups (JSON):", JSON.stringify(requirementGroups, null, 2));
+    
     return res.json({
         availableClasses: availableClasses,
         majorRequirements: majorRequirements,
+        requirementGroups: requirementGroups
     });
 
   } catch (error) {

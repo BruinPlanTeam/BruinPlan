@@ -1,10 +1,10 @@
 import { useState } from 'react'
 
 // Import components
-import DotGrid from './DotGrid.jsx'
-import { SearchBar } from './SearchBar';
-import { Header } from './Header';
-import SearchBarTitle from './SearchBarTitle.jsx'
+import DotGrid from '../components/ui/DotGrid.jsx'
+import { SearchBar } from '../components/SearchBar.jsx';
+import { Header } from '../components/Header.jsx';
+import SearchBarTitle from '../components/ui/SearchBarTitle.jsx'
 
 const handleAnimationComplete = () => {
     console.log('Animation completed!');

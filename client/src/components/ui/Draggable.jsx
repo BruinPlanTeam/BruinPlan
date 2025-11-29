@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useSortable} from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import ElectricBorder from './ElectricBorder'
-import '../DegreePlan.css'
+import '../../styles/DegreePlan.css'
 
 export function Draggable({ id, item, showElectric }) {
   const {

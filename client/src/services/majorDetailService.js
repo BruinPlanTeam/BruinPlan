@@ -7,7 +7,7 @@ export async function getMajorData(majorName) {
     if (!response.ok) {
         throw new Error(`An error has occurred: ${response.status} `)
     }
-
+    
     const majorNamesList = await response.json()
     
     return majorNamesList;

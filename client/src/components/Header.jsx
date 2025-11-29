@@ -1,4 +1,4 @@
-import CardNav from './CardNav';
+import CardNav from './ui/CardNav';
 import logo from '../assets/logo.svg';
 
 export const Header = () => {

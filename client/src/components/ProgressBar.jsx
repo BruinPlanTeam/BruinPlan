@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './ProgressBar.css';
+import '../styles/ProgressBar.css';
 
 export function ProgressBar({ requirements, droppableZones }) {
   const [progressByType, setProgressByType] = useState({});

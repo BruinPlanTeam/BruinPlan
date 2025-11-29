@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './AIChatButton.css';
+import '../../styles/AIChatButton.css';
 
 export function AIChatButton({ onClick }) {
   const [isHovered, setIsHovered] = useState(false);

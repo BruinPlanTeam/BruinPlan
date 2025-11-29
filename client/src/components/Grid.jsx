@@ -1,8 +1,8 @@
 import { Droppable } from './Droppable'
 import { getCurrentUnits } from '../utils/courseUtils'
 
-import '../Major.jsx'
-import '../DegreePlan.css'
+import '../providers/Major.jsx'
+import '../pages/DegreePlan.css'
 
 const MAX_UNITS = 21;
 

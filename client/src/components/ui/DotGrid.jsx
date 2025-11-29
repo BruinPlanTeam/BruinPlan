@@ -3,7 +3,7 @@ import { useRef, useEffect, useCallback, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
 
-import '../styles/DotGrid.css';
+import '../../styles/DotGrid.css';
 
 gsap.registerPlugin(InertiaPlugin);
 

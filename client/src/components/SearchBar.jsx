@@ -1,8 +1,8 @@
 import React, { useState, useEffect} from 'react'
 import { useNavigate } from 'react-router-dom';
 
-import AnimatedList from './AnimatedList';
-import { useMajor } from '../Major';
+import AnimatedList from './ui/AnimatedList';
+import { useMajor } from '../providers/Major';
 import { retrieveMajors } from '../services/majorService'
 import '../styles/SearchBar.css' 
 

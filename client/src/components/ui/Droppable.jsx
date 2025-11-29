@@ -3,7 +3,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Draggable } from './Draggable'
 import ElectricBorder from './ElectricBorder'
-import '../DegreePlan.css'
+import '../../styles/DegreePlan.css'
 
 const MAX_UNITS = 21;
 const MIN_UNITS = 12;

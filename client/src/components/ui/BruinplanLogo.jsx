@@ -9,4 +9,4 @@ function BruinplanLogo() {
   );
 }
 
-export default BruinplanLogo;
+export default BruinplanLogo; 
