@@ -64,7 +64,7 @@ export function useCategorizedCourses(major) {
 
     // Categorize each class
     allClasses.forEach(cls => {
-      const category = classToReqType.get(Number(cls.id)) || 'GE';
+      const category = classToReqType.get(cls.id) || 'GE';
       if (categories[category]) {
         categories[category].push(cls);
       } else {

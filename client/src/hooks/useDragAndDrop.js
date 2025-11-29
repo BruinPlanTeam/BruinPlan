@@ -163,6 +163,8 @@ export function useDragAndDrop(
       return;
     }
 
+          
+
     // Get the id of where the object came from
     let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
@@ -260,7 +262,9 @@ export function useDragAndDrop(
         }
       } else if (isInDraggableList && foundItem) {
         // Moving from category list to zone
+        console.log('Found item');
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
+          console.log('Entered prerequisite and unit check');
           moveCourseToZone(targetZoneId, foundItem);
           triggerElectricEffect(currentId);
         }

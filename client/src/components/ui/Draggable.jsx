@@ -39,7 +39,6 @@ export function Draggable({ id, item, showElectric }) {
   );
 
 
-  console.log(`[DRAGGABLE] Rendering Item ID: ${item.id} (${typeof item.id})`);
   // Wrap with ElectricBorder if showElectric is true
   if (showElectric) {
     return (

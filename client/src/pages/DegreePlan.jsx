@@ -5,11 +5,9 @@ import { useCategorizedCourses } from '../hooks/useCategorizedCourses.js';
 import { useCourseValidation } from '../hooks/useCourseValidation.js';
 import { useDragAndDrop } from '../hooks/useDragAndDrop.js';
 
-// Import the two new rendering components
 import PlanGrid from '../components/PlanGrid.jsx';
 import CourseSidebar from '../components/CourseSidebar.jsx';
 
-// Other UI and D&D imports
 import { ProgressBar } from '../components/ProgressBar.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
@@ -31,7 +29,6 @@ export default function DegreePlan() {
   const { major } = useMajor();
   const [isChatOpen, setIsChatOpen] = useState(false);
   
-  // Logic Hooks
   const { 
     categorizedClasses, 
     addCourseToCategory, 
@@ -57,7 +54,6 @@ export default function DegreePlan() {
   const { arePrereqsCompleted } = useCourseValidation(droppableZones);
 
 
-  // Global Effects & Handlers
   useEffect(() =>  {
     function handleOnBeforeUnload(event){ event.preventDefault(); }
     window.addEventListener('beforeunload', handleOnBeforeUnload, { capture: true});
@@ -92,14 +88,12 @@ export default function DegreePlan() {
           
           <div className="content-wrapper">
             
-            {/* Grid Component - receives zone state and electric status */}
             <PlanGrid 
                 droppableZones={droppableZones} 
                 electricCourseId={electricCourseId} 
                 activeId={activeId}
             />
 
-            {/* Sidebar Component - receives course list and electric status */}
             <CourseSidebar 
                 categorizedClasses={categorizedClasses}
                 electricCourseId={electricCourseId}

@@ -3,7 +3,6 @@ const dotenv = require('dotenv');
 const mysql = require('mysql2');
 const cors = require('cors');
 
-// Use Prisma Client
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
@@ -55,7 +54,6 @@ app.get('/majors', async (req, res) => {
   }
 });
 
-// --- MODIFIED ENDPOINT ---
 app.get('/majors/:majorName', async (req, res) => {
   const majorName = req.params.majorName;
 
@@ -80,7 +78,6 @@ app.get('/majors/:majorName', async (req, res) => {
               include: {
                 class: {
                   include: {
-                    // NEW: Fetch both prereqId and prereqGroupNumber
                     prereqs: {
                       select: {
                         prereqId: true,
@@ -91,10 +88,8 @@ app.get('/majors/:majorName', async (req, res) => {
                 }
               }
             },
-            // FIXED: Correct relation name is 'RequirementsInGroup'
             RequirementsInGroup: {
               include: {
-                // FIXED: Correct relation name is 'RequirementGroup'
                 RequirementGroup: true
               }
             }
@@ -104,7 +99,6 @@ app.get('/majors/:majorName', async (req, res) => {
     });
 
     if (data.length === 0) {
-      // Return empty arrays instead of throwing an error
       console.warn(`No major requirements found for ${majorName}`);
       return res.json({
         availableClasses: [],
@@ -121,7 +115,6 @@ app.get('/majors/:majorName', async (req, res) => {
       const req = majorReq.req;
       const groupIds = [];
 
-      // FIXED: Loop over the correct relation names
       for (const groupLink of req.RequirementsInGroup) {
         const group = groupLink.RequirementGroup;
         groupIds.push(group.id);
@@ -157,10 +150,7 @@ app.get('/majors/:majorName', async (req, res) => {
 
         if (!uniqueClassesMap.has(classData.id)) {
           
-          // --- NEW PREREQ LOGIC ---
-          // classData.prereqs is now: [ {prereqId: 123, prereqGroupNumber: 1}, {prereqId: 124, prereqGroupNumber: 1}, {prereqId: 125, prereqGroupNumber: 2} ]
           
-          // 1. Create the grouped object for the validation hook (Part 2)
           const prereqGroups = {};
           for (const p of classData.prereqs) {
             const groupNum = String(p.prereqGroupNumber);
@@ -169,9 +159,7 @@ app.get('/majors/:majorName', async (req, res) => {
             }
             prereqGroups[groupNum].push(String(p.prereqId));
           }
-          // prereqGroups is now: { "1": ["123", "124"], "2": ["125"] }
 
-          // 2. Create the flat array for the validation hook (Part 3)
           const flatPrereqIds = classData.prereqs.map(p => String(p.prereqId));
 
           uniqueClassesMap.set(classData.id, {
@@ -179,8 +167,8 @@ app.get('/majors/:majorName', async (req, res) => {
             code: classData.code,
             units: classData.units,
             description: classData.description,
-            prereqIds: flatPrereqIds,     // Flat list for future dependency check
-            prereqGroups: prereqGroups, // Grouped object for past prereq check
+            prereqIds: flatPrereqIds,    
+            prereqGroups: prereqGroups, 
             fulfillsReqIds: []
           });
         }
