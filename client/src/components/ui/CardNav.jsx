@@ -1,3 +1,4 @@
+// src/components/CardNav.jsx
 import { useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { GoArrowUpRight } from 'react-icons/go';
@@ -11,8 +12,6 @@ const CardNav = ({
   ease = 'power3.out',
   baseColor = '#fff',
   menuColor,
-  buttonBgColor,
-  buttonTextColor
 }) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -38,6 +37,8 @@ const CardNav = ({
         contentEl.style.position = 'static';
         contentEl.style.height = 'auto';
 
+        // force reflow
+        // eslint-disable-next-line no-unused-expressions
         contentEl.offsetHeight;
 
         const topBar = 60;
@@ -67,10 +68,14 @@ const CardNav = ({
     tl.to(navEl, {
       height: calculateHeight,
       duration: 0.4,
-      ease
+      ease,
     });
 
-    tl.to(cardsRef.current, { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 }, '-=0.1');
+    tl.to(
+      cardsRef.current,
+      { y: 0, opacity: 1, duration: 0.4, ease, stagger: 0.08 },
+      '-=0.1'
+    );
 
     return tl;
   };
@@ -128,13 +133,17 @@ const CardNav = ({
     }
   };
 
-  const setCardRef = i => el => {
+  const setCardRef = (i) => (el) => {
     if (el) cardsRef.current[i] = el;
   };
 
   return (
     <div className={`card-nav-container ${className}`}>
-      <nav ref={navRef} className={`card-nav ${isExpanded ? 'open' : ''}`} style={{ backgroundColor: baseColor }}>
+      <nav
+        ref={navRef}
+        className={`card-nav ${isExpanded ? 'open' : ''}`}
+        style={{ backgroundColor: baseColor }}
+      >
         <div className="card-nav-top">
           <div
             className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
@@ -142,7 +151,7 @@ const CardNav = ({
             role="button"
             aria-label={isExpanded ? 'Close menu' : 'Open menu'}
             tabIndex={0}
-            style={{ color: menuColor || '#000' }}
+            style={{ color: menuColor || '#EAF6FF' }}
           >
             <div className="hamburger-line" />
             <div className="hamburger-line" />
@@ -159,13 +168,31 @@ const CardNav = ({
               key={`${item.label}-${idx}`}
               className="nav-card"
               ref={setCardRef(idx)}
-              style={{ backgroundColor: item.bgColor, color: item.textColor }}
+              style={{
+                background: 'rgba(13, 23, 33, 0.75)',
+                color: '#EAF6FF',
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(10px)', 
+                boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
+                padding: '20px',
+              }}
             >
               <div className="nav-card-label">{item.label}</div>
               <div className="nav-card-links">
                 {item.links?.map((lnk, i) => (
-                  <a key={`${lnk.label}-${i}`} className="nav-card-link" target={"_blank"} href={lnk.href} aria-label={lnk.ariaLabel}>
-                    <GoArrowUpRight className="nav-card-link-icon" aria-hidden="true" />
+                  <a
+                    key={`${lnk.label}-${i}`}
+                    className="nav-card-link"
+                    target="_blank"
+                    rel="noreferrer"
+                    href={lnk.href}
+                    aria-label={lnk.ariaLabel || lnk.label}
+                  >
+                    <GoArrowUpRight
+                      className="nav-card-link-icon"
+                      aria-hidden="true"
+                    />
                     {lnk.label}
                   </a>
                 ))}
@@ -179,4 +206,3 @@ const CardNav = ({
 };
 
 export default CardNav;
-

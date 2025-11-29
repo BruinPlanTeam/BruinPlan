@@ -56,8 +56,9 @@ model Requirement {
   coursesToChoose     Int
   majorRequirements   MajorRequirement[]
   requirementClasses  RequirementClasses[]
-  RequirementsInGroup RequirementsInGroup[]
+  requirementsInGroup RequirementsInGroup[]
 }
+
 
 model Class {
   id                 Int                  @id @default(autoincrement())
@@ -121,14 +122,14 @@ model RequirementGroup {
   numberOfHighReqs    Int
   numberOfLowReqs     Int
   total               Int
-  RequirementsInGroup RequirementsInGroup[]
+  requirementsInGroup RequirementsInGroup[]
 }
 
 model RequirementsInGroup {
-  reqId            Int
-  reqGroupId       Int
-  RequirementGroup RequirementGroup @relation(fields: [reqGroupId], references: [id])
-  Requirement      Requirement      @relation(fields: [reqId], references: [id])
+  reqId       Int
+  reqGroupId  Int
+  reqGroup    RequirementGroup @relation(fields: [reqGroupId], references: [id])
+  requirement Requirement      @relation(fields: [reqId], references: [id])
 
   @@id([reqId, reqGroupId])
   @@index([reqGroupId], map: "RequirementsInGroup_reqGroupId_fkey")
