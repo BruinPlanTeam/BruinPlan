@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "prisma:generate": "prisma generate",
-    "test": "npm run prisma:generate && cucumber-js"
+    "test": "npm run prisma:generate && cucumber-js",
+    "devStart": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
