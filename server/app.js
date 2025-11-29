@@ -1,16 +1,22 @@
+require('dotenv').config()
 const express = require('express');
 const dotenv = require('dotenv');
 const mysql = require('mysql2');
 const cors = require('cors');
 
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-const { PrismaClient} = require('@prisma/client')
+const { PrismaClient} = require('@prisma/client');
+const { hash } = require('crypto');
 const prisma = new PrismaClient();
 
 
 dotenv.config();
 
 const app = express();
+//This lets your app use json 
+app.use(express.json())
 
 const conn = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -162,8 +168,11 @@ app.post('/users',async (req,res) => {
   if (!username || !email) return res.status(400).json({ error: 'name and email required' });
 
   try {
+    //Create hashed password with salt added at end in one step (10 default)
+    const hashedPassword = await bcrypt.hash(password, 10)
+    //Post the user to the DB with the hashed password
     const user = await prisma.user.create({
-      data: { username, email, password } 
+      data: { username, email, password: hashedPassword } 
     });
     return res.status(201).json(user);
   } catch(err){
@@ -177,9 +186,63 @@ app.post('/users',async (req,res) => {
   }
 })
 
-app.post('/users/login', async (req, res) => {
-  const {email, password} = req.body
-  if (!email || !password) return res.status(400).json({ error: 'email and password required' });
+//Middleware for future API routes to get saved plans
+  //When you write the 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  //Return the auth header part of the token, or return undefined if the token is null
+  const token = authHeader && authHeader.split(' ')[1]
+  if(token == null) return res.sendStatus(401) //401 status if not verified
 
-})
+  //Verify the token using it and the token secret
+  //This takes a callback with an error and the user value we serialized in the token. write error handling in calback
+  jwt.verify(token,process.env.ACCESS_TOKEN_SECRET, (err,user) => {
+    if(err) return res.sendStatus(403)
+    req.user = user
+  next() //Move on for the middleware
+  })
+}
+
+app.post('/users/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  //basic validation
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password required' });
+  }
+
+  try {
+    //look for user
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'invalid email or password' });
+    }
+    //check pw
+    const passwordMatches = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatches) {
+      return res.status(401).json({ error: 'invalid email or password' });
+    }
+
+    //send safe object to user
+    const { password, ...safeUser } = user;
+
+    //create JWT that saves user info inside of it as payload
+    const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
+    res.json({accessToken: accessToken})
+
+    //Send JWT and user
+    return res.status(200).json({
+      user: safeUser,
+      token: accessToken
+    });
+  } catch (err) {
+    console.error('Error during login', err);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
 module.exports = app;
