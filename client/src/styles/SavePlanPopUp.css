@@ -1,0 +1,261 @@
+/* Backdrop */
+.save-plan-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Modal */
+.save-plan-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    width: min(90vw, 480px);
+    
+    background: linear-gradient(180deg, rgba(20, 30, 48, 0.98), rgba(15, 23, 38, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+                0 10px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    z-index: 9999;
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+/* Header */
+.save-plan-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.save-plan-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.save-plan-icon {
+    color: #2774AE;
+    flex-shrink: 0;
+}
+
+.save-plan-title h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #EAF6FF;
+    letter-spacing: 0.3px;
+}
+
+.save-plan-close-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    
+    transition: all 0.2s ease;
+}
+
+.save-plan-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Content */
+.save-plan-content {
+    padding: 24px 28px;
+}
+
+.save-plan-label {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.save-plan-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #EAF6FF;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.save-plan-input:focus {
+    outline: none;
+    border-color: #2774AE;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(39, 116, 174, 0.15);
+}
+
+.save-plan-input:disabled {
+    background: rgba(255, 255, 255, 0.02);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.save-plan-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.save-plan-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    color: #fca5a5;
+    font-size: 13px;
+}
+
+.save-plan-error svg {
+    flex-shrink: 0;
+    color: #ef4444;
+}
+
+/* Footer */
+.save-plan-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.save-plan-cancel-btn,
+.save-plan-save-btn {
+    flex: 1;
+    padding: 13px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.save-plan-cancel-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.save-plan-cancel-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.save-plan-save-btn {
+    background: linear-gradient(135deg, #2774AE 0%, #3d89cc 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(39, 116, 174, 0.3);
+}
+
+.save-plan-save-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(39, 116, 174, 0.4);
+}
+
+.save-plan-save-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.save-plan-save-btn:disabled,
+.save-plan-cancel-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.save-plan-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .save-plan-modal {
+        width: 95vw;
+    }
+    
+    .save-plan-header {
+        padding: 20px;
+    }
+    
+    .save-plan-content {
+        padding: 20px;
+    }
+    
+    .save-plan-footer {
+        padding: 16px 20px;
+    }
+    
+    .save-plan-title h2 {
+        font-size: 19px;
+    }
+}
+

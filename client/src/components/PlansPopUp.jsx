@@ -1,17 +1,11 @@
 import "../styles/PlansPopUp.css";
 
-export function PlansPopUp({ getPlans, handleLoadScreen, onClose }) {
-    // Sample saved plans data - replace with actual data from backend
-    const savedPlans = [
-        { id: 1, name: "Computer Science - Spring 2024", major: "Computer Science", lastModified: "2024-11-15" },
-        { id: 2, name: "Biology Pre-Med Track", major: "Biology", lastModified: "2024-11-10" },
-        { id: 3, name: "Mathematics Plan", major: "Mathematics", lastModified: "2024-11-05" },
-    ];
+export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
 
     const handlePlanClick = (plan) => {
         console.log("Loading plan:", plan);
         if (handleLoadScreen) {
-            getPlans();
+            handleLoadScreen(plan);
         }
         onClose();
     };
@@ -87,10 +81,10 @@ export function PlansPopUp({ getPlans, handleLoadScreen, onClose }) {
                                         </svg>
                                     </div>
                                     <div className="plan-card-details">
-                                        <span className="plan-card-major">{plan.major}</span>
+                                        <span className="plan-card-major">{plan.major?.name || 'Unknown Major'}</span>
                                         <span className="plan-card-dot">•</span>
                                         <span className="plan-card-date">
-                                            Modified {new Date(plan.lastModified).toLocaleDateString()}
+                                            {plan.quarters?.length || 0} quarters
                                         </span>
                                     </div>
                                 </div>

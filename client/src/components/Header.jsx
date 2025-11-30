@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import CardNav from './ui/CardNav';
 import logo from '../assets/logo.svg';
 
 export const Header = () => {
+  const { isAuthenticated, logout } = useAuth();
   const items = [
     {
       label: "Browse Majors",
@@ -38,9 +40,10 @@ export const Header = () => {
           ease="power3.out"
         />
       </div>
-      <Link to="/login" style={styles.loginButton}>
+      {!isAuthenticated && <Link to="/login" style={styles.loginButton}>
         Log In
-      </Link>
+      </Link>}
+      {isAuthenticated && <button onClick={() => logout()} style={styles.loginButton}>Log Out</button>}
     </div>
   );
 };

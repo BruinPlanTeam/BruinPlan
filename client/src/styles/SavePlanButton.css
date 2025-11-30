@@ -1,0 +1,36 @@
+.save-plan-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #2774AE 0%, #3d89cc 100%);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(39, 116, 174, 0.25);
+}
+
+.save-plan-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(39, 116, 174, 0.35);
+}
+
+.save-plan-button:active {
+    transform: translateY(0);
+}
+
+.save-plan-button-icon {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .save-plan-button {
+        padding: 8px 16px;
+        font-size: 0.875rem;
+    }
+}
+

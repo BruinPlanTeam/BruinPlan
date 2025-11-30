@@ -7,7 +7,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const { PrismaClient} = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const { hash } = require('crypto');
 const prisma = new PrismaClient();
 
@@ -164,8 +164,9 @@ app.get('/majors/:majorName', async (req, res) => {
 });
 
 app.post('/users',async (req,res) => {
-  const {email, username, password} = req.body
-  if (!username || !email) return res.status(400).json({ error: 'name and email required' });
+  const {username, email, password} = req.body
+  // I (Owen) took out the username because we don't need it for the sign up process
+  if (!email || !username) return res.status(400).json({ error: 'email and username required' });
 
   try {
     //Create hashed password with salt added at end in one step (10 default)
@@ -248,5 +249,81 @@ app.post('/users/login', async (req, res) => {
   }
 });
 
+// plan routes
+app.post('/plans', authenticateToken, async (req, res) => {
+  try {
+    const { name, majorName, quarters } = req.body;
+    const userId = req.user.userId; // From JWT
+
+    // Validate input
+    if (!name || !majorName || !quarters) {
+      return res.status(400).json({ error: "Missing required fields: name, majorName, quarters" });
+    }
+
+    // Look up major ID
+    const major = await prisma.major.findFirst({
+      where: { name: majorName }
+    });
+
+    if (!major) {
+      return res.status(404).json({ error: "Major not found" });
+    }
+
+    // Create plan with nested quarters and planClasses
+    const plan = await prisma.plan.create({
+      data: {
+        name,
+        userId,
+        majorId: major.id,
+        quarters: {
+          create: quarters.map(q => ({
+            quarterNumber: q.quarterNumber,
+            planClasses: {
+              create: q.classIds.map(classId => ({
+                classId,
+                status: "planned"
+              }))
+            }
+          }))
+        }
+      },
+      include: {
+        quarters: {
+          include: {
+            planClasses: true
+          }
+        }
+      }
+    });
+
+    return res.status(201).json(plan);
+  } catch (error) {
+    console.error('Error saving plan:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/plans', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+  const plans = await prisma.plan.findMany({
+    where: { userId },
+    include: { 
+      major: true,
+      quarters: {
+        include: {
+          planClasses: {
+            include: {
+              class: true  
+            }
+          }
+        },
+        orderBy: {
+          quarterNumber: 'asc'
+        }
+      }
+    }
+  });
+  return res.status(200).json(plans);
+});
 
 module.exports = app;

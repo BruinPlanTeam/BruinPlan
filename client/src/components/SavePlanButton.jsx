@@ -1,25 +1,15 @@
-import { useState } from "react";
-import { PlansPopUp } from "./PlansPopUp";
-import "../styles/SavedPlansButton.css";
+import { useState } from 'react';
+import { SavePlanPopUp } from './SavePlanPopUp';
+import "../styles/SavePlanButton.css";
 
-export function SavedPlansButton({ handleLoadScreen, getPlans }) {
-    const [showPlans, setShowPlans] = useState(false);
-    const [savedPlans, setSavedPlans] = useState([]);
-
-    const handleClick = () => {
-        getPlans().then(setSavedPlans);
-        setShowPlans(!showPlans);
-    };
-
-    const handleClose = () => {
-        setShowPlans(false);
-    };
+export function SavePlanButton({ handleSavePlan }) {
+    const [showPopup, setShowPopup] = useState(false);
 
     return (
-        <>
-            <button className="saved-plans-button" onClick={handleClick}>
+        <>    
+            <button className="save-plan-button" onClick={() => setShowPopup(true)}>
                 <svg 
-                    className="saved-plans-icon" 
+                    className="save-plan-button-icon" 
                     width="18" 
                     height="18" 
                     viewBox="0 0 24 24" 
@@ -48,16 +38,15 @@ export function SavedPlansButton({ handleLoadScreen, getPlans }) {
                         strokeLinejoin="round"
                     />
                 </svg>
-                Browse Saved Plans
+                Save Plan
             </button>
             
-            {showPlans && (
-                <PlansPopUp 
-                    savedPlans={savedPlans} 
-                    handleLoadScreen={handleLoadScreen}
-                    onClose={handleClose} 
+            {showPopup && (
+                <SavePlanPopUp 
+                    handleSavePlan={handleSavePlan}
+                    onClose={() => setShowPopup(false)}
                 />
             )}
         </>
     );
-};
+}
