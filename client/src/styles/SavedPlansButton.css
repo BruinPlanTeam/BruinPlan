@@ -1,0 +1,45 @@
+/* Saved Plans Button */
+.saved-plans-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    margin: 20px 0;
+    
+    background: linear-gradient(135deg, #2774AE 0%, #3284BE 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    box-shadow: 0 4px 12px rgba(39, 116, 174, 0.25),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.saved-plans-button:hover {
+    background: linear-gradient(135deg, #3284BE 0%, #2774AE 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 116, 174, 0.35),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.saved-plans-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(39, 116, 174, 0.3);
+}
+
+.saved-plans-icon {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.saved-plans-button:hover .saved-plans-icon {
+    transform: scale(1.1);
+}
+

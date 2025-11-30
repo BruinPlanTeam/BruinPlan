@@ -2,7 +2,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { GoArrowUpRight } from 'react-icons/go';
-import '../styles/CardNav.css';
+import '../../styles/CardNav.css';
 
 const CardNav = ({
   logo,

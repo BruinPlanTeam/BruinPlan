@@ -1,0 +1,104 @@
+import "../styles/PlansPopUp.css";
+
+export function PlansPopUp({ getPlans, handleLoadScreen, onClose }) {
+    // Sample saved plans data - replace with actual data from backend
+    const savedPlans = [
+        { id: 1, name: "Computer Science - Spring 2024", major: "Computer Science", lastModified: "2024-11-15" },
+        { id: 2, name: "Biology Pre-Med Track", major: "Biology", lastModified: "2024-11-10" },
+        { id: 3, name: "Mathematics Plan", major: "Mathematics", lastModified: "2024-11-05" },
+    ];
+
+    const handlePlanClick = (plan) => {
+        console.log("Loading plan:", plan);
+        if (handleLoadScreen) {
+            getPlans();
+        }
+        onClose();
+    };
+
+    return (
+        <>
+            {/* Backdrop */}
+            <div className="plans-backdrop" onClick={onClose} />
+            
+            {/* Modal */}
+            <div className="plans-modal">
+                {/* Header */}
+                <div className="plans-header">
+                    <div className="plans-title">
+                        <svg 
+                            className="plans-title-icon" 
+                            width="24" 
+                            height="24" 
+                            viewBox="0 0 24 24" 
+                            fill="none"
+                        >
+                            <path 
+                                d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" 
+                                stroke="currentColor" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                        <h2>My Saved Plans</h2>
+                    </div>
+                    <button className="plans-close-button" onClick={onClose} aria-label="Close">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="plans-content">
+                    {savedPlans.length === 0 ? (
+                        <div className="plans-empty">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <p className="plans-empty-text">No saved plans yet</p>
+                            <p className="plans-empty-subtext">Create a degree plan and save it to see it here</p>
+                        </div>
+                    ) : (
+                        <div className="plans-list">
+                            {savedPlans.map((plan) => (
+                                <div 
+                                    key={plan.id} 
+                                    className="plan-card"
+                                    onClick={() => handlePlanClick(plan)}
+                                >
+                                    <div className="plan-card-header">
+                                        <h3 className="plan-card-name">{plan.name}</h3>
+                                        <svg 
+                                            className="plan-card-arrow" 
+                                            width="20" 
+                                            height="20" 
+                                            viewBox="0 0 24 24" 
+                                            fill="none"
+                                        >
+                                            <path 
+                                                d="M9 18L15 12L9 6" 
+                                                stroke="currentColor" 
+                                                strokeWidth="2" 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div className="plan-card-details">
+                                        <span className="plan-card-major">{plan.major}</span>
+                                        <span className="plan-card-dot">•</span>
+                                        <span className="plan-card-date">
+                                            Modified {new Date(plan.lastModified).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </>
+    );
+}

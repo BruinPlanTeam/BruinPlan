@@ -1,6 +1,7 @@
 //npx prisma db pull -> to update schema file
 //npx prisma migrate dev --name <name of change> -> to update db
 //npx prisma generate -> makes objects for each table
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,135 +12,125 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  email           String   @unique 
-  username        String   @unique
-  password        String  //gotta protect this probably
-
-  plans           Plan[]
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  username String @unique
+  password String
+  plans    Plan[]
 }
 
 model Plan {
-  id              Int      @id @default(autoincrement())
-  name            String
-  
-  userId          Int
-  user            User     @relation(fields: [userId], references: [id])
-  
-  majorId         Int
-  major           Major    @relation(fields: [majorId], references: [id])
-  
-  quarters        Quarter[]
+  id       Int       @id @default(autoincrement())
+  name     String
+  userId   Int
+  majorId  Int
+  major    Major     @relation(fields: [majorId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
+  quarters Quarter[]
+
+  @@index([majorId], map: "Plan_majorId_fkey")
+  @@index([userId], map: "Plan_userId_fkey")
 }
 
 model Major {
-  id              Int      @id @default(autoincrement())
-  name            String
-  school          String  
-  
-  plans           Plan[]
+  id                Int                @id @default(autoincrement())
+  name              String
   majorRequirements MajorRequirement[]
+  plans             Plan[]
 }
 
 model Quarter {
-  id              Int      @id @default(autoincrement())
-  quarterNumber   Int      //1 to 12? 16?
+  id            Int         @id @default(autoincrement())
+  quarterNumber Int
+  planId        Int
+  planClasses   PlanClass[]
+  plan          Plan        @relation(fields: [planId], references: [id])
 
-  planId          Int
-  plan            Plan     @relation(fields: [planId], references: [id])
-  
-  planClasses     PlanClass[]
+  @@index([planId], map: "Quarter_planId_fkey")
 }
 
 model Requirement {
-  id              Int      @id @default(autoincrement())
-  name            String  //kind of requiremnt
-  type            String  //ex: Lower Div, GE
-  coursesToChoose Int     
-
-  majorRequirements MajorRequirement[]
-  requirementClasses RequirementClasses[]
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  type                String
+  coursesToChoose     Int
+  majorRequirements   MajorRequirement[]
+  requirementClasses  RequirementClasses[]
   requirementsInGroup RequirementsInGroup[]
-}
-
-model RequirementGroup {
-  id Int @id @default(autoincrement())
-
-  name String
-  highNumberInReq Int
-  lowNumberInReq Int
-  numberOfHighReqs Int
-  numberOfLowReqs Int
-  total Int
-
-  requirementsInGroup RequirementsInGroup[]
-}
-
-model RequirementsInGroup {
-  reqId Int
-  requirement   Requirement @relation(fields: [reqId], references: [id])
-
-  reqGroupId   Int
-  reqGroup     RequirementGroup   @relation(fields: [reqGroupId], references: [id])
-
-  @@id([reqId, reqGroupId]) //pk
 }
 
 
 model Class {
-  id              Int      @id @default(autoincrement())
-  units           Float
-  code            String   @unique //CS 31
-  description     String   //name for now (Intro to CS) but could include more
-
-  planClasses     PlanClass[]
-  prereqs     Prereq[] @relation("Prereq") // prereqs for this class
-  requiredFor  Prereq[] @relation("RequiredFor") // classes that require this class
+  id                 Int                  @id @default(autoincrement())
+  units              Float
+  code               String               @unique
+  description        String
+  planClasses        PlanClass[]
+  requiredFor        Prereq[]             @relation("RequiredFor")
+  prereqs            Prereq[]             @relation("Prereq")
   requirementClasses RequirementClasses[]
 }
 
 model PlanClass {
   quarterId Int
+  classId   Int
+  status    String
+  class     Class   @relation(fields: [classId], references: [id])
   quarter   Quarter @relation(fields: [quarterId], references: [id])
 
-  classId   Int
-  class     Class   @relation(fields: [classId], references: [id])
-
-  status    String //not sure if we need this or not but maybe to mark if class was taken yet?
-
-  @@id([quarterId, classId]) //pk
+  @@id([quarterId, classId])
+  @@index([classId], map: "PlanClass_classId_fkey")
 }
 
 model MajorRequirement {
-  majorId Int
-  major Major @relation(fields: [majorId], references: [id])
-
-  reqId Int
-  req Requirement @relation(fields: [reqId], references: [id])
-
+  majorId      Int
+  reqId        Int
   displayOrder Int
+  major        Major       @relation(fields: [majorId], references: [id])
+  req          Requirement @relation(fields: [reqId], references: [id])
 
-  @@id([majorId, reqId]) //pk
+  @@id([majorId, reqId])
+  @@index([reqId], map: "MajorRequirement_reqId_fkey")
 }
 
 model RequirementClasses {
-  reqId         Int
-  requirement   Requirement @relation(fields: [reqId], references: [id])
-
-  classId       Int
-  class         Class       @relation(fields: [classId], references: [id])
+  reqId       Int
+  classId     Int
+  class       Class       @relation(fields: [classId], references: [id])
+  requirement Requirement @relation(fields: [reqId], references: [id])
 
   @@id([reqId, classId])
+  @@index([classId], map: "RequirementClasses_classId_fkey")
 }
 
 model Prereq {
-  //recrusive
-  prereqId         Int
-  prereq   Class @relation("Prereq", fields: [prereqId], references: [id])
+  requiredForId     Int
+  prereqId          Int
+  prereqGroupNumber Int
+  requiredFor       Class @relation("RequiredFor", fields: [requiredForId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Prereq_ibfk_1")
+  prereq            Class @relation("Prereq", fields: [prereqId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Prereq_ibfk_2")
 
-  requiredForId      Int
-  requiredFor   Class @relation("RequiredFor", fields: [requiredForId], references: [id])
-
-  @@id([prereqId, requiredForId])
+  @@id([requiredForId, prereqId, prereqGroupNumber])
+  @@index([prereqId], map: "prereqId")
 }
 
+model RequirementGroup {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  highNumberInReq     Int
+  lowNumberInReq      Int
+  numberOfHighReqs    Int
+  numberOfLowReqs     Int
+  total               Int
+  requirementsInGroup RequirementsInGroup[]
+}
+
+model RequirementsInGroup {
+  reqId       Int
+  reqGroupId  Int
+  reqGroup    RequirementGroup @relation(fields: [reqGroupId], references: [id])
+  requirement Requirement      @relation(fields: [reqId], references: [id])
+
+  @@id([reqId, reqGroupId])
+  @@index([reqGroupId], map: "RequirementsInGroup_reqGroupId_fkey")
+}

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import HomeScreen from './components/HomeScreen';
-import DegreePlan from './components/DegreePlan';
+import HomeScreen from './pages/HomeScreen';
+import DegreePlan from './pages/DegreePlan';
 import Login from './components/Login';
-import { MajorProvider } from './Major';
+import { MajorProvider } from './providers/Major';
 import './App.css';
 
 function App() {
