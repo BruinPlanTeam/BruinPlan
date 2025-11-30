@@ -218,31 +218,26 @@ app.post('/users/login', async (req, res) => {
     });
 
     if (!user) {
-      // don't reveal whether email or password is wrong
+      //don't reveal whether email or password is wrong
       return res.status(401).json({ error: 'invalid email or password' });
     }
 
-    // 2. compare provided password with stored hash
-    // if your schema uses `password` to store the hash:
+    //compare provided password with stored hash
     const passwordMatches = await bcrypt.compare(password, user.password);
-    // if your schema uses `hashedPassword` instead, do:
-    // const passwordMatches = await bcrypt.compare(password, user.hashedPassword);
 
     if (!passwordMatches) {
       return res.status(401).json({ error: 'invalid email or password' });
     }
 
-    // 3. build a safe user object without password/hash
+    //build a safe user object
     const { password: _password, ...safeUser } = user;
-    // or const { hashedPassword, ...safeUser } = user; if you use that name
 
-    // 4. create JWT with minimal payload
+    //create JWT with user info payload
     const payload = { userId: user.id, email: user.email };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '1h', // optional but recommended
     });
 
-    // 5. send a single response
     return res.status(200).json({
       user: safeUser,
       token: accessToken,
