@@ -7,7 +7,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const { PrismaClient} = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const { hash } = require('crypto');
 const prisma = new PrismaClient();
 
@@ -164,8 +164,9 @@ app.get('/majors/:majorName', async (req, res) => {
 });
 
 app.post('/users',async (req,res) => {
-  const {email, username, password} = req.body
-  if (!username || !email) return res.status(400).json({ error: 'name and email required' });
+  const {username, email, password} = req.body
+  // I (Owen) took out the username because we don't need it for the sign up process
+  if (!email || !username) return res.status(400).json({ error: 'email and username required' });
 
   try {
     //Create hashed password with salt added at end in one step (10 default)

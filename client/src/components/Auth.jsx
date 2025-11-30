@@ -46,24 +46,99 @@ export default function Auth() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  const onLoginSubmit = (e) => {
+  const onLoginSubmit = async (e) => {
     e.preventDefault();
     setErr('');
     if (!email || !pw) {
       setErr('Both fields are required');
       return;
     }
-    navigate('/saved-plans');
+    
+    try {
+      const response = await fetch('http://localhost:3000/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({  
+          email: email,
+          password: pw
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErr(data.error || 'Login failed');
+        return;
+      }
+
+      console.log('Login successful:', data);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      // Navigate to or degree planner
+      navigate('/');
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      setErr('Network error. Please try again.');
+    }
   };
 
-  const onSignUpSubmit = (e) => {
+  const onSignUpSubmit = async (e) => {
     e.preventDefault();
     setErr('');
     if (!email || !pw) {
       setErr('Both fields are required');
       return;
     }
-    navigate('/saved-plans');
+
+    try {
+      const response = await fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email, // Using email as username for now
+          email: email,
+          password: pw
+        })
+      });
+
+      // Debug: Log the raw response
+      const text = await response.text();
+      console.log('Raw response:', text);
+      console.log('Response status:', response.status);
+      
+      // Try to parse as JSON
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error('Failed to parse JSON:', text);
+        setErr('Server returned invalid response');
+        return;
+      }
+
+      // Check if request was successful
+      if (!response.ok) {
+        setErr(data.error || 'Signup failed');
+        return;
+      }
+
+      console.log('Signup successful:', data);
+      
+      // TODO: Auto-login after signup
+      // For now, just navigate to login mode
+      setSignUp(false);
+      setErr('Account created! Please log in.');
+      
+    } catch (error) {
+      console.error('Signup error:', error);
+      setErr('Network error. Please try again.');
+    }
   };
 
   const handleChangeSignUp = () => {
