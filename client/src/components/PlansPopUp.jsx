@@ -1,12 +1,11 @@
 import "../styles/PlansPopUp.css";
 
 export function PlansPopUp({ getPlans, handleLoadScreen, onClose }) {
-    // Sample saved plans data - replace with actual data from backend
-    const savedPlans = [
-        { id: 1, name: "Computer Science - Spring 2024", major: "Computer Science", lastModified: "2024-11-15" },
-        { id: 2, name: "Biology Pre-Med Track", major: "Biology", lastModified: "2024-11-10" },
-        { id: 3, name: "Mathematics Plan", major: "Mathematics", lastModified: "2024-11-05" },
-    ];
+    const [savedPlans, setSavedPlans] = useState([]);
+
+    useEffect(() => {
+        getPlans().then(setSavedPlans);
+    }, [getPlans]);
 
     const handlePlanClick = (plan) => {
         console.log("Loading plan:", plan);

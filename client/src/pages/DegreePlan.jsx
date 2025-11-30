@@ -30,6 +30,7 @@ export default function DegreePlan() {
   const {
     major,
     savePlan,
+    getPlans,
     loadPlan,
     categorizedClasses, 
     requirements,
@@ -59,29 +60,6 @@ export default function DegreePlan() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const getPlans = () => {
-    const tempSavedPlan = {
-      "zone-1-1": { id: "zone-1-1", title: "Fall", items: [{id: 10, code: "PHYSICS 1A", units: 4, description: "ayo???", prereqIds: []}] },
-      "zone-1-2": { id: "zone-1-2", title: "Fall", items: [] },
-      "zone-1-3": { id: "zone-1-3", title: "Fall", items: [] },
-      "zone-1-4": { id: "zone-1-4", title: "Fall", items: [] },
-      "zone-2-1": { id: "zone-2-1", title: "Fall", items: [] },
-      "zone-2-2": { id: "zone-2-2", title: "Fall", items: [] },
-      "zone-2-3": { id: "zone-2-3", title: "Fall", items: [] },
-      "zone-2-4": { id: "zone-2-4", title: "Fall", items: [] },
-      "zone-3-1": { id: "zone-3-1", title: "Fall", items: [] },
-      "zone-3-2": { id: "zone-3-2", title: "Fall", items: [] },
-      "zone-3-3": { id: "zone-3-3", title: "Fall", items: [] },
-      "zone-3-4": { id: "zone-3-4", title: "Fall", items: [] },
-      "zone-4-1": { id: "zone-4-1", title: "Fall", items: [] },
-      "zone-4-2": { id: "zone-4-2", title: "Fall", items: [] },
-      "zone-4-3": { id: "zone-4-3", title: "Fall", items: [] },
-      "zone-4-4": { id: "zone-4-4", title: "Fall", items: [] },
-    };
-    loadPlan(tempSavedPlan, "Bioengineering");
-  }
-
-
   return (
     <DndContext
       sensors={sensors}
@@ -100,7 +78,7 @@ export default function DegreePlan() {
           {isAuthenticated && 
             <>  
               <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
-              <SavePlanButton handleSavePlan={(planName) => savePlan(planName)}/> 
+              <SavePlanButton handleSavePlan={() => savePlan()}/> 
             </>
           }
           

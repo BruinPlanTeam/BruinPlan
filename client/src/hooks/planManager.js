@@ -45,10 +45,7 @@ export function usePlanManager() {
             majorName: major,
             quarters: serializeDroppableZones(droppableZones)
         };
-        
-
-        console.log("planData: ", planData);
-        
+                
         try {
           // Call backend
           const response = await fetch('http://localhost:3000/plans', {
@@ -73,6 +70,16 @@ export function usePlanManager() {
           throw error; // Re-throw so calling component can handle it
         }
       };
+
+    const getPlans = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:3000/plans', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.json();
+    }
 
     const loadPlan = (droppableZonesData, newMajor) => {
         // TODO: Im not sure how the data is stored, will change how I handle populating the side bar
@@ -112,6 +119,7 @@ export function usePlanManager() {
     return {
         major,
         savePlan,
+        getPlans,
         loadPlan,
         categorizedClasses, 
         requirements,

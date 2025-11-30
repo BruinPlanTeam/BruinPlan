@@ -255,11 +255,6 @@ app.post('/plans', authenticateToken, async (req, res) => {
     const { name, majorName, quarters } = req.body;
     const userId = req.user.userId; // From JWT
 
-    console.log("name: ", name);
-    console.log("majorName: ", majorName);
-    console.log("quarters: ", quarters);
-    console.log("userId: ", userId);
-
     // Validate input
     if (!name || !majorName || !quarters) {
       return res.status(400).json({ error: "Missing required fields: name, majorName, quarters" });
@@ -306,6 +301,15 @@ app.post('/plans', authenticateToken, async (req, res) => {
     console.error('Error saving plan:', error);
     return res.status(500).json({ error: error.message });
   }
+});
+
+app.get('/plans', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+  const plans = await prisma.plan.findMany({
+    where: { userId },
+    include: { quarters: true }
+  });
+  return res.status(200).json(plans);
 });
 
 module.exports = app;
