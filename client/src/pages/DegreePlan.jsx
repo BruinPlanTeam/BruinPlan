@@ -5,6 +5,7 @@ import CourseSidebar from '../components/CourseSidebar.jsx';
 
 import { ProgressBar } from '../components/ProgressBar.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
+import { SavePlanButton } from '../components/SavePlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
 import {
@@ -19,13 +20,16 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import '../styles/DegreePlan.css';
 import { usePlanManager } from '../hooks/planManager.js';
+import { useAuth } from '../contexts/AuthContext';
 
 
 export default function DegreePlan() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const {
     major,
+    savePlan,
     loadPlan,
     categorizedClasses, 
     requirements,
@@ -93,7 +97,12 @@ export default function DegreePlan() {
           </div>
 
           <ProgressBar requirements={requirements} droppableZones={droppableZones} />
-          <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
+          {isAuthenticated && 
+            <>  
+              <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
+              <SavePlanButton handleSavePlan={(planName) => savePlan(planName)}/> 
+            </>
+          }
           
           <div className="content-wrapper">
             

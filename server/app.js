@@ -249,5 +249,63 @@ app.post('/users/login', async (req, res) => {
   }
 });
 
+// plan routes
+app.post('/plans', authenticateToken, async (req, res) => {
+  try {
+    const { name, majorName, quarters } = req.body;
+    const userId = req.user.userId; // From JWT
+
+    console.log("name: ", name);
+    console.log("majorName: ", majorName);
+    console.log("quarters: ", quarters);
+    console.log("userId: ", userId);
+
+    // Validate input
+    if (!name || !majorName || !quarters) {
+      return res.status(400).json({ error: "Missing required fields: name, majorName, quarters" });
+    }
+
+    // Look up major ID
+    const major = await prisma.major.findFirst({
+      where: { name: majorName }
+    });
+
+    if (!major) {
+      return res.status(404).json({ error: "Major not found" });
+    }
+
+    // Create plan with nested quarters and planClasses
+    const plan = await prisma.plan.create({
+      data: {
+        name,
+        userId,
+        majorId: major.id,
+        quarters: {
+          create: quarters.map(q => ({
+            quarterNumber: q.quarterNumber,
+            planClasses: {
+              create: q.classIds.map(classId => ({
+                classId,
+                status: "planned"
+              }))
+            }
+          }))
+        }
+      },
+      include: {
+        quarters: {
+          include: {
+            planClasses: true
+          }
+        }
+      }
+    });
+
+    return res.status(201).json(plan);
+  } catch (error) {
+    console.error('Error saving plan:', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = app;
