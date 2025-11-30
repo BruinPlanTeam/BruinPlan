@@ -1,7 +1,3 @@
-//npx prisma db pull -> to update schema file
-//npx prisma migrate dev --name <name of change> -> to update db
-//npx prisma generate -> makes objects for each table
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -33,10 +29,11 @@ model Plan {
 }
 
 model Major {
-  id                Int                @id @default(autoincrement())
-  name              String
-  majorRequirements MajorRequirement[]
-  plans             Plan[]
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  majorRequirements     MajorRequirement[]
+  MajorRequirementGroup MajorRequirementGroup[]
+  plans                 Plan[]
 }
 
 model Quarter {
@@ -52,13 +49,11 @@ model Quarter {
 model Requirement {
   id                  Int                   @id @default(autoincrement())
   name                String
-  type                String
   coursesToChoose     Int
   majorRequirements   MajorRequirement[]
   requirementClasses  RequirementClasses[]
   requirementsInGroup RequirementsInGroup[]
 }
-
 
 model Class {
   id                 Int                  @id @default(autoincrement())
@@ -115,14 +110,12 @@ model Prereq {
 }
 
 model RequirementGroup {
-  id                  Int                   @id @default(autoincrement())
-  name                String
-  highNumberInReq     Int
-  lowNumberInReq      Int
-  numberOfHighReqs    Int
-  numberOfLowReqs     Int
-  total               Int
-  requirementsInGroup RequirementsInGroup[]
+  id                      Int                     @id @default(autoincrement())
+  name                    String
+  numRequirementsToChoose Int                     @default(1)
+  type                    String?                 @db.VarChar(50)
+  MajorRequirementGroup   MajorRequirementGroup[]
+  requirementsInGroup     RequirementsInGroup[]
 }
 
 model RequirementsInGroup {
@@ -133,4 +126,14 @@ model RequirementsInGroup {
 
   @@id([reqId, reqGroupId])
   @@index([reqGroupId], map: "RequirementsInGroup_reqGroupId_fkey")
+}
+
+model MajorRequirementGroup {
+  majorId            Int
+  requirementGroupId Int
+  Major              Major            @relation(fields: [majorId], references: [id], onDelete: Cascade, map: "MajorRequirementGroup_ibfk_1")
+  RequirementGroup   RequirementGroup @relation(fields: [requirementGroupId], references: [id], onDelete: Cascade, map: "MajorRequirementGroup_ibfk_2")
+
+  @@id([majorId, requirementGroupId])
+  @@index([requirementGroupId], map: "requirementGroupId")
 }

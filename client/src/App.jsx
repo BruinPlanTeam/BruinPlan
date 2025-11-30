@@ -2,7 +2,7 @@ import * as React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomeScreen from './pages/HomeScreen';
 import DegreePlan from './pages/DegreePlan';
-import Login from './components/Login';
+import Auth from './components/Auth';
 import { MajorProvider } from './providers/Major';
 import './App.css';
 
@@ -12,7 +12,7 @@ function App() {
       <MajorProvider>
         <Routes>
           <Route path="/" element={<HomeScreen />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Auth />} />
           <Route path="/degreeplan" element={<DegreePlan />} />
         </Routes>
       </MajorProvider>

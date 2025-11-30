@@ -1,8 +1,9 @@
-// src/components/Login.jsx
+// src/components/Auth.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
+export default function Auth() {
+  const [signUp, setSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
@@ -45,7 +46,7 @@ export default function Login() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  const onSubmit = (e) => {
+  const onLoginSubmit = (e) => {
     e.preventDefault();
     setErr('');
     if (!email || !pw) {
@@ -55,14 +56,28 @@ export default function Login() {
     navigate('/saved-plans');
   };
 
+  const onSignUpSubmit = (e) => {
+    e.preventDefault();
+    setErr('');
+    if (!email || !pw) {
+      setErr('Both fields are required');
+      return;
+    }
+    navigate('/saved-plans');
+  };
+
+  const handleChangeSignUp = () => {
+    setSignUp(!signUp);
+  };
+
   return (
     <div style={styles.page}>
       <div style={styles.bgGlow} />
       <div ref={arenaRef} style={styles.arena}>
         <div ref={bearRef} style={styles.bear} aria-hidden>🐻</div>
-        <div style={styles.card} role="region" aria-label="Login form">
+        <div style={styles.card} role="region" aria-label="Authentication form">
           <h1 style={styles.title}>Login to View Saved Plans</h1>
-          <form onSubmit={onSubmit} style={styles.form}>
+          <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} style={styles.form}>
             <label style={styles.label}>
               Email
               <input
@@ -86,7 +101,12 @@ export default function Login() {
               />
             </label>
             {err ? <p style={styles.error}>{err}</p> : null}
-            <button type="submit" style={styles.button}>Log In</button>
+            {!signUp ? <button type="submit" style={styles.button}>Log In</button> : null}
+            {signUp ? <button type="submit" style={styles.button}>Sign Up</button> : null}
+            {!signUp ? <p6>Don't have an account? </p6> : null}
+            {!signUp ? <button type="button" style={styles.signUpButton} onClick={() => handleChangeSignUp()}>Sign Up</button> : null}
+            {signUp ? <p6>Already have an account? </p6> : null}
+            {signUp ? <button type="button" style={styles.signUpButton} onClick={() => handleChangeSignUp()}>Login</button> : null}
           </form>
         </div>
       </div>
@@ -189,6 +209,14 @@ const styles = {
     cursor: 'pointer',
     boxShadow: '0 8px 20px rgba(39,116,174,0.35)',
     transition: 'transform 0.08s ease',
+  },
+  signUpButton: {
+    marginTop: '6px',
+    height: '44px',
+    borderRadius: '10px',
+    border: 'none',
+    background: 'transparent',
+    color: '#EAF6FF',
   },
   error: {
     color: '#ff6b6b',
