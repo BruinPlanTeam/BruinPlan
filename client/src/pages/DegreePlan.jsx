@@ -70,17 +70,21 @@ export default function DegreePlan() {
     >
         <div className="app-container">
           <div className="plan-header">
-            <h1>{major}</h1>
-            <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
+            <div className="plan-header-content">
+              <div>
+                <h1>{major}</h1>
+                <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
+              </div>
+              {isAuthenticated && 
+                <div className="plan-actions">
+                  <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
+                  <SavePlanButton handleSavePlan={savePlan}/> 
+                </div>
+              }
+            </div>
           </div>
 
           <ProgressBar requirements={requirements} droppableZones={droppableZones} />
-          {isAuthenticated && 
-            <>  
-              <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
-              <SavePlanButton handleSavePlan={savePlan}/> 
-            </>
-          }
           
           <div className="content-wrapper">
             

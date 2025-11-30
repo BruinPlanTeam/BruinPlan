@@ -7,22 +7,71 @@
 
 /* Plan Header */
 .plan-header {
-  text-align: center;
   margin-bottom: 3rem;
   padding-top: 2rem;
+}
+
+.plan-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1800px;
+  margin: 0 auto;
 }
 
 .plan-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .plan-subtitle {
   font-size: 1.1rem;
   color: #a8b2d1;
   font-weight: 300;
+  margin: 0;
+}
+
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .plan-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  
+  .plan-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .plan-header h1 {
+    font-size: 2rem;
+  }
+  
+  .plan-subtitle {
+    font-size: 1rem;
+  }
+  
+  .plan-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  
+  .plan-actions > * {
+    width: 100%;
+  }
 }
 
 /* Content Wrapper */
