@@ -9,6 +9,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // --- DVD-style bouncing bear ---
@@ -51,41 +52,60 @@ export default function Auth() {
   const onLoginSubmit = async (e) => {
     e.preventDefault();
     setErr('');
+    
     if (!email || !pw) {
       setErr('Both fields are required');
       return;
     }
     
-    try {
-      await login(email, pw);
+    setLoading(true);
+    const result = await login(email, pw);
+    setLoading(false);
+    
+    if (result.success) {
       navigate('/');
-    } catch (error) {
-      console.error('Login error:', error);
-      setErr('Network error. Please try again.');
+    } else {
+      setErr(result.error || 'Login failed. Please try again.');
     }
   };
 
   const onSignUpSubmit = async (e) => {
     e.preventDefault();
     setErr('');
+    
     if (!email || !pw) {
       setErr('Both fields are required');
       return;
     }
 
-    try {
-      await signup(email, pw);
-      navigate('/');
+    // Basic validation
+    if (pw.length < 6) {
+      setErr('Password must be at least 6 characters');
+      return;
+    }
 
-      setSignUp(false);
-      setErr('Account created! Please log in.');
-    } catch (error) {
-      setErr(error.message || 'Network error. Please try again.');
+    if (!email.includes('@')) {
+      setErr('Please enter a valid email');
+      return;
+    }
+
+    setLoading(true);
+    const result = await signup(email, pw);
+    setLoading(false);
+    
+    if (result.success) {
+      // Signup auto-logs in, so navigate to home
+      navigate('/');
+    } else {
+      setErr(result.error || 'Signup failed. Please try again.');
     }
   };
 
   const handleChangeSignUp = () => {
     setSignUp(!signUp);
+    setErr(''); // Clear errors when switching modes
+    setEmail('');
+    setPw('');
   };
 
   return (
@@ -119,8 +139,15 @@ export default function Auth() {
               />
             </label>
             {err ? <p style={styles.error}>{err}</p> : null}
-            {!signUp ? <button type="submit" style={styles.button}>Log In</button> : null}
-            {signUp ? <button type="submit" style={styles.button}>Sign Up</button> : null}
+            {!signUp ? (
+              <button type="submit" style={styles.button} disabled={loading}>
+                {loading ? 'Logging in...' : 'Log In'}
+              </button>
+            ) : (
+              <button type="submit" style={styles.button} disabled={loading}>
+                {loading ? 'Signing up...' : 'Sign Up'}
+              </button>
+            )}
             {!signUp ? <p6>Don't have an account? </p6> : null}
             {!signUp ? <button type="button" style={styles.signUpButton} onClick={() => handleChangeSignUp()}>Sign Up</button> : null}
             {signUp ? <p6>Already have an account? </p6> : null}
@@ -226,7 +253,7 @@ const styles = {
     fontWeight: 700,
     cursor: 'pointer',
     boxShadow: '0 8px 20px rgba(39,116,174,0.35)',
-    transition: 'transform 0.08s ease',
+    transition: 'transform 0.08s ease, opacity 0.2s ease',
   },
   signUpButton: {
     marginTop: '6px',
