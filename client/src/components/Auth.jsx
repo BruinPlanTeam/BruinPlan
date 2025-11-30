@@ -1,8 +1,10 @@
 // src/components/Auth.jsx
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Auth() {
+  const { login, signup } = useAuth();
   const [signUp, setSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
@@ -55,31 +57,8 @@ export default function Auth() {
     }
     
     try {
-      const response = await fetch('http://localhost:3000/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({  
-          email: email,
-          password: pw
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setErr(data.error || 'Login failed');
-        return;
-      }
-
-      console.log('Login successful:', data);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Navigate to or degree planner
+      await login(email, pw);
       navigate('/');
-      
     } catch (error) {
       console.error('Login error:', error);
       setErr('Network error. Please try again.');
@@ -95,49 +74,13 @@ export default function Auth() {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: email, // Using email as username for now
-          email: email,
-          password: pw
-        })
-      });
+      await signup(email, pw);
+      navigate('/');
 
-      // Debug: Log the raw response
-      const text = await response.text();
-      console.log('Raw response:', text);
-      console.log('Response status:', response.status);
-      
-      // Try to parse as JSON
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (parseError) {
-        console.error('Failed to parse JSON:', text);
-        setErr('Server returned invalid response');
-        return;
-      }
-
-      // Check if request was successful
-      if (!response.ok) {
-        setErr(data.error || 'Signup failed');
-        return;
-      }
-
-      console.log('Signup successful:', data);
-      
-      // TODO: Auto-login after signup
-      // For now, just navigate to login mode
       setSignUp(false);
       setErr('Account created! Please log in.');
-      
     } catch (error) {
-      console.error('Signup error:', error);
-      setErr('Network error. Please try again.');
+      setErr(error.message || 'Network error. Please try again.');
     }
   };
 
