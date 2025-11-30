@@ -307,7 +307,21 @@ app.get('/plans', authenticateToken, async (req, res) => {
   const userId = req.user.userId;
   const plans = await prisma.plan.findMany({
     where: { userId },
-    include: { quarters: true }
+    include: { 
+      major: true,
+      quarters: {
+        include: {
+          planClasses: {
+            include: {
+              class: true  
+            }
+          }
+        },
+        orderBy: {
+          quarterNumber: 'asc'
+        }
+      }
+    }
   });
   return res.status(200).json(plans);
 });

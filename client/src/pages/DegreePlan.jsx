@@ -78,7 +78,7 @@ export default function DegreePlan() {
           {isAuthenticated && 
             <>  
               <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
-              <SavePlanButton handleSavePlan={() => savePlan()}/> 
+              <SavePlanButton handleSavePlan={savePlan}/> 
             </>
           }
           

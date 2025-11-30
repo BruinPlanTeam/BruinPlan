@@ -6,8 +6,6 @@ export function SavedPlansButton({ handleLoadScreen, getPlans }) {
     const [showPlans, setShowPlans] = useState(false);
     const [savedPlans, setSavedPlans] = useState([]);
 
-    console.log("savedPlans: ", savedPlans);
-
     const handleClick = () => {
         getPlans().then(setSavedPlans);
         setShowPlans(!showPlans);
@@ -53,13 +51,13 @@ export function SavedPlansButton({ handleLoadScreen, getPlans }) {
                 Browse Saved Plans
             </button>
             
-            {/* {showPlans && (
+            {showPlans && (
                 <PlansPopUp 
-                    getPlans={getPlans} 
+                    savedPlans={savedPlans} 
                     handleLoadScreen={handleLoadScreen}
                     onClose={handleClose} 
                 />
-            )} */}
+            )}
         </>
     );
 };

@@ -45,6 +45,13 @@ export function usePlanManager() {
             majorName: major,
             quarters: serializeDroppableZones(droppableZones)
         };
+        
+        console.log('Saving plan with data:', {
+            planName,
+            major,
+            quartersLength: planData.quarters?.length,
+            fullData: planData
+        });
                 
         try {
           // Call backend
@@ -73,23 +80,41 @@ export function usePlanManager() {
 
     const getPlans = async () => {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3000/plans', {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        
+        try {
+            const response = await fetch('http://localhost:3000/plans', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            // Check if response is OK before parsing
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error:', response.status, errorText);
+                throw new Error(`Failed to load plans: ${response.status} - ${errorText.substring(0, 100)}`);
             }
-        });
-        return response.json();
+            
+            return response.json();
+        } catch (error) {
+            console.error('Get plans error:', error);
+            throw error; // Re-throw so calling component can handle it
+        }
     }
 
-    const loadPlan = (droppableZonesData, newMajor) => {
-        // TODO: Im not sure how the data is stored, will change how I handle populating the side bar
+    const loadPlan = (planData) => {
+        console.log("Loading plan: ", planData);
         isLoadingPlan.current = true;
 
-        if (newMajor && newMajor !== major) {
-            setMajor(newMajor); 
+        // Set major if it's different from current
+        if (planData.major && planData.major.name !== major) {
+            setMajor(planData.major.name); 
         }
 
-        setDroppableZones(droppableZonesData);
+        // Deserialize plan data to droppable zones format
+        const newZones = deserializePlanToZones(planData);
+        setDroppableZones(newZones);
     }
 
     useEffect(() => {
@@ -162,21 +187,42 @@ function serializeDroppableZones(droppableZones, majorName) {
     return quarters;
   }
 
-  function deserializePlanToZones(planData, allClasses) {
-    const zones = initializeEmptyZones(); // Your existing initialization
+  function deserializePlanToZones(planData) {
+    // Initialize empty zones structure
+    const zones = {};
+    const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
     
-    planData.quarters.forEach(quarter => {
-      const year = Math.ceil(quarter.quarterNumber / 4);
-      const quarterInYear = ((quarter.quarterNumber - 1) % 4) + 1;
-      const zoneId = `zone-${year}-${quarterInYear}`;
-      
-      // Look up full class objects from IDs
-      const classObjects = quarter.planClasses.map(pc => {
-        return allClasses.find(c => c.id == pc.classId);
-      }).filter(Boolean);
-      
-      zones[zoneId].items = classObjects;
-    });
+    for (let year = 1; year <= 4; year++) {
+      for (let quarter = 1; quarter <= 4; quarter++) {
+        const zoneId = `zone-${year}-${quarter}`;
+        zones[zoneId] = {
+          id: zoneId,
+          title: quarterTitles[quarter - 1],
+          items: []
+        };
+      }
+    }
+    
+    // Fill zones with classes from planData
+    if (planData.quarters && Array.isArray(planData.quarters)) {
+      planData.quarters.forEach(quarter => {
+        // Convert quarterNumber back to zone coordinates
+        const year = Math.ceil(quarter.quarterNumber / 4);
+        const quarterInYear = ((quarter.quarterNumber - 1) % 4) + 1;
+        const zoneId = `zone-${year}-${quarterInYear}`;
+        
+        // Map planClasses to zone items
+        if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
+          zones[zoneId].items = quarter.planClasses.map(pc => ({
+            id: String(pc.class.id),
+            code: pc.class.code,
+            units: pc.class.units,
+            description: pc.class.description,
+            prereqIds: [] // Will be populated if needed
+          }));
+        }
+      });
+    }
     
     return zones;
   }

@@ -1,16 +1,11 @@
 import "../styles/PlansPopUp.css";
 
-export function PlansPopUp({ getPlans, handleLoadScreen, onClose }) {
-    const [savedPlans, setSavedPlans] = useState([]);
-
-    useEffect(() => {
-        getPlans().then(setSavedPlans);
-    }, [getPlans]);
+export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
 
     const handlePlanClick = (plan) => {
         console.log("Loading plan:", plan);
         if (handleLoadScreen) {
-            getPlans();
+            handleLoadScreen(plan);
         }
         onClose();
     };
@@ -86,10 +81,10 @@ export function PlansPopUp({ getPlans, handleLoadScreen, onClose }) {
                                         </svg>
                                     </div>
                                     <div className="plan-card-details">
-                                        <span className="plan-card-major">{plan.major}</span>
+                                        <span className="plan-card-major">{plan.major?.name || 'Unknown Major'}</span>
                                         <span className="plan-card-dot">•</span>
                                         <span className="plan-card-date">
-                                            Modified {new Date(plan.lastModified).toLocaleDateString()}
+                                            {plan.quarters?.length || 0} quarters
                                         </span>
                                     </div>
                                 </div>
