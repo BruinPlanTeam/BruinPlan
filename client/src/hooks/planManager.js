@@ -13,7 +13,7 @@ export function usePlanManager() {
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories,
-        requirements,
+        requirementGroups,
         fetchData 
     } = useCategorizedCourses(major);
 
@@ -30,7 +30,7 @@ export function usePlanManager() {
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories, 
-        requirements 
+        requirementGroups 
     );
 
     const { arePrereqsCompleted } = useCourseValidation(droppableZones);
@@ -147,7 +147,7 @@ export function usePlanManager() {
         getPlans,
         loadPlan,
         categorizedClasses, 
-        requirements,
+        requirementGroups,
         droppableZones,
         setDroppableZones,
         activeId,
@@ -218,7 +218,7 @@ function serializeDroppableZones(droppableZones, majorName) {
             code: pc.class.code,
             units: pc.class.units,
             description: pc.class.description,
-            prereqIds: [] // Will be populated if needed
+            prereqGroups: []
           }));
         }
       });

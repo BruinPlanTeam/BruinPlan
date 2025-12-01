@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ProgressBar.css';
 
-export function ProgressBar({ requirements, droppableZones }) {
+export function ProgressBar({ requirementGroups, droppableZones }) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
   const [expandedGroups, setExpandedGroups] = useState({});
@@ -13,55 +13,64 @@ export function ProgressBar({ requirements, droppableZones }) {
 
   useEffect(() => {
     calculateProgress();
-  }, [requirements, zonesKey]);
+  }, [requirementGroups, zonesKey]);
 
   const calculateProgress = () => {
-    if (!requirements || requirements.length === 0) return;
+    if (!requirementGroups || requirementGroups.length === 0) return;
 
     // get all scheduled course ids from the plan
     const scheduledCourseIds = Object.values(droppableZones)
       .flatMap(zone => zone.items.map(item => item.id))
       .filter(Boolean);
 
-    // group requirements by type
+    // group requirement groups by type
     const typeGroups = {};
     let totalRequired = 0;
     let totalCompleted = 0;
 
-    requirements.forEach(req => {
-      const type = req.type || 'Other';
+    requirementGroups.forEach(group => {
+      const type = group.type || 'Other';
 
       if (!typeGroups[type]) {
         typeGroups[type] = {
           type,
-          requirements: [],
+          groups: [],
           completed: 0,
           total: 0
         };
       }
 
-      // check how many courses from this requirement are scheduled
-      const requiredCourses = req.fulfilledByClassIds || [];
-      const scheduledFromReq = requiredCourses.filter(courseId => 
-        scheduledCourseIds.some(id => id == courseId)
-      );
+      const groupEntry = {
+        id: group.id,
+        name: group.name,
+        requirements: [],
+      };
 
-      const coursesToChoose = req.coursesToChoose || 1;
-      const completed = Math.min(scheduledFromReq.length, coursesToChoose);
-      const isComplete = completed >= coursesToChoose;
+      (group.requirements || []).forEach(req => {
+        const requiredCourses = req.fulfilledByClassIds || [];
+        const scheduledFromReq = requiredCourses.filter(courseId => 
+          scheduledCourseIds.some(id => id == courseId)
+        );
 
-      typeGroups[type].requirements.push({
-        name: req.name,
-        completed,
-        total: coursesToChoose,
-        isComplete
+        const coursesToChoose = req.coursesToChoose || 1;
+        const completed = Math.min(scheduledFromReq.length, coursesToChoose);
+        const isComplete = completed >= coursesToChoose;
+
+        groupEntry.requirements.push({
+          name: req.name,
+          completed,
+          total: coursesToChoose,
+          isComplete
+        });
+
+        typeGroups[type].completed += completed;
+        typeGroups[type].total += coursesToChoose;
+
+        totalRequired += coursesToChoose;
+        totalCompleted += completed;
       });
 
-      typeGroups[type].completed += completed;
-      typeGroups[type].total += coursesToChoose;
-
-      totalRequired += coursesToChoose;
-      totalCompleted += completed;
+      typeGroups[type].groups.push(groupEntry);
     });
 
     console.log("typeGroups: ", typeGroups) 
@@ -108,23 +117,23 @@ export function ProgressBar({ requirements, droppableZones }) {
 
       {/* Progress by Type */}
       <div className="progress-groups">
-        {Object.values(progressByType).map(group => {
-          const percentage = group.total > 0 ? (group.completed / group.total) * 100 : 0;
-          const isExpanded = expandedGroups[group.type];
+        {Object.values(progressByType).map(groupType => {
+          const percentage = groupType.total > 0 ? (groupType.completed / groupType.total) * 100 : 0;
+          const isExpanded = expandedGroups[groupType.type];
           
           return (
-            <div key={group.type} className="progress-group">
+            <div key={groupType.type} className="progress-group">
               <div 
                 className="group-header clickable"
-                onClick={() => toggleGroup(group.type)}
+                onClick={() => toggleGroup(groupType.type)}
               >
                 <div className="group-title">
                   <span className={`dropdown-arrow ${isExpanded ? 'expanded' : ''}`}>
                     ▼
                   </span>
-                  <span className="group-name">{group.type}</span>
+                  <span className="group-name">{groupType.type}</span>
                   <span className="group-stats">
-                    {group.completed}/{group.total}
+                    {groupType.completed}/{groupType.total}
                   </span>
                 </div>
                 <div className="progress-track">
@@ -132,37 +141,93 @@ export function ProgressBar({ requirements, droppableZones }) {
                     className="progress-fill"
                     style={{ 
                       width: `${percentage}%`,
-                      backgroundColor: getTypeColor(group.type)
+                      backgroundColor: getTypeColor(groupType.type)
                     }}
                   />
                 </div>
               </div>
 
-              {/* Individual Requirements Dropdown */}
+              {/* Individual Requirement Groups / Requirements Dropdown */}
               {isExpanded && (
                 <div className="requirements-dropdown">
-                  {group.requirements.map((req, index) => {
-                    const reqPercentage = req.total > 0 ? (req.completed / req.total) * 100 : 0;
+                  {groupType.groups.map((grp, index) => {
+                    if (!grp.requirements || grp.requirements.length === 0) return null;
+
+                    // If only one requirement in the group, show just the requirement
+                    if (grp.requirements.length === 1) {
+                      const req = grp.requirements[0];
+                      const reqPercentage = req.total > 0 ? (req.completed / req.total) * 100 : 0;
+                      return (
+                        <div key={index} className="requirement-item">
+                          <div className="requirement-header">
+                            <span className={`requirement-status ${req.isComplete ? 'complete' : 'incomplete'}`}>
+                              {req.isComplete ? '✓' : '○'}
+                            </span>
+                            <span className="requirement-name">{req.name}</span>
+                            <span className="requirement-stats">
+                              {req.completed}/{req.total}
+                            </span>
+                          </div>
+                          <div className="requirement-progress-track">
+                            <div 
+                              className="requirement-progress-fill"
+                              style={{ 
+                                width: `${reqPercentage}%`,
+                                backgroundColor: getTypeColor(groupType.type)
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // Otherwise, render group header with nested requirements
+                    const groupCompleted = grp.requirements.reduce((sum, r) => sum + r.completed, 0);
+                    const groupTotal = grp.requirements.reduce((sum, r) => sum + r.total, 0);
+                    const groupPercentage = groupTotal > 0 ? (groupCompleted / groupTotal) * 100 : 0;
+
                     return (
-                      <div key={index} className="requirement-item">
+                      <div key={index} className="requirement-group-item">
                         <div className="requirement-header">
-                          <span className={`requirement-status ${req.isComplete ? 'complete' : 'incomplete'}`}>
-                            {req.isComplete ? '✓' : '○'}
-                          </span>
-                          <span className="requirement-name">{req.name}</span>
+                          <span className="requirement-name">{grp.name}</span>
                           <span className="requirement-stats">
-                            {req.completed}/{req.total}
+                            {groupCompleted}/{groupTotal}
                           </span>
                         </div>
                         <div className="requirement-progress-track">
                           <div 
                             className="requirement-progress-fill"
                             style={{ 
-                              width: `${reqPercentage}%`,
-                              backgroundColor: getTypeColor(group.type)
+                              width: `${groupPercentage}%`,
+                              backgroundColor: getTypeColor(groupType.type)
                             }}
                           />
                         </div>
+                        {grp.requirements.map((req, rIndex) => {
+                          const reqPercentage = req.total > 0 ? (req.completed / req.total) * 100 : 0;
+                          return (
+                            <div key={rIndex} className="requirement-item nested">
+                              <div className="requirement-header">
+                                <span className={`requirement-status ${req.isComplete ? 'complete' : 'incomplete'}`}>
+                                  {req.isComplete ? '✓' : '○'}
+                                </span>
+                                <span className="requirement-name">{req.name}</span>
+                                <span className="requirement-stats">
+                                  {req.completed}/{req.total}
+                                </span>
+                              </div>
+                              <div className="requirement-progress-track">
+                                <div 
+                                  className="requirement-progress-fill"
+                                  style={{ 
+                                    width: `${reqPercentage}%`,
+                                    backgroundColor: getTypeColor(groupType.type)
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     );
                   })}

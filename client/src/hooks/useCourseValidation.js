@@ -7,14 +7,9 @@ const MAX_COLS = 4;
  * Custom hook for course validation logic (prerequisites, units, etc.)
  */
 export function useCourseValidation(droppableZones) {
-  /**
-   * Check if prerequisites are completed for a course being moved to a target zone
-   * @param {string} targetZoneId - The zone where the course is being dropped
-   * @param {string} currentId - The ID of the course being moved
-   * @param {Array} currentPrereqs - Array of prerequisite IDs
-   * @returns {boolean} True if all prerequisites are satisfied
-   */
-  const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqs) => {
+  // Check if prerequisites are completed for a course being moved to a target zone.
+  // currentPrereqs is an array of prerequisite IDs (already normalized).
+  const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqs = []) => {
     let takenClasses = [];
     let unsatisfiedPrereqs = [];
 
@@ -34,11 +29,13 @@ export function useCourseValidation(droppableZones) {
     // flatten and remove currentId from taken classes
     takenClasses = takenClasses.flat().filter(item => item != currentId).filter(Boolean);
     
-    // check if all prerequisites are satisfied
-    for (const prereq of currentPrereqs) {
-      // use loose equality to handle string/number type mismatches
-      if (!takenClasses.find(item => item == prereq)) {
-        unsatisfiedPrereqs.push(prereq);
+    // check if all prerequisites are satisfied (AND over the normalized prereq list)
+    if (Array.isArray(currentPrereqs)) {
+      for (const prereq of currentPrereqs) {
+        // use loose equality to handle string/number type mismatches
+        if (!takenClasses.find(item => item == prereq)) {
+          unsatisfiedPrereqs.push(prereq);
+        }
       }
     }
 
@@ -65,8 +62,13 @@ export function useCourseValidation(droppableZones) {
             // skip checking the current class against itself
             if (classItem.id == currentId) continue;
             
+            // normalize prereqs for classes already on the board
+            const futurePrereqs = Array.isArray(classItem.prereqGroups)
+              ? classItem.prereqGroups.flat().filter(Boolean)
+              : [];
+
             // check if currentId is a prerequisite for this class
-            if (classItem.prereqIds && classItem.prereqIds.some(prereqId => prereqId == currentId)) {
+            if (futurePrereqs.some(prereqId => prereqId == currentId)) {
               console.log(`Cannot move: This class is a prerequisite for ${classItem.code} in ${zone}`);
               return false;
             }

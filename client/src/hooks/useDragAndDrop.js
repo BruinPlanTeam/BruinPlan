@@ -18,7 +18,7 @@ export function useDragAndDrop(
     categorizedClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    requirements,
+    requirementGroups,
 ) {
   // initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -111,8 +111,8 @@ export function useDragAndDrop(
     }));
     
     // add back to category
-    addCourseToCategory(item, requirements);
-  }, [addCourseToCategory, requirements]);
+    addCourseToCategory(item, requirementGroups);
+  }, [addCourseToCategory, requirementGroups]);
 
   /**
    * Move course from category sidebar to zone
@@ -165,6 +165,12 @@ export function useDragAndDrop(
 
           
 
+    // helper to normalize prereqs from prereqGroups (array of OR-groups)
+    const getNormalizedPrereqs = (item) => {
+      if (!item || !Array.isArray(item.prereqGroups)) return [];
+      return Array.from(new Set(item.prereqGroups.flat().filter(Boolean)));
+    };
+
     // get the id of where the object came from
     let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
@@ -173,7 +179,7 @@ export function useDragAndDrop(
         currentName = matchedItem.code;
         currentId = matchedItem.id;
         currentUnits = matchedItem.units;
-        currentPrereqs = matchedItem.prereqIds;
+        currentPrereqs = getNormalizedPrereqs(matchedItem);
         sourceZoneId = key;
         break;
       }
@@ -191,7 +197,7 @@ export function useDragAndDrop(
         currentName = item.code;
         currentId = item.id;
         currentUnits = item.units;
-        currentPrereqs = item.prereqIds;
+        currentPrereqs = getNormalizedPrereqs(item);
         break;
       }
     }
@@ -246,7 +252,7 @@ export function useDragAndDrop(
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id);
 
       // a class cannot have itself as a prereq
-      currentPrereqs = currentPrereqs.filter(prereq => prereq != currentId);
+      currentPrereqs = (currentPrereqs || []).filter(prereq => prereq != currentId);
 
       const totalUnits = getCurrentUnits(targetZoneId, droppableZones) + currentUnits;
       const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);

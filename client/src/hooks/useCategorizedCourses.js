@@ -19,14 +19,14 @@ export function useCategorizedCourses(major) {
     'GE': []
   });
 
-  const [requirements, setRequirements] = useState([]);
+  const [requirementGroups, setRequirementGroups] = useState([]);
 
   useEffect(() =>  {
     async function fetchData(){
       try{
         const data = await getMajorData(major);
-        setRequirements(data.majorRequirements);
-        categorizeClasses(data.availableClasses, data.majorRequirements);
+        setRequirementGroups(data.majorRequirementGroups);
+        categorizeClasses(data.availableClasses, groups);
       } catch(e){
         console.error("Error retrieving majors: ", {major}, e);
       }
@@ -38,9 +38,9 @@ export function useCategorizedCourses(major) {
   /**
    * Categorize classes based on requirements
    * @param {Array} allClasses - All available classes
-   * @param {Array} allRequirements - All major requirements
+   * @param {Array} allRequirementGroups - All major requirement groups
    */
-  const categorizeClasses = useCallback((allClasses, allRequirements) => {
+  const categorizeClasses = useCallback((allClasses, allRequirementGroups) => {
     const categories = {
       'Prep': [],
       'Major': [],
@@ -48,16 +48,18 @@ export function useCategorizedCourses(major) {
       'GE': []
     };
 
-    // create a map of classId to requirement types
+    // create a map of classId to requirement group types
     const classToReqType = new Map();
     
-    allRequirements.forEach(req => {
-      const category = req.type;
-
-      req.fulfilledByClassIds?.forEach(classId => {
-        if (!classToReqType.has(classId)) {
-          classToReqType.set(classId, category);
-        }
+    // For each group, map its requirements' classes to the group's type
+    allRequirementGroups.forEach(group => {
+      const category = group.type || 'Other';
+      (group.requirements || []).forEach(req => {
+        req.fulfilledByClassIds?.forEach(classId => {
+          if (!classToReqType.has(classId)) {
+            classToReqType.set(classId, category);
+          }
+        });
       });
     });
 
@@ -77,9 +79,9 @@ export function useCategorizedCourses(major) {
   /**
    * Add a course back to its appropriate category
    * @param {Object} item - The course item to add back
-   * @param {Array} requirements - All major requirements
+   * @param {Array} requirementGroups - All major requirement groups
    */
-  const addCourseToCategory = useCallback((item, requirements) => {
+  const addCourseToCategory = useCallback((item, requirementGroups) => {
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       
@@ -90,12 +92,14 @@ export function useCategorizedCourses(major) {
         }
       }
       
-      // find correct category
+      // find correct category based on which requirement group the class fulfills
       let correctCategory = 'GE';
-      for (const req of requirements) {
-        if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
-          correctCategory = req.type;
-          break;
+      for (const group of requirementGroups) {
+        const category = group.type || 'Other';
+        for (const req of group.requirements || []) {
+          if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
+            correctCategory = category;
+          }
         }
       }
       
@@ -129,7 +133,7 @@ export function useCategorizedCourses(major) {
     categorizedClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    requirements
+    requirementGroups
   };
 }
 
