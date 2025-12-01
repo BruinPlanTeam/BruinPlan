@@ -113,9 +113,6 @@ class Course:
     def __repr__(self):
         return f"Course(code={self.code}, title={self.title}, units={self.units}, categories={self.categories})"
 
-# ==================================================================
-#  NEW FUNCTION: Generates an UPDATE-only script
-# ==================================================================
 def generate_unit_update_sql(courses_to_update: List[Course]) -> str:
     sql_lines = [
         "-- ========================================================",
@@ -128,16 +125,13 @@ def generate_unit_update_sql(courses_to_update: List[Course]) -> str:
     ]
 
     for course in courses_to_update:
-        # We already filtered this list, but this is a good safeguard
         if course.units != 5:
             continue
 
-        # Sanitize the code just in case
         safe_code = course.code.replace("'", "''")
         
         sql_lines.append(f"-- Patching: {safe_code} -> 5 units")
         
-        # The UPDATE command with the critical collation fix
         sql_lines.append(
             f"UPDATE Class SET units = 5 "
             f"WHERE code = '{safe_code}' COLLATE utf8mb4_unicode_ci;"
@@ -146,9 +140,6 @@ def generate_unit_update_sql(courses_to_update: List[Course]) -> str:
     sql_lines.append("\n-- --- END OF SCRIPT ---")
     return "\n".join(sql_lines)
 
-# ==================================================================
-#  This is the CORRECTED scraper function from our previous chat
-# ==================================================================
 def main_scraper():
     print("Setting up Selenium Chrome driver...")
     chrome_options = Options()
@@ -174,30 +165,30 @@ def main_scraper():
         try:
             host = driver.execute_script('return document.querySelector("ucla-sa-soc-app")')
             if not host:
-                print("❌  host <ucla-sa-soc-app> not found in light DOM")
+                print("host <ucla-sa-soc-app> not found in light DOM")
                 raise RuntimeError("host missing")
-            print("✅  host <ucla-sa-soc-app> found")
+            print("host <ucla-sa-soc-app> found")
 
             outer = driver.execute_script(
                 'return arguments[0].shadowRoot.querySelector(\'iwe-autocomplete[id="select_soc_filter_geclasses_foundation"]\')', host
             )
             if not outer:
-                print("❌  <iwe-autocomplete> not found inside host shadow-root")
+                print("<iwe-autocomplete> not found inside host shadow-root")
                 raise RuntimeError("outer missing")
-            print("✅  <iwe-autocomplete> found inside host shadow-root")
+            print("<iwe-autocomplete> found inside host shadow-root")
 
             shadow_input = driver.execute_script(
                 'return arguments[0].shadowRoot.querySelector(\'input[placeholder="Enter a Foundation (Required)"]\')', outer
             )
             if not shadow_input:
-                print("❌  input not found inside <iwe-autocomplete> shadow-root")
+                print("input not found inside <iwe-autocomplete> shadow-root")
                 raise RuntimeError("input missing")
-            print("✅  input found inside <iwe-autocomplete> shadow-root")
+            print("input found inside <iwe-autocomplete> shadow-root")
 
             shadow_input.click()
-            print("✅  clicked foundation dropdown")
+            print("clicked foundation dropdown")
         except Exception as e:
-            print("💥  shadow-root chain failed:", e)
+            print("shadow-root chain failed:", e)
             raise
 
         print("Clicked dropdown button.")
@@ -211,7 +202,7 @@ def main_scraper():
         if not option:
             raise RuntimeError("option 'Foundations of Arts and Humanities' not found")
         option.click()
-        print("✅ Selected first foundation.")
+        print("Selected first foundation.")
                 
 
         driver.execute_script(
@@ -228,9 +219,9 @@ def main_scraper():
                     host
                 )
             )
-            print("✅ Results loaded successfully.")
+            print("Results loaded successfully.")
         except TimeoutException:
-            print("❌ Timed out waiting for search results.", file=sys.stderr)
+            print("Timed out waiting for search results.", file=sys.stderr)
             raise RuntimeError("Page did not load search results in time.")
 
         current_subject_name = None
@@ -265,11 +256,9 @@ def main_scraper():
 
                     if cat_num and title and categories:
                         
-                        # --- This is the correct 5-unit logic ---
                         five_unit_ids = {138, 139, 141, 142, 143}
                         is_five_units = any(REQ_MAP.get(cat) in five_unit_ids for cat in categories)
                         units = 5 if is_five_units else 4
-                        # --- End of unit logic ---
                         
                         courses_list.append(Course(current_subject_name, cat_num, title, categories, units))
 
@@ -286,9 +275,6 @@ def main_scraper():
 
             return courses_list
 
-# ==================================================================
-#  UPDATED main execution block
-# ==================================================================
 if __name__ == "__main__":
     
     print("Scraping all courses to find unit mismatches...")
@@ -312,10 +298,10 @@ if __name__ == "__main__":
     # Generate the new SQL patch script
     final_sql_script = generate_unit_update_sql(five_unit_courses)
     
-    output_filename = "update_units.sql"  # <-- New filename
+    output_filename = "update_units.sql"
     try:
         with open(output_filename, "w", encoding="utf-8") as f:
             f.write(final_sql_script)
-        print(f"\n✅ Success! SQL patch script saved to: {output_filename}")
+        print(f"\nSuccess! SQL patch script saved to: {output_filename}")
     except IOError as e:
-        print(f"\n❌ Error writing to file: {e}", file=sys.stderr)
+        print(f"\nError writing to file: {e}", file=sys.stderr)
