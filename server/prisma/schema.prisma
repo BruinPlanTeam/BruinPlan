@@ -1,3 +1,21 @@
+// main prisma commands:
+// 
+// npx prisma generate
+//   - generates the prisma client based on this schema
+//   - run this after changing the schema or pulling from db
+//   - creates types and methods in node_modules/@prisma/client
+//
+// npx prisma db pull
+//   - pulls the current database schema and updates this file
+//   - use when database structure changes outside of prisma
+//   - overwrites this schema.prisma file with db structure
+//
+// npx prisma migrate dev
+//   - creates a new migration from schema changes
+//   - applies the migration to the database
+//   - use when you've modified this schema and want to update the db
+//   - creates files in prisma/migrations/
+
 generator client {
   provider = "prisma-client-js"
 }
