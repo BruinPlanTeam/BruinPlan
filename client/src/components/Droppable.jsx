@@ -68,7 +68,6 @@ export function Droppable({ id, title, items, units, maxUnits, electricCourseId 
 
         {!isSidebar && safeItems.length === 0 && (
           <div className="zone-empty">
-            Drop courses here
           </div>
         )}
       </div>
