@@ -1,16 +1,5 @@
 -- ========================================================
--- FINAL SCRIPT (No Procedure / No 'IF' logic Fix)
--- This script uses INSERT IGNORE, which requires that
--- the 'code' column in your 'Class' table has a
--- UNIQUE constraint (which it should).
--- ========================================================
-
-----------------------------------------------------------
--- Total Courses Parsed: 95
-----------------------------------------------------------
-
--- ========================================================
--- STEP 1: DEFINE FIXED REQUIREMENT IDs (DO NOT CHANGE THESE)
+-- STEP 1: DEFINE FIXED REQUIREMENT IDs
 -- ========================================================
 
 SET @r_hist_id = 138; -- Society and Culture: Historical Analysis
