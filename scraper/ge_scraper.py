@@ -11,21 +11,23 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-print("SCRIPT STARTED –", __file__)
+print(f"SCRIPT STARTED – {__file__}")
 
 GE_MASTER_LIST_URL = "https://sa.ucla.edu/ro/Public/SOC/Search/GECoursesMasterList"
 
+# Requirement Name to Database ID mapping
 REQ_MAP = {
     'Society and Culture: Historical Analysis': 138,
     'Society and Culture: Social Analysis': 139,
-    'Scientific Inquiry: Life Sciences': 140, 
+    'Scientific Inquiry: Life Sciences': 140,
     'Arts and Humanities: Literary and Cultural Analysis': 141,
     'Arts and Humanities: Philosophical and Linguistic Analysis': 142,
     'Arts and Humanities: Visual and Performance Arts Analysis and Practice': 143,
 }
 
+# Subject Area Name to Abbreviation mapping
 ABBR_MAP = {
     'African American Studies': 'AF AMER',
     'American Indian Studies': 'AM IND',
@@ -99,10 +101,12 @@ ABBR_MAP = {
 }
 
 def get_subject_abbr(subject_name: str) -> str:
+    """Gets the official abbreviation for a subject name."""
     return ABBR_MAP.get(subject_name, subject_name.upper().replace(r'[^A-Z0-9&]', ''))
 
 class Course:
-    def __init__(self, subject_name: str, cat_num: str, title: str, categories: List[str], units: int):
+    """A simple class to hold course data."""
+    def __init__(self, subject_name: str, cat_num: str, title: str, categories: Set[str], units: int):
         self.subject_abbr = get_subject_abbr(subject_name)
         self.cat_num = cat_num.strip()
         self.title = title.strip()
@@ -112,20 +116,14 @@ class Course:
 
     def __repr__(self):
         return f"Course(code={self.code}, title={self.title}, units={self.units}, categories={self.categories})"
+    
+    def merge_categories(self, new_categories: Set[str]):
+        """Adds new categories to the course's existing set."""
+        self.categories.update(new_categories)
 
-def generate_sql_script(courses: List[Course]) -> str:
+def generate_sql_script(courses: Dict[str, Course]) -> str:
+    """Generates the final SQL script from the dictionary of courses."""
     sql_lines = [
-        "-- ========================================================",
-        "-- FINAL SCRIPT (No Procedure / No 'IF' logic Fix)",
-        "-- This script uses INSERT IGNORE, which requires that",
-        "-- the 'code' column in your 'Class' table has a",
-        "-- UNIQUE constraint (which it should).",
-        "-- ========================================================",
-        "",
-        "----------------------------------------------------------",
-        f"-- Total Courses Parsed: {len(courses)}",
-        "----------------------------------------------------------",
-        "",
         "-- ========================================================",
         "-- STEP 1: DEFINE FIXED REQUIREMENT IDs (DO NOT CHANGE THESE)",
         "-- ========================================================",
@@ -142,36 +140,26 @@ def generate_sql_script(courses: List[Course]) -> str:
         "-- ========================================================",
     ]
 
-    for course in courses:
+    # Sort courses by code for a clean script
+    sorted_courses = sorted(courses.values(), key=lambda c: c.code)
+
+    for course in sorted_courses:
         safe_title = course.title.replace("'", "''")
-        safe_abbr = course.subject_abbr.replace("'", "''")
-        safe_cat_num = course.cat_num.replace("'", "''")
-        
-        # Combine them into the final code identifier
-        safe_code = f"{safe_abbr} {safe_cat_num}"
+        safe_code = course.code.replace("'", "''")
         
         sql_lines.append(f"\n-- {course.code}: {safe_title} ({course.units} units)")
-        
-        # --- This is the new logic (No IF statements) ---
-        
-        # 1. Attempt to insert the class. If 'code' is UNIQUE and exists,
-        #    this line will be safely skipped.
         sql_lines.append(f"INSERT IGNORE INTO Class (code, units, description) VALUES ('{safe_code}', {course.units}, '{safe_title}');")
-
-        # 2. Get the ID of the class (which either existed or was just created).
+        
         sql_lines.append("SET @c_id = NULL;")
         sql_lines.append(f"SELECT id INTO @c_id FROM Class WHERE code = '{safe_code}' COLLATE utf8mb4_unicode_ci;")
         
-        # 3. Now link the class.
-        #    We are *already* using INSERT IGNORE here.
-        #    If @c_id is NULL (which should never happen if step 1&2 work),
-        #    this INSERT will fail, which is correct.
-        for category in course.categories:
+        for category in sorted(list(course.categories)): # Sort categories for deterministic output
             req_id = REQ_MAP.get(category)
             if not req_id:
                 sql_lines.append(f"-- WARNING: No ID found for category: {category}")
                 continue
 
+            # Map the database ID to the SQL variable name
             req_var = {
                 138: '@r_hist_id', 139: '@r_social_id', 140: '@r_life_sci_id',
                 141: '@r_lit_cult_id', 142: '@r_phil_ling_id', 143: '@r_vis_perf_id'
@@ -198,139 +186,139 @@ def main_scraper():
 
     print(f"Loading page: {GE_MASTER_LIST_URL}...")
     
-    courses_list: List[Course] = []
+    # Use a dictionary to store courses, keyed by code to prevent duplicates
+    courses_dict: Dict[str, Course] = {}
+    wait = WebDriverWait(driver, 15)
     
     try:
         driver.get(GE_MASTER_LIST_URL)
         
-
-        try:
-            host = driver.execute_script('return document.querySelector("ucla-sa-soc-app")')
-            if not host:
-                print("❌  host <ucla-sa-soc-app> not found in light DOM")
-                raise RuntimeError("host missing")
-            print("✅  host <ucla-sa-soc-app> found")
-
-            outer = driver.execute_script(
-                'return arguments[0].shadowRoot.querySelector(\'iwe-autocomplete[id="select_soc_filter_geclasses_foundation"]\')', host
-            )
-            if not outer:
-                print("❌  <iwe-autocomplete> not found inside host shadow-root")
-                raise RuntimeError("outer missing")
-            print("✅  <iwe-autocomplete> found inside host shadow-root")
-
-            shadow_input = driver.execute_script(
-                'return arguments[0].shadowRoot.querySelector(\'input[placeholder="Enter a Foundation (Required)"]\')', outer
-            )
-            if not shadow_input:
-                print("❌  input not found inside <iwe-autocomplete> shadow-root")
-                raise RuntimeError("input missing")
-            print("✅  input found inside <iwe-autocomplete> shadow-root")
-
-            shadow_input.click()
-            print("✅  clicked foundation dropdown")
-        except Exception as e:
-            print("💥  shadow-root chain failed:", e)
-            raise
-
-        print("Clicked dropdown button.")
-
-        time.sleep(1.0) 
-
-        js_find_option = """
-            const options = arguments[0].shadowRoot.querySelectorAll('div[role="option"]');
-            for (const opt of options) {
-              if (opt.textContent.includes('Scientific Inquiry')) {
-                return opt;
-              }
-            }
-            return null;
-        """
-        option = driver.execute_script(js_find_option, outer)
-        if not option:
-            raise RuntimeError("option 'Foundation' not found")
+        # Find the main app host element
+        host = wait.until(
+            EC.presence_of_element_located((By.TAG_NAME, "ucla-sa-soc-app"))
+        )
+        host_shadow_root = host.shadow_root
         
-        option.click()
-        print("✅ Selected first foundation.")
+        # Find the 'Go' button
+        go_button = host_shadow_root.find_element(By.CSS_SELECTOR, 'input[id="btn_gecourses_go"]')
+        
+        # Find the foundation dropdown
+        foundation_dropdown = host_shadow_root.find_element(
+            By.CSS_SELECTOR, 'iwe-autocomplete[id="select_soc_filter_geclasses_foundation"]'
+        )
+        foundation_input = foundation_dropdown.shadow_root.find_element(
+            By.CSS_SELECTOR, 'input[placeholder="Enter a Foundation (Required)"]'
+        )
+
+        # --- Main Scraper Loop ---
+        # Iterate over each foundation, scrape it, and add to the dict
+        for foundation_name in REQ_MAP.keys():
+            print(f"\n--- Scraping Foundation: {foundation_name} ---")
+            
+            try:
+                # 1. Click the input to open the dropdown
+                foundation_input.click()
+                print("Clicked foundation dropdown.")
+                time.sleep(0.5) # Wait for dropdown animation
+
+                # 2. Find and click the correct option in the dropdown
+                options = foundation_dropdown.shadow_root.find_elements(By.CSS_SELECTOR, 'div[role="option"]')
+                found_option = False
+                for opt in options:
+                    if foundation_name in opt.text:
+                        opt.click()
+                        print(f"Selected foundation: {foundation_name}")
+                        found_option = True
+                        break
+                if not found_option:
+                    print(f"Warning: Could not find foundation option for '{foundation_name}'")
+                    continue
                 
+                time.sleep(0.5) # Wait for click to register
 
-        driver.execute_script(
-        'arguments[0].shadowRoot.querySelector(\'input[id="btn_gecourses_go"]\').click()', host
-        )
-        print("Clicked GO button.")
+                # 3. Click the 'Go' button
+                go_button.click()
+                print("Clicked 'GO' button.")
 
-        print("Waiting for search results to load...")
-        try:
-            # We will wait up to 15 seconds for the first subject header (h4)
-            # to appear inside the results div. This proves the content is loaded.
-            wait = WebDriverWait(driver, 15)
-            wait.until(
-                lambda d: d.execute_script(
-                    # Check for the first h4 inside the results div
-                    'return arguments[0].shadowRoot.querySelector("#divSearchResults h4")', 
-                    host
+                # 4. Wait for results to load
+                print("Waiting for search results...")
+                results_div = wait.until(
+                    lambda d: host.shadow_root.find_element(By.CSS_SELECTOR, "#divSearchResults")
                 )
-            )
-            print("✅ Results loaded successfully.")
-        except TimeoutException:
-            # If this fails, the page structure may have changed or the site is down.
-            print("❌ Timed out waiting for search results.", file=sys.stderr)
-            raise RuntimeError("Page did not load search results in time.")
+                
+                # Wait for the headers (h4) to be present, indicating results are in
+                wait.until(
+                    lambda d: results_div.find_elements(By.CSS_SELECTOR, "h4")
+                )
+                print("Results loaded.")
 
-        current_subject_name = None
-        
-        print("Parsing results inside shadow-root...")
-        shadow_html = driver.execute_script(
-            'return arguments[0].shadowRoot.querySelector("#divSearchResults").innerHTML', host
-        )
-        soup_shadow = BeautifulSoup(shadow_html, 'html.parser')
+                # 5. Parse the results directly with Selenium
+                current_subject_name = None
+                elements = results_div.find_elements(By.CSS_SELECTOR, ".ContainerWrapper, .ContainerWrapper h4")
 
-        current_subject_name = None
-
-        for wrapper in soup_shadow.select('.ContainerWrapper'):
-            h4 = wrapper.find('h4')
-            if h4:
-                current_subject_name = h4.get_text(strip=True)
-                continue
-
-            table = wrapper.select_one('table.table-striped')
-            if table and current_subject_name:
-                for tr in table.select('tbody tr'):
-                    cols = tr.select('td')
-                    if len(cols) != 6:
+                for element in elements:
+                    if element.tag_name == 'h4':
+                        current_subject_name = element.text.strip()
                         continue
                     
-                    cat_num = cols[0].text.strip()
-                    title = cols[1].text.strip()
-                    categories = [
-                        c.strip() for c in cols[5].get_text(separator='\n').split('\n')
-                        if c.strip() in REQ_MAP
-                    ]
+                    if not current_subject_name:
+                        continue # Skip any tables before the first subject header
 
-                    if cat_num and title and categories:
-                        
-                        # =======================================================
-                        #  START OF FIX
-                        # =======================================================
-                        
-                        # Define the set of 5-unit requirement IDs
-                        five_unit_ids = {138, 139, 141, 142, 143}
-                        
-                        # Check if any of the course's categories map to an ID in our 5-unit set
-                        is_five_units = any(REQ_MAP.get(cat) in five_unit_ids for cat in categories)
-                        
-                        # Set units to 5 if it matches, otherwise default to 4
-                        units = 5 if is_five_units else 4
-                        
-                        # =======================================================
-                        #  END OF FIX
-                        # =======================================================
-                        
-                        courses_list.append(Course(current_subject_name, cat_num, title, categories, units))
+                    try:
+                        table_rows = element.find_elements(By.CSS_SELECTOR, 'table.table-striped tbody tr')
+                        for tr in table_rows:
+                            cols = tr.find_elements(By.TAG_NAME, 'td')
+                            if len(cols) != 6:
+                                continue
+                            
+                            cat_num = cols[0].text.strip()
+                            title = cols[1].text.strip()
+                            
+                            # Get all categories listed for this course
+                            categories_text = cols[5].text
+                            categories = {
+                                c.strip() for c in categories_text.split('\n')
+                                if c.strip() in REQ_MAP
+                            }
+
+                            if not (cat_num and title and categories):
+                                continue # Skip if essential info is missing
+                            
+                            # Infer units based on GE requirement type
+                            # (Arts/Hum and Soc/Cult are 5 units, Sci Inquiry are 4)
+                            five_unit_ids = {138, 139, 141, 142, 143}
+                            is_five_units = any(REQ_MAP.get(cat) in five_unit_ids for cat in categories)
+                            units = 5 if is_five_units else 4
+                            
+                            # Create code and merge if exists
+                            course_code = f"{get_subject_abbr(current_subject_name)} {cat_num}"
+                            if course_code in courses_dict:
+                                courses_dict[course_code].merge_categories(categories)
+                            else:
+                                courses_dict[course_code] = Course(current_subject_name, cat_num, title, categories, units)
+
+                    except NoSuchElementException:
+                        # This wrapper had no table, which is fine.
+                        continue
+
+            except Exception as e:
+                print(f"Error scraping foundation '{foundation_name}': {e}", file=sys.stderr)
+                # Continue to the next foundation
+                
+            finally:
+                # Click the 'clear' button to reset for the next loop
+                try:
+                    clear_button = host_shadow_root.find_element(By.CSS_SELECTOR, 'input[id="btn_gecourses_clear"]')
+                    clear_button.click()
+                    print("Clicked 'Clear' button.")
+                    time.sleep(1) # Wait for clear
+                except Exception as e:
+                    print(f"Warning: Could not clear form. {e}", file=sys.stderr)
+
 
     except TimeoutException as e:
         print(f"\n--- ERROR: TIMEOUT ---", file=sys.stderr)
-        print(f"The script timed out waiting for an element. This might mean the page structure has changed or the site is slow.", file=sys.stderr)
+        print(f"The script timed out waiting for an element.", file=sys.stderr)
         print(f"Details: {e}", file=sys.stderr)
     except Exception as e:
         print(f"\n--- ERROR during scraping ---", file=sys.stderr)
@@ -340,7 +328,7 @@ def main_scraper():
             driver.quit()
             print("Browser closed.")
 
-            return courses_list
+            return courses_dict
 
 if __name__ == "__main__":
     
@@ -350,14 +338,14 @@ if __name__ == "__main__":
         print("\nNo courses were parsed. This might be a script error or the source website is down.", file=sys.stderr)
         sys.exit(1)
         
-    print(f"\nSuccessfully parsed {len(courses)} courses.")
+    print(f"\nSuccessfully parsed and merged {len(courses)} unique courses.")
     
     final_sql_script = generate_sql_script(courses)
     
-    output_filename = "ge_courses.sql"
+    output_filename = "ge_courses_master.sql"
     try:
         with open(output_filename, "w", encoding="utf-8") as f:
             f.write(final_sql_script)
-        print(f"\n✅ Success! SQL script saved to: {output_filename}")
+        print(f"\nSQL script saved to: {output_filename}")
     except IOError as e:
-        print(f"\n❌ Error writing to file: {e}", file=sys.stderr)
+        print(f"\nError writing to file: {e}", file=sys.stderr)
