@@ -39,7 +39,7 @@ export function Draggable({ id, item, showElectric }) {
   );
 
 
-  // Wrap with ElectricBorder if showElectric is true
+  // wrap with ElectricBorder if showElectric is true
   if (showElectric) {
     return (
       <ElectricBorder 

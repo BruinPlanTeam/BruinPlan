@@ -6,7 +6,7 @@ export function ProgressBar({ requirements, droppableZones }) {
   const [overallProgress, setOverallProgress] = useState(0);
   const [expandedGroups, setExpandedGroups] = useState({});
 
-  // Create a dependency that changes whenever droppableZones content changes
+  // create a dependency that changes whenever droppableZones content changes
   const zonesKey = JSON.stringify(
     Object.values(droppableZones).map(zone => zone.items.map(item => item.id))
   );
@@ -18,12 +18,12 @@ export function ProgressBar({ requirements, droppableZones }) {
   const calculateProgress = () => {
     if (!requirements || requirements.length === 0) return;
 
-    // Get all scheduled course IDs from the plan
+    // get all scheduled course ids from the plan
     const scheduledCourseIds = Object.values(droppableZones)
       .flatMap(zone => zone.items.map(item => item.id))
       .filter(Boolean);
 
-    // Group requirements by type
+    // group requirements by type
     const typeGroups = {};
     let totalRequired = 0;
     let totalCompleted = 0;
@@ -40,7 +40,7 @@ export function ProgressBar({ requirements, droppableZones }) {
         };
       }
 
-      // Check how many courses from this requirement are scheduled
+      // check how many courses from this requirement are scheduled
       const requiredCourses = req.fulfilledByClassIds || [];
       const scheduledFromReq = requiredCourses.filter(courseId => 
         scheduledCourseIds.some(id => id == courseId)

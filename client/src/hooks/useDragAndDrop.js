@@ -20,7 +20,7 @@ export function useDragAndDrop(
     removeCourseFromCategories,
     requirements,
 ) {
-  // Initialize droppable zones
+  // initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
     const zones = {};
     for (let row = 1; row <= 4; row++) {
@@ -101,7 +101,7 @@ export function useDragAndDrop(
    * Remove course from zone and add back to categories
    */
   const returnCourseToSidebar = useCallback((item, sourceZoneId) => {
-    // Remove from zone
+    // remove from zone
     setDroppableZones((zones) => ({
       ...zones,
       [sourceZoneId]: {
@@ -110,7 +110,7 @@ export function useDragAndDrop(
       },
     }));
     
-    // Add back to category
+    // add back to category
     addCourseToCategory(item, requirements);
   }, [addCourseToCategory, requirements]);
 
@@ -118,10 +118,10 @@ export function useDragAndDrop(
    * Move course from category sidebar to zone
    */
   const moveCourseToZone = useCallback((targetZoneId, item) => {
-    // Remove from categories
+    // remove from categories
     removeCourseFromCategories(item.id);
     
-    // Add to zone
+    // add to zone
     setDroppableZones((zones) => ({
       ...zones,
       [targetZoneId]: {
@@ -143,7 +143,7 @@ export function useDragAndDrop(
    */
   const handleDragOver = useCallback((event) => {
     const { active, over } = event;
-    // Could add hover effects here if needed
+    // could add hover effects here if needed
   }, []);
 
   /**
@@ -157,7 +157,7 @@ export function useDragAndDrop(
     let currentUnits = null;
     let currentPrereqs = null;
 
-    // If the item is still being dragged don't assign it to a box
+    // if the item is still being dragged don't assign it to a box
     if (!over) {
       setActiveId(null);
       return;
@@ -165,7 +165,7 @@ export function useDragAndDrop(
 
           
 
-    // Get the id of where the object came from
+    // get the id of where the object came from
     let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
       const matchedItem = zone.items.find((item) => item.id === active.id);
@@ -179,7 +179,7 @@ export function useDragAndDrop(
       }
     }
 
-    // Check if the current item is in any of the categorized lists
+    // check if the current item is in any of the categorized lists
     let isInDraggableList = false;
     let foundItem = null;
 
@@ -196,15 +196,15 @@ export function useDragAndDrop(
       }
     }
 
-    // Check if the current item is over a droppable zone
+    // check if the current item is over a droppable zone
     let targetZoneId = Object.keys(droppableZones).find(
       (key) => droppableZones[key].id === over.id
     );
 
-    // Check if the current item is over any category zone
+    // check if the current item is over any category zone
     const isDroppedOnCategoryZone = over.id && over.id.startsWith('category-');
 
-    // Find draggable item that current draggable item is hovering over
+    // find draggable item that current draggable item is hovering over
     let targetItem = null;
     for (const courseList of Object.values(categorizedClasses)) {
       const item = courseList.find((course) => course.id === over.id);
@@ -214,7 +214,7 @@ export function useDragAndDrop(
       }
     }
 
-    // If not dropped directly on a zone, check if dropped on an item inside a zone
+    // if not dropped directly on a zone, check if dropped on an item inside a zone
     if (!targetZoneId && !isDroppedOnCategoryZone && !targetItem) {
       for (const [key, zone] of Object.entries(droppableZones)) {
         if (zone.items.some((item) => item.id === over.id)) {
@@ -224,7 +224,7 @@ export function useDragAndDrop(
       }
     }
 
-    // Handle dropping on an item in the sidebar
+    // handle dropping on an item in the sidebar
     if (targetItem) {
       if (sourceZoneId) {
         const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id);
@@ -233,35 +233,35 @@ export function useDragAndDrop(
         }
       }
     } 
-    // Handle dropping on a category zone
+    // handle dropping on a category zone
     else if (isDroppedOnCategoryZone && sourceZoneId) {
       const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id);
       if (item) {
         returnCourseToSidebar(item, sourceZoneId);
       }
     } 
-    // Handle dropping on a quarter zone
+    // handle dropping on a quarter zone
     else if (targetZoneId) {
       const targetZone = droppableZones[targetZoneId];
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id);
 
-      // A class cannot have itself as a prereq
+      // a class cannot have itself as a prereq
       currentPrereqs = currentPrereqs.filter(prereq => prereq != currentId);
 
       const totalUnits = getCurrentUnits(targetZoneId, droppableZones) + currentUnits;
       const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
-        // Reordering within the same zone
+        // reordering within the same zone
         reorderZone(targetZoneId, event);
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
-        // Moving from one zone to another
+        // moving from one zone to another
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
           triggerElectricEffect(currentId);
         }
       } else if (isInDraggableList && foundItem) {
-        // Moving from category list to zone
+        // moving from category list to zone
         console.log('Found item');
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
           console.log('Entered prerequisite and unit check');
@@ -282,7 +282,7 @@ export function useDragAndDrop(
     triggerElectricEffect
   ]);
 
-  // Find active item from either category lists or zones
+  // find active item from either category lists or zones
   const activeItem = activeId
     ? Object.values(categorizedClasses)
         .flat()

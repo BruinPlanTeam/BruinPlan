@@ -13,14 +13,14 @@ export function Droppable({ id, title, items, units, maxUnits, electricCourseId 
     id: id,
   })
 
-  // Handle undefined or null items
+  // handle undefined or null items
   const safeItems = items || [];
   
-  // Calculate total units for this zone
+  // calculate total units for this zone
   const totalUnits = units !== undefined ? units : safeItems.reduce((sum, item) => sum + (item.units || 0), 0);
   const isSidebar = id === 'original-column';
   
-  // Determine status classes
+  // determine status classes
   const getStatusClass = () => {
     if (isSidebar) return 'sidebar-zone';
     if (totalUnits > (maxUnits || MAX_UNITS)) return 'zone-error';

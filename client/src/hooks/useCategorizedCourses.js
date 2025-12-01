@@ -48,7 +48,7 @@ export function useCategorizedCourses(major) {
       'GE': []
     };
 
-    // Create a map of classId to requirement types
+    // create a map of classId to requirement types
     const classToReqType = new Map();
     
     allRequirements.forEach(req => {
@@ -61,7 +61,7 @@ export function useCategorizedCourses(major) {
       });
     });
 
-    // Categorize each class
+    // categorize each class
     allClasses.forEach(cls => {
       const category = classToReqType.get(cls.id) || 'GE';
       if (categories[category]) {
@@ -83,14 +83,14 @@ export function useCategorizedCourses(major) {
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       
-      // Check if already exists
+      // check if already exists
       for (const courseList of Object.values(updated)) {
         if (courseList.some(c => c.id === item.id)) {
           return updated;
         }
       }
       
-      // Find correct category
+      // find correct category
       let correctCategory = 'GE';
       for (const req of requirements) {
         if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
@@ -99,7 +99,7 @@ export function useCategorizedCourses(major) {
         }
       }
       
-      // Add to correct category
+      // add to correct category
       if (updated[correctCategory]) {
         updated[correctCategory] = [...updated[correctCategory], item];
       } else {
