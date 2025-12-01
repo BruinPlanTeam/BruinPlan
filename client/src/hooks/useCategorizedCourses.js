@@ -25,7 +25,8 @@ export function useCategorizedCourses(major) {
     async function fetchData(){
       try{
         const data = await getMajorData(major);
-        setRequirementGroups(data.majorRequirementGroups);
+        let groups = data.majorRequirementGroups;
+        setRequirementGroups(groups);
         categorizeClasses(data.availableClasses, groups);
       } catch(e){
         console.error("Error retrieving majors: ", {major}, e);
@@ -56,8 +57,9 @@ export function useCategorizedCourses(major) {
       const category = group.type || 'Other';
       (group.requirements || []).forEach(req => {
         req.fulfilledByClassIds?.forEach(classId => {
-          if (!classToReqType.has(classId)) {
-            classToReqType.set(classId, category);
+          const key = String(classId);
+          if (!classToReqType.has(key)) {
+            classToReqType.set(key, category);
           }
         });
       });
