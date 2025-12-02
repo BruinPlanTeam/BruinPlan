@@ -111,9 +111,9 @@ export default function Auth() {
   };
 
   return (
-    <div className="page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div className="page">
       <div className="bgGlow" />
-      <div ref={arenaRef} className="arena" style={{ flex: 1 }}>
+      <div ref={arenaRef} className="arena">
         <div className="card" role="region" aria-label="Authentication form">
           <h1 className="title">Login to View Saved Plans</h1>
           <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">

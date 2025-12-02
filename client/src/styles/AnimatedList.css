@@ -70,4 +70,9 @@
     pointer-events: none;
     transition: opacity 0.3s ease;
   }
+
+  .animated-item {
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
   

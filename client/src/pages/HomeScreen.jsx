@@ -6,6 +6,7 @@ import { SearchBar } from '../components/SearchBar.jsx';
 import { Header } from '../components/Header.jsx';
 import { Footer } from '../components/Footer.jsx';
 import SearchBarTitle from '../components/ui/SearchBarTitle.jsx'
+import '../styles/HomeScreen.css';
 
 const handleAnimationComplete = () => {
     console.log('Animation completed!');
@@ -14,7 +15,7 @@ const handleAnimationComplete = () => {
 export default function HomeScreen() {
     return (
         <> 
-            <div style={{ width: '100%', minHeight: 'calc(100vh + 1px)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+            <div className="home-screen-container">
             <DotGrid 
                 dotSize={4}
                 gap={15}  
@@ -28,7 +29,7 @@ export default function HomeScreen() {
             />
 
             <Header />
-            <div className="search-wrapper" style={{ flex: 1, paddingBottom: '60px' }}>
+            <div className="search-wrapper">
                 {/* <SearchBarTitle 
                     text="Bruin Plan"
                     delay={150}

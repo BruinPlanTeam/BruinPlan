@@ -2,37 +2,17 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import CardNav from './ui/CardNav';
 import logo from '../assets/logo.svg';
+import '../styles/Header.css';
 
 export const Header = () => {
   const { isAuthenticated, logout } = useAuth();
-  const items = [
-    {
-      label: "Browse Majors",
-      bgColor: "rgba(10, 18, 28, 0.92)", 
-      textColor: "#EAF6FF",
-      links: [
-        { label: "UCLA Catalog", href: "https://catalog.registrar.ucla.edu/" },
-        { label: "Bruinwalk", href: "https://bruinwalk.com/" }
-      ]
-    },
-    {
-      label: "Guidance",
-      bgColor: "rgba(8, 15, 22, 0.95)",
-      textColor: "#EAF6FF",
-      links: [
-        { label: "Sample 4-Year Schedules", href: "https://www.ugeducation.ucla.edu/degreepath/majors/" },
-        { label: "Degree Planning Tips", href: "https://newstudents.ucla.edu/wp-content/uploads/2017/10/Degree-Planner.pdf" },
-      ]
-    }
-  ];
-
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.navBar}>
+    <div className="header-wrapper">
+      <div className="header-nav-bar">
         <CardNav
           logo={logo}
           logoAlt="Bruin Plan"
-          items={items}
+          items={[]}
           baseColor="rgba(255,255,255,0.08)"
           menuColor="#EAF6FF"
           buttonBgColor="#2774AE"
@@ -40,42 +20,10 @@ export const Header = () => {
           ease="power3.out"
         />
       </div>
-      {!isAuthenticated && <Link to="/login" style={styles.loginButton}>
+      {!isAuthenticated && <Link to="/login" className="header-login-button">
         Log In
       </Link>}
-      {isAuthenticated && <button onClick={() => logout()} style={styles.loginButton}>Log Out</button>}
+      {isAuthenticated && <button onClick={() => logout()} className="header-login-button">Log Out</button>}
     </div>
   );
-};
-
-const styles = {
-  wrapper: {
-    width: "100%",
-    position: "relative",
-    zIndex: 9999,
-  },
-
-  navBar: {
-    width: "100%",
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)), " +
-      "linear-gradient(180deg, #0a0f14 0%, #0b1520 100%)",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
-    backdropFilter: "blur(10px)",
-  },
-
-  loginButton: {
-    position: "absolute",
-    top: "42.5px",
-    right: "22px",
-    padding: "8px 18px",
-    borderRadius: "10px",
-    background:
-      "linear-gradient(135deg, #2774AE 0%, #2d89cc 50%, #2774AE 100%)",
-    color: "#FFFFFF",
-    textDecoration: "none",
-    fontWeight: 700,
-    fontSize: "0.95rem",
-    boxShadow: "0 8px 18px rgba(39,116,174,0.35)",
-  }
 };

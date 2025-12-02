@@ -1,0 +1,36 @@
+.header-wrapper {
+  width: 100%;
+  position: relative;
+  z-index: 9999;
+}
+
+.header-nav-bar {
+  width: 100%;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)),
+    linear-gradient(180deg, #0a0f14 0%, #0b1520 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+}
+
+.header-login-button {
+  position: absolute;
+  top: 42.5px;
+  right: 22px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2774AE 0%, #2d89cc 50%, #2774AE 100%);
+  color: #FFFFFF;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 18px rgba(39,116,174,0.35);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.header-login-button:hover {
+  background: linear-gradient(135deg, #2d89cc 0%, #3388dd 50%, #2d89cc 100%);
+}
+

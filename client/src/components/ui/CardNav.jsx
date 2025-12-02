@@ -145,17 +145,7 @@ const CardNav = ({
         style={{ backgroundColor: baseColor }}
       >
         <div className="card-nav-top">
-          <div
-            className={`hamburger-menu ${isHamburgerOpen ? 'open' : ''}`}
-            onClick={toggleMenu}
-            role="button"
-            aria-label={isExpanded ? 'Close menu' : 'Open menu'}
-            tabIndex={0}
-            style={{ color: menuColor || '#EAF6FF' }}
-          >
-            <div className="hamburger-line" />
-            <div className="hamburger-line" />
-          </div>
+          
 
           <div className="logo-container">
             <img src={logo} alt={logoAlt} className="logo" />
