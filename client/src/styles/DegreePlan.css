@@ -3,6 +3,8 @@
   min-height: 100vh;
   padding: 2rem;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display: flex;
+  flex-direction: column;
 }
 
 /* Plan Header */
@@ -82,6 +84,7 @@
   margin: 0 auto;
   overflow-x: auto; /* Allow horizontal scrolling if content is too wide */
   min-height: 0; /* Important for proper flexbox behavior */
+  flex: 1; /* Allow content to grow and push footer down */
 }
 
 /* Plan Grid */

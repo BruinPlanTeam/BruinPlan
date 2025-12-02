@@ -8,6 +8,7 @@ import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
+import { Footer } from '../components/Footer.jsx';
 import {
   DndContext,
   DragOverlay,
@@ -61,13 +62,14 @@ export default function DegreePlan() {
   );
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd} 
-    >
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd} 
+      >
         <div className="app-container">
           <div className="plan-header">
             <div className="plan-header-content">
@@ -114,5 +116,7 @@ export default function DegreePlan() {
           <AIChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         </div>
       </DndContext>
+      <Footer />
+    </>
   );
 }

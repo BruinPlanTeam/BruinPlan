@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Footer } from './Footer.jsx';
 import '../styles/Auth.css';
 
 export default function Auth() {
@@ -110,9 +111,9 @@ export default function Auth() {
   };
 
   return (
-    <div className="page">
+    <div className="page" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <div className="bgGlow" />
-      <div ref={arenaRef} className="arena">
+      <div ref={arenaRef} className="arena" style={{ flex: 1 }}>
         <div className="card" role="region" aria-label="Authentication form">
           <h1 className="title">Login to View Saved Plans</h1>
           <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">
@@ -155,6 +156,7 @@ export default function Auth() {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

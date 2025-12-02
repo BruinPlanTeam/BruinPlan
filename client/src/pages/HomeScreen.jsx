@@ -4,6 +4,7 @@ import { useState } from 'react'
 import DotGrid from '../components/ui/DotGrid.jsx'
 import { SearchBar } from '../components/SearchBar.jsx';
 import { Header } from '../components/Header.jsx';
+import { Footer } from '../components/Footer.jsx';
 import SearchBarTitle from '../components/ui/SearchBarTitle.jsx'
 
 const handleAnimationComplete = () => {
@@ -13,7 +14,7 @@ const handleAnimationComplete = () => {
 export default function HomeScreen() {
     return (
         <> 
-            <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+            <div style={{ width: '100%', minHeight: 'calc(100vh + 1px)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
             <DotGrid 
                 dotSize={4}
                 gap={15}  
@@ -27,7 +28,7 @@ export default function HomeScreen() {
             />
 
             <Header />
-            <div className="search-wrapper">
+            <div className="search-wrapper" style={{ flex: 1, paddingBottom: '60px' }}>
                 {/* <SearchBarTitle 
                     text="Bruin Plan"
                     delay={150}
@@ -39,6 +40,7 @@ export default function HomeScreen() {
                 <SearchBar />
             </div>
             </div>
+            <Footer />
         </>
     );
 }
