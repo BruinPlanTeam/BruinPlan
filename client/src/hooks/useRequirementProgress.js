@@ -207,6 +207,22 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
         });
       });
 
+      // sort requirements in this group:
+      // - highest percent finished first
+      // - tie‑break on highest total required
+      groupEntry.requirements.sort((a, b) => {
+        const aTotal = a.total || 0;
+        const bTotal = b.total || 0;
+        const aPct = aTotal > 0 ? a.completed / aTotal : 0;
+        const bPct = bTotal > 0 ? b.completed / bTotal : 0;
+
+        if (bPct !== aPct) {
+          return bPct - aPct;
+        }
+
+        return bTotal - aTotal;
+      });
+
       // now roll requirement progress up to the group and type levels
       if (groupEntry.requirements.length === 1) {
         // single requirement group: treat it like a leaf
@@ -271,6 +287,27 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
       }
 
       typeGroups[type].groups.push(groupEntry);
+    });
+
+    // within each type, sort groups by:
+    // - highest percent finished first
+    // - then highest groupTotal
+    Object.values(typeGroups).forEach(typeEntry => {
+      typeEntry.groups.sort((a, b) => {
+        const aCompleted = a.groupCompleted || 0;
+        const bCompleted = b.groupCompleted || 0;
+        const aTotal = a.groupTotal || 0;
+        const bTotal = b.groupTotal || 0;
+
+        const aPct = aTotal > 0 ? aCompleted / aTotal : 0;
+        const bPct = bTotal > 0 ? bCompleted / bTotal : 0;
+
+        if (bPct !== aPct) {
+          return bPct - aPct;
+        }
+
+        return bTotal - aTotal;
+      });
     });
 
     setProgressByType(typeGroups);
