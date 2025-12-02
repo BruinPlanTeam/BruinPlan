@@ -118,28 +118,27 @@ export function usePlanManager() {
     }
 
     useEffect(() => {
-        if (isLoadingPlan.current) { 
-            if (categorizedClasses) {     
-                const idsToRemove = [];
-        
-                for (let row = 1; row <= 4; row++) {
-                    for (let col = 1; col <= 4; col++) {
-                        const zoneId = `zone-${row}-${col}`;
-                        const zone = droppableZones[zoneId];
-                        
-                        if (zone && zone.items) {
-                            for (const item of zone.items) {
-                                idsToRemove.push(String(item.id));
-                            }
-                        }
+        if (!isLoadingPlan.current) return;
+        if (!categorizedClasses) return;
+
+        const idsToRemove = [];
+
+        for (let row = 1; row <= 4; row++) {
+            for (let col = 1; col <= 4; col++) {
+                const zoneId = `zone-${row}-${col}`;
+                const zone = droppableZones[zoneId];
+
+                if (zone && zone.items) {
+                    for (const item of zone.items) {
+                        idsToRemove.push(String(item.id));
                     }
                 }
-            
-                idsToRemove.forEach(id => removeCourseFromCategories(id));   
-                isLoadingPlan.current = false;
             }
         }
-    }, [droppableZones, categorizedClasses, major]); 
+
+        idsToRemove.forEach(id => removeCourseFromCategories(id));   
+        isLoadingPlan.current = false;
+    }, [droppableZones, categorizedClasses]);
 
     return {
         major,
