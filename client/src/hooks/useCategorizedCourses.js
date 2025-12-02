@@ -1,15 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getMajorData } from '../services/majorDetailService.js';
-/**
- * Map requirement type/name to a display category
- * @param {string} type - The requirement type
- * @param {string} name - The requirement name
- * @returns {string} The category name
- */
 
-/**
- * Custom hook for managing categorized courses
- */
+const CATEGORY_PRIORITY = ['Prep', 'Major', 'Tech Breadth', 'Sci-Tech', 'GE'];
+
 export function useCategorizedCourses(major) {
   const [categorizedClasses, setCategorizedClasses] = useState({
     'Prep': [],
@@ -19,103 +12,129 @@ export function useCategorizedCourses(major) {
     'GE': []
   });
 
-  const [requirements, setRequirements] = useState([]);
+  const [requirementGroups, setRequirementGroups] = useState([]);
+
+  const determinePreferredCategory = useCallback((categorySet, availableCategories) => {
+    if (!categorySet || categorySet.size === 0) return null;
+    for (const priority of CATEGORY_PRIORITY) {
+      if (categorySet.has(priority) && availableCategories[priority]) {
+        return priority;
+      }
+    }
+    return null;
+  }, []);
+
+  const categorizeClasses = useCallback((allClasses, allRequirementGroups) => {
+    const isCS = major === 'Computer Science';
+    const categories = {
+      'Prep': [],
+      'Major': [],
+      'Tech Breadth': [],
+      ...(isCS ? { 'Sci-Tech': [] } : {}),
+      'GE': []
+    };
+
+    const classToCategories = new Map();
+    
+    allRequirementGroups.forEach(group => {
+      let category = group.type || 'Other';
+      const groupName = group.name || '';
+      
+      // For CS, map Sci-Tech requirement group to Sci-Tech category in sidebar
+      if (isCS && groupName.includes('Sci-tech')) {
+        category = 'Sci-Tech';
+      } else if (!categories[category]) {
+        category = 'GE';
+      }
+      
+      (group.requirements || []).forEach(req => {
+        req.fulfilledByClassIds?.forEach(classId => {
+          const key = String(classId);
+          if (!classToCategories.has(key)) {
+            classToCategories.set(key, new Set());
+          }
+          classToCategories.get(key).add(category);
+        });
+      });
+    });
+
+    allClasses.forEach(cls => {
+      const preferred = determinePreferredCategory(classToCategories.get(String(cls.id)), categories);
+      const finalCategory = preferred || 'GE';
+      categories[finalCategory].push(cls);
+    });
+
+    Object.keys(categories).forEach(category => {
+      categories[category].sort((a, b) => a.code.localeCompare(b.code));
+    });
+
+    setCategorizedClasses(categories);
+  }, [major, determinePreferredCategory]);
 
   useEffect(() =>  {
     async function fetchData(){
       try{
         const data = await getMajorData(major);
-        setRequirements(data.majorRequirements);
-        categorizeClasses(data.availableClasses, data.majorRequirements);
+        const groups = data.majorRequirementGroups;
+        setRequirementGroups(groups);
+        categorizeClasses(data.availableClasses, groups);
       } catch(e){
         console.error("Error retrieving majors: ", {major}, e);
       }
     }
     if (!major) return;
-      fetchData();
-  }, []);
-
-  /**
-   * Categorize classes based on requirements
-   * @param {Array} allClasses - All available classes
-   * @param {Array} allRequirements - All major requirements
-   */
-  const categorizeClasses = useCallback((allClasses, allRequirements) => {
-    const categories = {
-      'Prep': [],
-      'Major': [],
-      'Tech Breadth': [],
-      'GE': []
-    };
-
-    // Create a map of classId to requirement types
-    const classToReqType = new Map();
-    
-    allRequirements.forEach(req => {
-      const category = req.type;
-
-      req.fulfilledByClassIds?.forEach(classId => {
-        if (!classToReqType.has(classId)) {
-          classToReqType.set(classId, category);
-        }
-      });
-    });
-
-    // Categorize each class
-    allClasses.forEach(cls => {
-      const category = classToReqType.get(cls.id) || 'GE';
-      if (categories[category]) {
-        categories[category].push(cls);
-      } else {
-        categories['GE'].push(cls);
-      }
-    });
-
-    setCategorizedClasses(categories);
-  }, []);
+    fetchData();
+  }, [major, categorizeClasses]);
 
   /**
    * Add a course back to its appropriate category
    * @param {Object} item - The course item to add back
-   * @param {Array} requirements - All major requirements
+   * @param {Array} requirementGroups - All major requirement groups
    */
-  const addCourseToCategory = useCallback((item, requirements) => {
+  const addCourseToCategory = useCallback((item, requirementGroups) => {
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       
-      // Check if already exists
+      // check if already exists
       for (const courseList of Object.values(updated)) {
         if (courseList.some(c => c.id === item.id)) {
           return updated;
         }
       }
       
-      // Find correct category
-      let correctCategory = 'GE';
-      for (const req of requirements) {
-        if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
-          correctCategory = req.type;
-          break;
+      const isCS = major === 'Computer Science';
+      const matchingCategories = new Set();
+      for (const group of requirementGroups) {
+        let category = group.type;
+        const groupName = group.name;
+        
+        // For CS, map Sci-Tech requirement group to Sci-Tech category
+        if (isCS && groupName.includes('Sci-tech')) {
+          category = 'Sci-Tech';
+        } else if (!updated[category]) {
+          category = 'GE';
+        }
+        
+        for (const req of group.requirements || []) {
+          if (req.fulfilledByClassIds?.some(classId => classId == item.id)) {
+            matchingCategories.add(category);
+            break;
+          }
         }
       }
       
-      // Add to correct category
-      if (updated[correctCategory]) {
-        updated[correctCategory] = [...updated[correctCategory], item];
-      } else {
-        updated['GE'] = [...updated['GE'], item];
-      }
+      const preferred = determinePreferredCategory(matchingCategories, updated) || 'GE';
+      updated[preferred] = [...updated[preferred], item].sort((a, b) => a.code.localeCompare(b.code));
       
       return updated;
     });
-  }, []);
+  }, [major, determinePreferredCategory]);
 
   /**
    * Remove a course from all categories
    * @param {string} courseId - The ID of the course to remove
    */
   const removeCourseFromCategories = useCallback((courseId) => {
-    console.log("got here with: ", courseId);
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       for (const [category, courseList] of Object.entries(updated)) {
@@ -129,7 +148,7 @@ export function useCategorizedCourses(major) {
     categorizedClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    requirements
+    requirementGroups
   };
 }
 

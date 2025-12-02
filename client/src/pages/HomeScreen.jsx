@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// Import components
+// import components
 import DotGrid from '../components/ui/DotGrid.jsx'
 import { SearchBar } from '../components/SearchBar.jsx';
 import { Header } from '../components/Header.jsx';

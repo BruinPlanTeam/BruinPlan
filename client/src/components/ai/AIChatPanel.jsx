@@ -22,7 +22,7 @@ export function AIChatPanel({ isOpen, onClose }) {
   const handleSend = () => {
     if (!inputValue.trim()) return;
 
-    // Add user message
+    // add user message
     const userMessage = {
       role: 'user',
       content: inputValue
@@ -31,7 +31,7 @@ export function AIChatPanel({ isOpen, onClose }) {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // Simulate AI response (replace with actual AI call later)
+    // simulate ai response (replace with actual ai call later)
     setTimeout(() => {
       const aiResponse = {
         role: 'assistant',

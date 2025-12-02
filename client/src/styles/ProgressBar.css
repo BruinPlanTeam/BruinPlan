@@ -25,7 +25,7 @@
 .overall-percentage {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #64ffda;
+  color: #00d4ff;
 }
 
 /* Overall Progress Section */
@@ -48,22 +48,43 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #64ffda 0%, #4dd4ac 100%);
+  background: linear-gradient(90deg, #00d4ff 0%, #4dd4ac 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
   position: relative;
 }
 
 .progress-fill.overall-fill {
-  background: linear-gradient(90deg, #64ffda 0%, #00d4ff 100%);
+  background: linear-gradient(90deg, #00d4ff 0%, #00d4ff 100%);
 }
 
 /* Progress Groups */
 .progress-groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 0.75rem;
   margin-top: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 178, 209, 0.3) transparent;
+}
+
+.progress-groups::-webkit-scrollbar {
+  height: 6px;
+}
+
+.progress-groups::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.progress-groups::-webkit-scrollbar-thumb {
+  background: rgba(168, 178, 209, 0.3);
+  border-radius: 3px;
+}
+
+.progress-groups::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 178, 209, 0.5);
 }
 
 .progress-group {
@@ -72,6 +93,8 @@
   border-radius: 8px;
   padding: 0.75rem;
   transition: border-color 0.15s ease, background 0.15s ease;
+  flex: 1;
+  min-width: 0;
 }
 
 .progress-group:hover {
@@ -99,7 +122,7 @@
 
 .dropdown-arrow {
   font-size: 0.7rem;
-  color: #64ffda;
+  color: #00d4ff;
   transition: transform 0.2s ease;
   display: inline-block;
   transform: rotate(-90deg);
@@ -107,6 +130,10 @@
 
 .dropdown-arrow.expanded {
   transform: rotate(0deg);
+}
+
+.dropdown-arrow.small {
+  font-size: 0.6rem;
 }
 
 .group-name {
@@ -165,7 +192,7 @@
 }
 
 .requirement-status.complete {
-  color: #64ffda;
+  color: #00d4ff;
 }
 
 .requirement-status.incomplete {
@@ -186,6 +213,40 @@
   padding: 0.15rem 0.5rem;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+}
+
+.requirement-group-item {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.requirement-group-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.requirement-group-header.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.nested-requirements {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 2px solid rgba(168, 178, 209, 0.2);
+}
+
+.requirement-item.nested {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.4rem 0.6rem;
 }
 
 .requirement-progress-track {
@@ -220,12 +281,6 @@
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .progress-groups {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
   .progress-bar-container {
     padding: 0.75rem 1rem;
@@ -239,8 +294,8 @@
     font-size: 1.25rem;
   }
 
-  .progress-groups {
-    grid-template-columns: 1fr;
+  .progress-group {
+    min-width: 0;
   }
 
   .group-name {

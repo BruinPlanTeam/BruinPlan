@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'; // Import these
+import { useState, useEffect, useRef } from 'react'; // import these
 import { useMajor } from "../providers/Major";
 import { useCategorizedCourses } from "./useCategorizedCourses";
 import { useDragAndDrop } from "./useDragAndDrop";
@@ -13,7 +13,7 @@ export function usePlanManager() {
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories,
-        requirements,
+        requirementGroups,
         fetchData 
     } = useCategorizedCourses(major);
 
@@ -30,7 +30,7 @@ export function usePlanManager() {
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories, 
-        requirements 
+        requirementGroups 
     );
 
     const { arePrereqsCompleted } = useCourseValidation(droppableZones);
@@ -39,7 +39,7 @@ export function usePlanManager() {
 
         const token = localStorage.getItem('token');
         
-        // Serialize current state
+        // serialize current state
         const planData = {
             name: planName,
             majorName: major,
@@ -54,7 +54,7 @@ export function usePlanManager() {
         });
                 
         try {
-          // Call backend
+          // call backend
           const response = await fetch('http://localhost:3000/plans', {
             method: 'POST',
             headers: {
@@ -64,7 +64,7 @@ export function usePlanManager() {
             body: JSON.stringify(planData)
           });
           
-          // Check if response is OK before parsing
+          // check if response is ok before parsing
           if (!response.ok) {
             const errorText = await response.text();
             console.error('Server error:', response.status, errorText);
@@ -89,7 +89,7 @@ export function usePlanManager() {
                 }
             });
             
-            // Check if response is OK before parsing
+            // check if response is ok before parsing
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server error:', response.status, errorText);
@@ -107,12 +107,12 @@ export function usePlanManager() {
         console.log("Loading plan: ", planData);
         isLoadingPlan.current = true;
 
-        // Set major if it's different from current
+        // set major if it's different from current
         if (planData.major && planData.major.name !== major) {
             setMajor(planData.major.name); 
         }
 
-        // Deserialize plan data to droppable zones format
+        // deserialize plan data to droppable zones format
         const newZones = deserializePlanToZones(planData);
         setDroppableZones(newZones);
     }
@@ -147,7 +147,7 @@ export function usePlanManager() {
         getPlans,
         loadPlan,
         categorizedClasses, 
-        requirements,
+        requirementGroups,
         droppableZones,
         setDroppableZones,
         activeId,
@@ -163,16 +163,16 @@ export function usePlanManager() {
 function serializeDroppableZones(droppableZones, majorName) {
     const quarters = [];
     
-    // Loop through all zones
+    // loop through all zones
     for (let year = 1; year <= 4; year++) {
       for (let quarter = 1; quarter <= 4; quarter++) {
         const zoneId = `zone-${year}-${quarter}`;
         const zone = droppableZones[zoneId];
         
-        // Calculate sequential quarter number
+        // calculate sequential quarter number
         const quarterNumber = (year - 1) * 4 + quarter;
         
-        // Extract just the class IDs
+        // extract just the class ids
         const classIds = zone.items.map(item => parseInt(item.id));
         
         if (classIds.length > 0) {
@@ -188,7 +188,7 @@ function serializeDroppableZones(droppableZones, majorName) {
   }
 
   function deserializePlanToZones(planData) {
-    // Initialize empty zones structure
+    // initialize empty zones structure
     const zones = {};
     const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
     
@@ -203,22 +203,22 @@ function serializeDroppableZones(droppableZones, majorName) {
       }
     }
     
-    // Fill zones with classes from planData
+    // fill zones with classes from planData
     if (planData.quarters && Array.isArray(planData.quarters)) {
       planData.quarters.forEach(quarter => {
-        // Convert quarterNumber back to zone coordinates
+        // convert quarterNumber back to zone coordinates
         const year = Math.ceil(quarter.quarterNumber / 4);
         const quarterInYear = ((quarter.quarterNumber - 1) % 4) + 1;
         const zoneId = `zone-${year}-${quarterInYear}`;
         
-        // Map planClasses to zone items
+        // map planClasses to zone items
         if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
           zones[zoneId].items = quarter.planClasses.map(pc => ({
             id: String(pc.class.id),
             code: pc.class.code,
             units: pc.class.units,
             description: pc.class.description,
-            prereqIds: [] // Will be populated if needed
+            prereqGroups: []
           }));
         }
       });

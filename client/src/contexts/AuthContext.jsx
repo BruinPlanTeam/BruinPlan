@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
+  // load user from localStorage on mount
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
@@ -29,24 +29,33 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await response.json();
-
+      // Check if response is ok before trying to parse JSON
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || `Server error: ${response.status}`);
       }
 
-      // Update state
+      const data = await response.json();
+
+      // update state
       setUser(data.user);
       setToken(data.token);
       
-      // Save to localStorage
+      // save to localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: error.message };
+      // Provide more helpful error messages
+      if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+        return { 
+          success: false, 
+          error: 'Cannot connect to server. Make sure the backend is running on http://localhost:3000' 
+        };
+      }
+      return { success: false, error: error.message || 'Login failed. Please try again.' };
     }
   };
 
@@ -64,17 +73,26 @@ export function AuthProvider({ children }) {
         })
       });
 
-      const data = await response.json();
-
+      // Check if response is ok before trying to parse JSON
       if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || `Server error: ${response.status}`);
       }
 
-      // Signup successful - now auto-login
+      const data = await response.json();
+
+      // signup successful - now auto-login
       return await login(email, password);
     } catch (error) {
       console.error('Signup error:', error);
-      return { success: false, error: error.message };
+      // Provide more helpful error messages
+      if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+        return { 
+          success: false, 
+          error: 'Cannot connect to server. Make sure the backend is running on http://localhost:3000' 
+        };
+      }
+      return { success: false, error: error.message || 'Signup failed. Please try again.' };
     }
   };
 
