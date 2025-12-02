@@ -157,38 +157,6 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
    - Search for an engineering major (try "Computer Science" or "Computer Engineering")
    - Start building your plan
 
-## Project Structure
-
-```
-CourseCompiler/
-├── client/
-│   ├── src/
-│   │   ├── components/      # React components
-│   │   │   ├── ai/          # AI chat components
-│   │   │   ├── ui/          # Reusable UI components
-│   │   │   └── ...          # Other components (Auth, SearchBar, etc.)
-│   │   ├── contexts/        # React contexts (AuthContext)
-│   │   ├── hooks/           # Custom hooks (planManager, useDragAndDrop, etc.)
-│   │   ├── pages/           # Page components (HomeScreen, DegreePlan)
-│   │   ├── providers/       # Context providers (MajorProvider)
-│   │   ├── services/        # API service functions
-│   │   ├── styles/          # CSS files
-│   │   └── utils/           # Helper functions
-│   └── package.json
-├── server/
-│   ├── app.js              # Express routes and middleware
-│   ├── server.js           # Entry point (starts server)
-│   ├── prisma/
-│   │   ├── schema.prisma   # Database schema
-│   │   └── migrations/     # DB migrations
-│   ├── features/           # Cucumber E2E tests
-│   │   └── step_definitions/
-│   ├── scripts/            # Utility scripts
-│   └── package.json
-├── diagrams/               # Architecture diagram images
-├── scraper/                # Data scraping scripts (legacy)
-└── README.md
-```
 
 ## API Endpoints
 
