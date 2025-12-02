@@ -113,7 +113,6 @@ export default function Auth() {
     <div className="page">
       <div className="bgGlow" />
       <div ref={arenaRef} className="arena">
-        <div ref={bearRef} className="bear" aria-hidden>🐻</div>
         <div className="card" role="region" aria-label="Authentication form">
           <h1 className="title">Login to View Saved Plans</h1>
           <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">

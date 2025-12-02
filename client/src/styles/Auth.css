@@ -30,18 +30,6 @@
   overflow: hidden;
 }
 
-.bear {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 40px;
-  line-height: 1;
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
-  user-select: none;
-  will-change: transform;
-  transition: filter 120ms ease;
-}
-
 .card {
   position: absolute;
   inset: 50% auto auto 50%;
