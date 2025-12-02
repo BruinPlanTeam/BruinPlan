@@ -4,7 +4,9 @@ import { useState } from 'react'
 import DotGrid from '../components/ui/DotGrid.jsx'
 import { SearchBar } from '../components/SearchBar.jsx';
 import { Header } from '../components/Header.jsx';
+import { Footer } from '../components/Footer.jsx';
 import SearchBarTitle from '../components/ui/SearchBarTitle.jsx'
+import '../styles/HomeScreen.css';
 
 const handleAnimationComplete = () => {
     console.log('Animation completed!');
@@ -13,7 +15,7 @@ const handleAnimationComplete = () => {
 export default function HomeScreen() {
     return (
         <> 
-            <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+            <div className="home-screen-container">
             <DotGrid 
                 dotSize={4}
                 gap={15}  
@@ -39,6 +41,7 @@ export default function HomeScreen() {
                 <SearchBar />
             </div>
             </div>
+            <Footer />
         </>
     );
 }

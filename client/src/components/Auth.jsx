@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Footer } from './Footer.jsx';
 import '../styles/Auth.css';
 
 export default function Auth() {
@@ -155,6 +156,7 @@ export default function Auth() {
           </form>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
