@@ -37,7 +37,7 @@ export function useCategorizedCourses(major) {
     const classToCategories = new Map();
     
     allRequirementGroups.forEach(group => {
-      let category = group.type || 'Other';
+      let category = group.type;
       const groupName = group.name || '';
       
       // For CS, map Sci-Tech requirement group to Sci-Tech category in sidebar
