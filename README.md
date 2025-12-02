@@ -1,10 +1,10 @@
-# BruinPlan: UCLA 4-Year Class Planner
+# CourseCompiler: UCLA 4-Year Class Planner
 
-BruinPlan helps UCLA Engineering students plan their 4-year degree path. You can drag and drop courses into a quarterly schedule, see which prerequisites you need, and track your progress toward graduation.
+CourseCompiler helps UCLA Engineering students plan their 4-year degree path. You can drag and drop courses into a quarterly schedule, see which prerequisites you need, and track your progress toward graduation.
 
 ## What It Does
 
-The app lets you search for your major, see all the required classes, and build a plan by dragging courses into quarters. It checks prerequisites automatically and warns you if you're taking too many units. You can save multiple plans and switch between them.
+The app lets you search for your engineering major, see all the required classes, and build a plan by dragging courses into quarters. It checks prerequisites automatically and warns you if you're taking too many units. You can save multiple plans and switch between them.
 
 ### Main Features
 
@@ -12,11 +12,12 @@ The app lets you search for your major, see all the required classes, and build 
 - See all required courses for your major loaded from our database
 - Drag courses into a 4-year quarterly schedule
 - System blocks you from adding classes if you haven't taken prerequisites
-- Get warnings if a quarter goes over 21 units
+- System blocks you from adding classes if a quarter would exceed 21 units (visual warning shown)
 
 **Progress Tracking**
 - See how much of your degree you've completed
-- Track progress by requirement type (Lower Division, Upper Division, GE, etc.)
+- Track progress by requirement type (Prep, Major, Tech Breadth, Sci-Tech, GE, etc.)
+- Progress bar shows completion percentage for each requirement category
 
 **Saving Plans**
 - Create an account to save your plans
@@ -24,14 +25,14 @@ The app lets you search for your major, see all the required classes, and build 
 - Your plans are stored in the database
 
 **Search**
-- Search for majors with real-time suggestions
+- Search for engineering majors with real-time suggestions
 - Results are ranked by relevance (exact matches first, then partial matches)
 
 ## How It's Built
 
 The frontend is React with Vite. We use React Router for navigation and @dnd-kit for the drag-and-drop functionality. State is managed with React Context (for auth and major selection) and custom hooks for different features.
 
-The backend is Express.js with Prisma as our ORM. We use MySQL for the database. Authentication uses JWT tokens, and passwords are hashed with bcrypt.
+The backend is Express.js with Prisma as our ORM. We use MySQL for the database. Authentication uses JWT tokens, and passwords are hashed with bcrypt. The server code is organized in `server/app.js` (routes and middleware) and `server/server.js` (entry point).
 
 We organized the code into custom hooks so each piece has a clear responsibility. API calls go through service functions, and protected routes use JWT middleware.
 
@@ -46,6 +47,7 @@ This diagram shows how React components and hooks are organized and how they int
 Owen u gotta add this
 
 i didnt wanna leave this blank so asked ai to make a random paragraph idk how well it aligns with yours
+
 The App component wraps everything with AuthProvider and MajorProvider for global state management. The DegreePlan page uses the usePlanManager hook, which coordinates useCategorizedCourses (fetches and categorizes courses), useDragAndDrop (handles the drag-and-drop logic), and useCourseValidation (checks prerequisites). PlanGrid renders the 4×4 grid of quarters, and CourseSidebar displays the categorized courses. Components like SavePlanButton, SavedPlansButton, and ProgressBar interact with the plan manager to provide the full functionality.
 
 ### 2. Database Schema Diagram
@@ -57,6 +59,7 @@ This ER diagram shows how the database tables relate to each other.
 Ciaran u gotta add this
 
 i didnt wanna leave this blank either so also asked ai to make a random paragraph idk how well it aligns with yours
+
 Users can have multiple Plans. Each Plan belongs to one Major and has multiple Quarters. Each Quarter has multiple PlanClasses, which link to Class records. Majors have Requirements through MajorRequirement, and Requirements link to Classes through RequirementClasses. Classes can have Prerequisites pointing to other Classes. The schema supports complex prerequisite relationships and tracks which classes fulfill which requirements.
 
 ### 3. Application State Diagram
@@ -65,7 +68,7 @@ This shows the different states the application can be in and how it transitions
 
 ![Application State Diagram](diagrams/StateDiagram.png)
 
-The application starts at HomeScreen where users can search for majors. Selecting a major transitions to LoadingPlan, then to PlanReady where users can drag and drop courses. The PlanReady state includes nested states for dragging, validating drops, saving plans, and browsing saved plans. Users can also authenticate from HomeScreen, which transitions to the Authenticating state.
+The application starts at HomeScreen where users can search for engineering majors. Selecting a major transitions to LoadingPlan, then to PlanReady where users can drag and drop courses. The PlanReady state includes nested states for dragging, validating drops, saving plans, and browsing saved plans. Users can also authenticate from HomeScreen, which transitions to the Authenticating state.
 
 ### 4. Major Search Sequence Diagram
 
@@ -73,7 +76,7 @@ This sequence diagram shows how major search and course data retrieval works.
 
 ![Major Search Sequence Diagram](diagrams/MajorSearchSequenceDiagram.png)
 
-When a user types in the search bar, the app fetches all majors from the server. The server queries the database through Prisma and returns a list of major names. The client filters and ranks suggestions locally. When a user selects a major, the app navigates to the degree plan page and fetches detailed course data including classes, requirements, and prerequisites. The server performs complex joins to retrieve all related data and transforms it into the format the client needs.
+When a user types in the search bar, the app fetches all engineering majors from the server. The server queries the database through Prisma and returns a list of major names. The client filters and ranks suggestions locally. When a user selects an engineering major, the app navigates to the degree plan page and fetches detailed course data including classes, requirements, and prerequisites. The server performs complex joins to retrieve all related data and transforms it into the format the client needs.
 
 ### 5. Authentication Sequence Diagram
 
@@ -106,7 +109,7 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
 1. **Clone the repo**
    ```bash
    git clone <repository-url>
-   cd BruinPlan
+   cd CourseCompiler
    ```
 
 2. **Set up the server**
@@ -151,34 +154,39 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
 
 3. **Open it in your browser**
    - Go to `http://localhost:5173`
-   - Search for a major (try "Computer Science")
+   - Search for an engineering major (try "Computer Science" or "Computer Engineering")
    - Start building your plan
 
 ## Project Structure
 
 ```
-BruinPlan/
+CourseCompiler/
 ├── client/
 │   ├── src/
-│   │   ├── components/        # React components
-│   │   │   ├── ai/          # AI chat stuff
+│   │   ├── components/      # React components
+│   │   │   ├── ai/          # AI chat components
 │   │   │   ├── ui/          # Reusable UI components
-│   │   │   └── ...          # Other components
+│   │   │   └── ...          # Other components (Auth, SearchBar, etc.)
 │   │   ├── contexts/        # React contexts (AuthContext)
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── pages/           # Page components
-│   │   ├── providers/       # Context providers
+│   │   ├── hooks/           # Custom hooks (planManager, useDragAndDrop, etc.)
+│   │   ├── pages/           # Page components (HomeScreen, DegreePlan)
+│   │   ├── providers/       # Context providers (MajorProvider)
 │   │   ├── services/        # API service functions
+│   │   ├── styles/          # CSS files
 │   │   └── utils/           # Helper functions
 │   └── package.json
 ├── server/
-│   ├── app.js              # Express routes
-│   ├── server.js           # Entry point
+│   ├── app.js              # Express routes and middleware
+│   ├── server.js           # Entry point (starts server)
 │   ├── prisma/
 │   │   ├── schema.prisma   # Database schema
 │   │   └── migrations/     # DB migrations
-│   ├── features/           # Cucumber tests
+│   ├── features/           # Cucumber E2E tests
+│   │   └── step_definitions/
+│   ├── scripts/            # Utility scripts
 │   └── package.json
+├── diagrams/               # Architecture diagram images
+├── scraper/                # Data scraping scripts (legacy)
 └── README.md
 ```
 
@@ -207,11 +215,11 @@ Returns 200 with user object and JWT token.
 
 ### Major Data
 
-**GET /majors** - Get all majors
-Returns array of major names: `["Computer Engineering", "Computer Science", ...]`
+**GET /majors** - Get all engineering majors
+Returns array of engineering major names: `["Computer Engineering", "Computer Science", ...]`
 
-**GET /majors/:majorName** - Get major details
-Returns courses and requirements for that major:
+**GET /majors/:majorName** - Get engineering major details
+Returns courses and requirements for that engineering major:
 ```json
 {
   "availableClasses": [...],
@@ -264,15 +272,16 @@ The tests cover user creation and login. They're in `server/features/` with step
 - Run `npm install` in both `client/` and `server/` directories
 
 **Prisma errors**
-- Run `npx prisma generate` in the `server/` directory
+- Run `npm run prisma:generate` or `npx prisma generate` in the `server/` directory
 
 **Port 3000 already in use**
-- Kill whatever's using port 3000, or change the port in `server/server.js`
+- Kill whatever's using port 3000, or change the PORT constant in `server/server.js`
 
 **CORS errors**
 - Make sure the client is running on `http://localhost:5173`
 - Check the CORS config in `server/app.js` matches your client URL
+- The client uses Vite proxy (`/api` routes) configured in `client/vite.config.js`
 
 ---
 
-Built for CS35L at UCLA. BruinPlan Team on top: Owen Battles, Ciaran Turner, Atri Pandya, Conor Parman
+Built for CS35L at UCLA. CourseCompiler Team: Owen Battles, Ciaran Turner, Atri Pandya, Conor Parman
