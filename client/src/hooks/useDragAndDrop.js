@@ -18,7 +18,7 @@ export function useDragAndDrop(
     categorizedClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    requirementGroups,
+    requirementGroups
 ) {
   // initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -46,7 +46,6 @@ export function useDragAndDrop(
     setElectricCourseId(courseId);
     setTimeout(() => {
       setElectricCourseId(null);
-      console.log(`[ELECTRIC EFFECT] Resetting ID.`);
     }, 1000);
   }, []);
 
@@ -155,7 +154,7 @@ export function useDragAndDrop(
     let currentName = null;
     let currentId = null;
     let currentUnits = null;
-    let currentPrereqs = null;
+    let currentPrereqGroups = null;
 
     // if the item is still being dragged don't assign it to a box
     if (!over) {
@@ -165,10 +164,9 @@ export function useDragAndDrop(
 
           
 
-    // helper to normalize prereqs from prereqGroups (array of OR-groups)
-    const getNormalizedPrereqs = (item) => {
+    const getPrereqGroups = (item) => {
       if (!item || !Array.isArray(item.prereqGroups)) return [];
-      return Array.from(new Set(item.prereqGroups.flat().filter(Boolean)));
+      return item.prereqGroups.filter(group => Array.isArray(group) && group.length > 0);
     };
 
     // get the id of where the object came from
@@ -179,7 +177,7 @@ export function useDragAndDrop(
         currentName = matchedItem.code;
         currentId = matchedItem.id;
         currentUnits = matchedItem.units;
-        currentPrereqs = getNormalizedPrereqs(matchedItem);
+        currentPrereqGroups = getPrereqGroups(matchedItem);
         sourceZoneId = key;
         break;
       }
@@ -197,7 +195,7 @@ export function useDragAndDrop(
         currentName = item.code;
         currentId = item.id;
         currentUnits = item.units;
-        currentPrereqs = getNormalizedPrereqs(item);
+        currentPrereqGroups = getPrereqGroups(item);
         break;
       }
     }
@@ -251,11 +249,12 @@ export function useDragAndDrop(
       const targetZone = droppableZones[targetZoneId];
       const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id);
 
-      // a class cannot have itself as a prereq
-      currentPrereqs = (currentPrereqs || []).filter(prereq => prereq != currentId);
+      const filteredPrereqGroups = (currentPrereqGroups || [])
+        .map(group => group.filter(prereq => String(prereq) !== String(currentId)))
+        .filter(group => group.length > 0);
 
       const totalUnits = getCurrentUnits(targetZoneId, droppableZones) + currentUnits;
-      const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, currentPrereqs);
+      const prereqsCompleted = arePrereqsCompleted(targetZoneId, currentId, filteredPrereqGroups);
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // reordering within the same zone
@@ -268,9 +267,7 @@ export function useDragAndDrop(
         }
       } else if (isInDraggableList && foundItem) {
         // moving from category list to zone
-        console.log('Found item');
         if (totalUnits <= MAX_UNITS && prereqsCompleted) {
-          console.log('Entered prerequisite and unit check');
           moveCourseToZone(targetZoneId, foundItem);
           triggerElectricEffect(currentId);
         }

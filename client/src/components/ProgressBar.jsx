@@ -76,39 +76,47 @@ export function ProgressBar({ requirementGroups, droppableZones }) {
           total: coursesToChoose,
           isComplete
         });
-
-        groupEntry.completed += completed;
-        groupEntry.total += coursesToChoose;
       });
 
       // For requirement group totals:
-      // If only 1 requirement, use that requirement's coursesToChoose
-      // If multiple requirements, use numRequirementsToChoose from DB
+      // Track how many REQUIREMENTS are completed, not classes
+      // The total is numRequirementsToChoose (how many requirements must be met)
+      const numCompletedRequirements = groupEntry.requirements.filter(req => req.isComplete).length;
+      const numRequirementsToChoose = groupEntry.numRequirementsToChoose;
+      
+      // For single requirement groups, show the requirement's progress
       if (groupEntry.requirements.length === 1) {
-        // Single requirement: use the requirement's coursesToChoose
         const req = groupEntry.requirements[0];
+        // Group level: show requirement progress (for display)
+        groupEntry.groupCompleted = req.completed;
+        groupEntry.groupTotal = req.total;
+        // Type level: track courses
         typeGroups[type].completed += req.completed;
         typeGroups[type].total += req.total;
         totalRequired += req.total;
         totalCompleted += req.completed;
-        groupEntry.groupCompleted = req.completed;
-        groupEntry.groupTotal = req.total;
       } else {
-        // Multiple requirements: use the coursesToChoose from the first requirement as the total
-        // (assuming all requirements in the group have the same coursesToChoose value)
-        const coursesPerReq = groupEntry.requirements[0]?.total || 1;
-        const groupTotal = coursesPerReq;
-        
-        // Calculate completed: sum classes from all requirements, capped at groupTotal
-        const totalClassesFromReqs = groupEntry.requirements.reduce((sum, req) => sum + req.completed, 0);
-        const groupCompleted = Math.min(totalClassesFromReqs, groupTotal);
-        
-        typeGroups[type].completed += groupCompleted;
-        typeGroups[type].total += groupTotal;
-        totalRequired += groupTotal;
-        totalCompleted += groupCompleted;
+        // For multi-requirement groups, track requirements met for display
+        const groupCompleted = Math.min(numCompletedRequirements, numRequirementsToChoose);
+        const groupTotal = numRequirementsToChoose;
         groupEntry.groupCompleted = groupCompleted;
         groupEntry.groupTotal = groupTotal;
+        
+        // For type-level totals: numRequirementsToChoose * coursesToChoose from first req
+        const coursesPerRequirement = groupEntry.requirements[0]?.total || 1;
+        const totalCoursesRequired = numRequirementsToChoose * coursesPerRequirement;
+        
+        // Calculate completed courses: count courses from completed requirements only
+        const completedCourses = groupEntry.requirements
+          .filter(req => req.isComplete)
+          .reduce((sum, req) => sum + req.completed, 0);
+        // Cap at total required
+        const completedCoursesCapped = Math.min(completedCourses, totalCoursesRequired);
+        
+        typeGroups[type].completed += completedCoursesCapped;
+        typeGroups[type].total += totalCoursesRequired;
+        totalRequired += totalCoursesRequired;
+        totalCompleted += completedCoursesCapped;
       }
 
       typeGroups[type].groups.push(groupEntry);

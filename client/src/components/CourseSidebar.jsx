@@ -81,7 +81,7 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="course-categories">
+      <div className="course-categories">
           {Object.entries(categorizedClasses).map(([category, courseList]) => {
             if (courseList.length === 0) return null;
             
@@ -89,21 +89,18 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
             const isSearchOpen = searchOpen[category] || false;
             const searchTerm = searchTerms[category] || '';
             
-            // Sort courses by ID first
-            const sortedCourses = [...courseList].sort((a, b) => {
-              const idA = parseInt(a.id, 10);
-              const idB = parseInt(b.id, 10);
-              return idA - idB;
-            });
+            // Sort courses alphabetically by course code
+            const sortedCourses = [...courseList].sort((a, b) => a.code.localeCompare(b.code));
             
             // Only filter if search is open and has a term
-            const filteredCourses = isSearchOpen && searchTerm 
+            const isActivelySearching = isSearchOpen && searchTerm && searchTerm.trim() !== '';
+            const filteredCourses = isActivelySearching
               ? filterCourses(sortedCourses, searchTerm) 
               : sortedCourses;
 
             return (
-              <div key={category} className="course-category">
-                <div className="category-header">
+            <div key={category} className="course-category">
+              <div className="category-header">
                   <div className="category-title-row">
                     <button 
                       className="category-toggle"
@@ -113,7 +110,7 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
                       <span className={`dropdown-arrow ${isExpanded ? 'expanded' : ''}`}>
                         ▼
                       </span>
-                      <h3>{category}</h3>
+                <h3>{category}</h3>
                     </button>
                     <button
                       className="search-icon-button"
@@ -121,8 +118,8 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
                       aria-label={`Search ${category}`}
                     />
                   </div>
-                  <span className="category-count">{courseList.length}</span>
-                </div>
+                <span className="category-count">{courseList.length}</span>
+              </div>
                 
                 {isSearchOpen && (
                   <div className="category-search-container">
@@ -138,35 +135,37 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
                 )}
 
                 {isExpanded && (
-                  <Droppable
-                    id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                    title=""
-                    items={filteredCourses}
-                    electricCourseId={electricCourseId}
-                  >
-                    {filteredCourses.length === 0 ? (
+                  <>
+                    {isActivelySearching && filteredCourses.length === 0 ? (
                       <div className="no-classes-found">
                         No classes found
                       </div>
                     ) : (
-                      filteredCourses.map((item) => (
-                        <Draggable 
-                          key={item.id} 
-                          id={item.id} 
-                          item={item} 
-                          showElectric={String(item.id) === electricCourseId}
-                        >
-                          <span className="course-code">{item.code}</span>
-                          <span className="course-units">{item.units}u</span>
-                        </Draggable>
-                      ))
+                      <Droppable
+                        id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                        title=""
+                        items={filteredCourses}
+                        electricCourseId={electricCourseId}
+                      >
+                        {filteredCourses.map((item) => (
+                          <Draggable 
+                            key={item.id} 
+                            id={item.id} 
+                            item={item} 
+                            showElectric={String(item.id) === electricCourseId}
+                          >
+                            <span className="course-code">{item.code}</span>
+                            <span className="course-units">{item.units}u</span>
+                          </Draggable>
+                        ))}
+                      </Droppable>
                     )}
-                  </Droppable>
+                  </>
                 )}
-              </div>
+            </div>
             );
           })}
-        </div>
+      </div>
       )}
     </div>
   );
