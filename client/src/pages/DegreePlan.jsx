@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import PlanGrid from '../components/PlanGrid.jsx';
 import CourseSidebar from '../components/CourseSidebar.jsx';
-
 import { ProgressBar } from '../components/ProgressBar.jsx';
+import { Header } from '../components/Header.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
 import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
@@ -110,6 +110,7 @@ export default function DegreePlan() {
 
   return (
     <>
+      <Header />
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Header } from './Header.jsx';
 import { Footer } from './Footer.jsx';
 import '../styles/Auth.css';
 
@@ -111,52 +112,75 @@ export default function Auth() {
   };
 
   return (
-    <div className="page">
-      <div className="bgGlow" />
-      <div ref={arenaRef} className="arena">
-        <div className="card" role="region" aria-label="Authentication form">
-          <h1 className="title">Login to View Saved Plans</h1>
-          <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">
-            <label className="label">
-              Email
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="yourname@ucla.edu"
-                className="input"
-                required
-              />
-            </label>
-            <label className="label">
-              Password
-              <input
-                type="password"
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                placeholder="••••••••"
-                className="input"
-                required
-              />
-            </label>
-            {err ? <p className="error">{err}</p> : null}
-            {!signUp ? (
-              <button type="submit" className="button" disabled={loading}>
-                {loading ? 'Logging in...' : 'Log In'}
-              </button>
-            ) : (
-              <button type="submit" className="button" disabled={loading}>
-                {loading ? 'Signing up...' : 'Sign Up'}
-              </button>
-            )}
-            {!signUp ? <p6>Don't have an account? </p6> : null}
-            {!signUp ? <button type="button" className="signUpButton" onClick={() => handleChangeSignUp()}>Sign Up</button> : null}
-            {signUp ? <p6>Already have an account? </p6> : null}
-            {signUp ? <button type="button" className="signUpButton" onClick={() => handleChangeSignUp()}>Login</button> : null}
-          </form>
+    <>
+      <Header />
+      <div className="page">
+        <div ref={arenaRef} className="arena">
+          <div className="card" role="region" aria-label="Authentication form">
+            <h1 className="title">{signUp ? 'Create your CourseCompiler account' : 'Log in to CourseCompiler'}</h1>
+            <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">
+              <label className="label">
+                Email
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="yourname@ucla.edu"
+                  className="input"
+                  required
+                />
+              </label>
+              <label className="label">
+                Password
+                <input
+                  type="password"
+                  value={pw}
+                  onChange={(e) => setPw(e.target.value)}
+                  placeholder="••••••••"
+                  className="input"
+                  required
+                />
+              </label>
+              {err ? <p className="error">{err}</p> : null}
+              {!signUp ? (
+                <button type="submit" className="button" disabled={loading}>
+                  {loading ? 'Logging in...' : 'Log In'}
+                </button>
+              ) : (
+                <button type="submit" className="button" disabled={loading}>
+                  {loading ? 'Signing up...' : 'Sign Up'}
+                </button>
+              )}
+              <div className="auth-toggle">
+                {!signUp ? (
+                  <>
+                    <span className="auth-toggle-text">Don&apos;t have an account?</span>
+                    <button
+                      type="button"
+                      className="signUpButton"
+                      onClick={handleChangeSignUp}
+                    >
+                      Sign Up
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="auth-toggle-text">Already have an account?</span>
+                    <button
+                      type="button"
+                      className="signUpButton"
+                      onClick={handleChangeSignUp}
+                    >
+                      Log In
+                    </button>
+                  </>
+                )}
+              </div>
+            </form>
+          </div>
         </div>
       </div>
       <Footer />
-    </div>
+    </>
   );
 }

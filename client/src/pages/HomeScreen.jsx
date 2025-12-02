@@ -19,8 +19,8 @@ export default function HomeScreen() {
             <DotGrid 
                 dotSize={4}
                 gap={15}  
-                baseColor="#192225" 
-                activeColor="#124569"  
+                baseColor="#003B5C" 
+                activeColor="#2774AE"  
                 proximity={150} 
                 shockRadius={89}  
                 shockStrength={4}  

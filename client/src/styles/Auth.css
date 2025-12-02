@@ -2,13 +2,10 @@
   min-height: 100vh;
   width: 100%;
   display: grid;
-  grid-template-rows: 1fr auto;
   place-items: center;
-  background:
-    radial-gradient(1000px 600px at 20% 10%, rgba(39,116,174,0.20), transparent),
-    radial-gradient(900px 500px at 80% 90%, rgba(255,209,0,0.18), transparent),
-    linear-gradient(180deg, #0a0f14 0%, #0b1520 100%);
+  background-color: var(--color-bg-page);
   overflow: hidden;
+  padding-top: 72px; /* leave room under global nav */
 }
 
 .bgGlow {
@@ -22,27 +19,20 @@
   position: relative;
   width: min(92vw, 920px);
   height: min(78vh, 620px);
-  border-radius: 24px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   width: min(92%, 420px);
   padding: 28px;
   border-radius: 16px;
-  background: rgba(13, 23, 33, 0.75);
-  backdrop-filter: blur(10px);
+  background-color: var(--color-bg-surface);
   border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
-  color: #e9f0f5;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  color: var(--white);
 }
 
 .title {
@@ -50,7 +40,7 @@
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: 0.2px;
-  color: #EAF6FF;
+  color: var(--white);
   text-align: center;
 }
 
@@ -59,11 +49,31 @@
   gap: 12px;
 }
 
+.auth-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.auth-toggle-text {
+  color: var(--color-text-secondary);
+}
+
+.auth-toggle .signUpButton {
+  margin-top: 0;
+  height: auto;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
 .label {
   display: grid;
   gap: 6px;
   font-size: 0.9rem;
-  color: #CFE7FF;
+  color: var(--sunmark-yellow);
 }
 
 .input {
@@ -71,7 +81,7 @@
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(8,15,22,0.65);
-  color: #EAF6FF;
+  color: var(--white);
   padding: 0 12px;
   outline: none;
   font-size: 0.95rem;
@@ -82,9 +92,8 @@
   height: 44px;
   border-radius: 10px;
   border: none;
-  background:
-    linear-gradient(135deg, #2774AE 0%, #2d89cc 50%, #2774AE 100%);
-  color: white;
+  background-color: var(--color-button-primary-bg);
+  color: var(--white);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -98,11 +107,11 @@
   border-radius: 10px;
   border: none;
   background: transparent;
-  color: #EAF6FF;
+  color: var(--white);
 }
 
 .error {
-  color: #ff6b6b;
+  color: var(--santa-monica-sunset);
   font-size: 0.9rem;
   margin: 4px 0 0;
   text-align: center;

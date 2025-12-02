@@ -4,7 +4,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
@@ -20,12 +21,42 @@ html, body {
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #191616;
+  /* ucla brand color palette */
+  --ucla-blue: #2774AE;            /* headlines, primary accent */
+  --midnight-joshua-tree: #003B5C; /* main dark background / text accent */
+  --sunmark-yellow: #FAEDBD;       /* soft highlight backgrounds */
+  --sand: #EFEDE5;                 /* light surfaces if needed */
+  --white: #FFFFFF;                /* cards, text on dark */
+  --black: #000000;                /* pure black when needed */
+
+  /* secondary brand colors */
+  --malibu-dolphin: #656C71;       /* secondary text, dividers */
+  --chumash-soil: #FFC72C;         /* primary buttons */
+  --santa-barbara-sand: #F6F4EE;   /* alt backgrounds */
+  --grove-fountain: #DAEBFE;       /* soft info backgrounds */
+  --silver-screen: #C9CFD4;        /* borders, rules */
+  --santa-monica-sunset: #FFB81C;  /* strong CTAs */
+
+  /* semantic tokens used across the app (dark mode) */
+  --color-bg-page: var(--midnight-joshua-tree);
+  --color-bg-surface: rgba(0, 59, 92, 0.9);
+  --color-text-primary: var(--white);
+  --color-text-secondary: var(--sand);
+  --color-accent: var(--ucla-blue);
+  --color-border-subtle: var(--silver-screen);
+  --color-button-primary-bg: var(--chumash-soil);
+  --color-button-primary-text: var(--midnight-joshua-tree);
+  --color-button-cta-bg: var(--santa-monica-sunset);
+  --color-button-cta-text: var(--midnight-joshua-tree);
+
+  color-scheme: dark;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-page);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+

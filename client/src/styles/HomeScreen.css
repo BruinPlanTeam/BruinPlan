@@ -4,6 +4,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-bg-page);
+  padding-top: 72px; /* leave room under global nav */
 }
 
 .search-wrapper {
