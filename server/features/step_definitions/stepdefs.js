@@ -1,6 +1,6 @@
 const assert = require('assert');
 const { Given, When, Then } = require('@cucumber/cucumber');
-const app = require('../../app');
+const app = require('../../src/app');
 const request = require('supertest')
 const { PrismaClient } = require('@prisma/client');
 

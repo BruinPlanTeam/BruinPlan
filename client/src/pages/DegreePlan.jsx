@@ -33,7 +33,7 @@ export default function DegreePlan() {
     getPlans,
     loadPlan,
     categorizedClasses, 
-    requirements,
+    requirementGroups,
     droppableZones,
     setDroppableZones,
     activeId,
@@ -84,7 +84,7 @@ export default function DegreePlan() {
             </div>
           </div>
 
-          <ProgressBar requirements={requirements} droppableZones={droppableZones} />
+          <ProgressBar requirementGroups={requirementGroups} droppableZones={droppableZones} />
           
           <div className="content-wrapper">
             

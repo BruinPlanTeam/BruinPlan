@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
+  // load user from localStorage on mount
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
@@ -35,11 +35,11 @@ export function AuthProvider({ children }) {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Update state
+      // update state
       setUser(data.user);
       setToken(data.token);
       
-      // Save to localStorage
+      // save to localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
         throw new Error(data.error || 'Signup failed');
       }
 
-      // Signup successful - now auto-login
+      // signup successful - now auto-login
       return await login(email, password);
     } catch (error) {
       console.error('Signup error:', error);

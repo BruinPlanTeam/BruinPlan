@@ -108,8 +108,8 @@
   text-orientation: mixed;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #64ffda;
-  background: rgba(100, 255, 218, 0.1);
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
   border-radius: 8px;
   padding: 1rem 0.5rem;
   min-width: 50px;
@@ -139,8 +139,8 @@
 }
 
 .droppable-zone.drag-over {
-  border-color: #64ffda;
-  background: rgba(100, 255, 218, 0.08);
+  border-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.08);
 }
 
 /* Zone Status Classes */
@@ -181,8 +181,8 @@
   font-weight: 600;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
-  background: rgba(100, 255, 218, 0.1);
-  color: #64ffda;
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
 }
 
 .zone-units.units-error {
@@ -209,24 +209,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(168, 178, 209, 0.4);
-  font-size: 0.9rem;
-  font-style: italic;
-  text-align: center;
+  min-height: 60px;
   border: 2px dashed rgba(168, 178, 209, 0.2);
   border-radius: 8px;
   padding: 2rem;
 }
 
 .droppable-zone.drag-over .zone-empty {
-  border-color: #64ffda;
-  color: #64ffda;
+  border-color: #00d4ff;
+}
+
+.no-classes-found {
+  padding: 1.5rem;
+  text-align: center;
+  color: #8892b0;
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
 /* Draggable Item / Course Card */
 .draggable-item {
   background: rgba(45, 64, 89, 0.6);
-  border: 1px solid rgba(100, 255, 218, 0.2);
+  border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
   padding: 0.75rem;
   cursor: grab;
@@ -236,7 +240,7 @@
 
 .draggable-item:hover {
   transform: translateY(-2px);
-  border-color: rgba(100, 255, 218, 0.4);
+  border-color: rgba(0, 212, 255, 0.4);
 }
 
 .draggable-item:active {
@@ -257,7 +261,7 @@
 .course-code {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #64ffda;
+  color: #00d4ff;
 }
 
 .course-units {
@@ -298,7 +302,7 @@
   padding: 1rem 1.25rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px 12px 0 0;
-  border-bottom: 2px solid rgba(100, 255, 218, 0.2);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.2);
 }
 
 .sidebar-header h2 {
@@ -311,8 +315,8 @@
 .course-count {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #64ffda;
-  background: rgba(100, 255, 218, 0.1);
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
 }
@@ -343,17 +347,72 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: rgba(100, 255, 218, 0.05);
+  background: rgba(0, 212, 255, 0.05);
   border-bottom: 1px solid rgba(168, 178, 209, 0.15);
+}
+
+.category-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.category-toggle:hover {
+  opacity: 0.8;
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  color: #00d4ff;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  transform: rotate(-90deg);
+}
+
+.dropdown-arrow.expanded {
+  transform: rotate(0deg);
 }
 
 .category-header h3 {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #64ffda;
+  color: #00d4ff;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.search-icon-button {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  color: #8892b0;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-icon-button:hover {
+  color: #00d4ff;
+}
+
+.search-icon-button svg {
+  width: 14px;
+  height: 14px;
 }
 
 .category-count {
@@ -363,6 +422,53 @@
   background: rgba(0, 0, 0, 0.2);
   padding: 0.2rem 0.6rem;
   border-radius: 10px;
+}
+
+.category-search-container {
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(168, 178, 209, 0.15);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(168, 178, 209, 0.2);
+  border-radius: 6px;
+  color: #ccd6f6;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.category-search-input:focus {
+  border-color: #00d4ff;
+}
+
+.category-search-input::placeholder {
+  color: #8892b0;
+}
+
+.more-courses-indicator {
+  padding: 0.75rem;
+  text-align: center;
+  color: #8892b0;
+  font-size: 0.85rem;
+  font-style: italic;
+  border-top: 1px solid rgba(168, 178, 209, 0.1);
 }
 
 /* Category Droppable Zone */
@@ -402,14 +508,14 @@
 .course-categories::-webkit-scrollbar-thumb,
 .course-category .droppable-zone::-webkit-scrollbar-thumb,
 .content-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(100, 255, 218, 0.3);
+  background: rgba(0, 212, 255, 0.3);
   border-radius: 3px;
 }
 
 .course-categories::-webkit-scrollbar-thumb:hover,
 .course-category .droppable-zone::-webkit-scrollbar-thumb:hover,
 .content-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 255, 218, 0.5);
+  background: rgba(0, 212, 255, 0.5);
 }
 
 /* Responsive Design */

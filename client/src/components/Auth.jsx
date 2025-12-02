@@ -78,7 +78,7 @@ export default function Auth() {
       return;
     }
 
-    // Basic validation
+    // basic validation
     if (pw.length < 6) {
       setErr('Password must be at least 6 characters');
       return;
@@ -94,7 +94,7 @@ export default function Auth() {
     setLoading(false);
     
     if (result.success) {
-      // Signup auto-logs in, so navigate to home
+      // signup auto-logs in, so navigate to home
       navigate('/');
     } else {
       setErr(result.error || 'Signup failed. Please try again.');

@@ -7,22 +7,17 @@ const MAX_COLS = 4;
  * Custom hook for course validation logic (prerequisites, units, etc.)
  */
 export function useCourseValidation(droppableZones) {
-  /**
-   * Check if prerequisites are completed for a course being moved to a target zone
-   * @param {string} targetZoneId - The zone where the course is being dropped
-   * @param {string} currentId - The ID of the course being moved
-   * @param {Array} currentPrereqs - Array of prerequisite IDs
-   * @returns {boolean} True if all prerequisites are satisfied
-   */
-  const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqs) => {
+  // Check if prerequisites are completed for a course being moved to a target zone.
+  // currentPrereqs is an array of prerequisite IDs (already normalized).
+  const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqs = []) => {
     let takenClasses = [];
     let unsatisfiedPrereqs = [];
 
-    // Collect all classes that have been taken BEFORE the target zone
+    // collect all classes that have been taken before the target zone
     outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
       for (let col = 1; col <= MAX_COLS; col++) {
         const zone = `zone-${row}-${col}`;
-        // Break BEFORE adding classes from target zone
+        // break before adding classes from target zone
         if (zone === targetZoneId) break outerLoop;
         
         const zoneObj = droppableZones[zone];
@@ -31,14 +26,16 @@ export function useCourseValidation(droppableZones) {
       }
     }
 
-    // Flatten and remove currentId from taken classes
+    // flatten and remove currentId from taken classes
     takenClasses = takenClasses.flat().filter(item => item != currentId).filter(Boolean);
     
-    // Check if all prerequisites are satisfied
-    for (const prereq of currentPrereqs) {
-      // Use loose equality to handle string/number type mismatches
-      if (!takenClasses.find(item => item == prereq)) {
-        unsatisfiedPrereqs.push(prereq);
+    // check if all prerequisites are satisfied (AND over the normalized prereq list)
+    if (Array.isArray(currentPrereqs)) {
+      for (const prereq of currentPrereqs) {
+        // use loose equality to handle string/number type mismatches
+        if (!takenClasses.find(item => item == prereq)) {
+          unsatisfiedPrereqs.push(prereq);
+        }
       }
     }
 
@@ -47,26 +44,31 @@ export function useCourseValidation(droppableZones) {
       return false;
     }
 
-    // Check if this class is a prerequisite for any class in or after the target zone
+    // check if this class is a prerequisite for any class in or after the target zone
     let foundTarget = false;
     for (let row = 1; row <= MAX_ROWS; row++) {
       for (let col = 1; col <= MAX_COLS; col++) {
         const zone = `zone-${row}-${col}`;
         
-        // Mark when we've reached the target zone
+        // mark when we've reached the target zone
         if (zone === targetZoneId) {
           foundTarget = true;
         }
         
-        // Check all zones at or after the target
+        // check all zones at or after the target
         if (foundTarget) {
           const zoneObj = droppableZones[zone];
           for (const classItem of zoneObj.items) {
-            // Skip checking the current class against itself
+            // skip checking the current class against itself
             if (classItem.id == currentId) continue;
             
-            // Check if currentId is a prerequisite for this class
-            if (classItem.prereqIds && classItem.prereqIds.some(prereqId => prereqId == currentId)) {
+            // normalize prereqs for classes already on the board
+            const futurePrereqs = Array.isArray(classItem.prereqGroups)
+              ? classItem.prereqGroups.flat().filter(Boolean)
+              : [];
+
+            // check if currentId is a prerequisite for this class
+            if (futurePrereqs.some(prereqId => prereqId == currentId)) {
               console.log(`Cannot move: This class is a prerequisite for ${classItem.code} in ${zone}`);
               return false;
             }
