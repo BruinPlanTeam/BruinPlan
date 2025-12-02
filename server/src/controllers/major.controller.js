@@ -28,28 +28,24 @@ function processMajorRequirements(major) {
 
         // work through the prereq logic here
         if (!classesById.has(classId)) {
-          const prereqGroupsMap = new Map(); // maps groupNumber to array of prereq ids
-          // each array of prereq ids is an OR group
-          // between groups is an AND group
-          for (const prereq of classData.prereqs) {
-            // if the group number doesn't exist, create an empty array for it
+          const prereqGroupsMap = new Map();
+          const prereqRecords = classData.requiredFor || [];
+
+          for (const prereq of prereqRecords) {
             if (!prereqGroupsMap.has(prereq.prereqGroupNumber)) {
               prereqGroupsMap.set(prereq.prereqGroupNumber, []);
             }
-            // add the prereq id to the array of prereq ids for the group number
             prereqGroupsMap.get(prereq.prereqGroupNumber).push(prereq.prereqId);
           }
 
-          // make a 2d array of prereq groups
           const prereqGroups = Array.from(prereqGroupsMap.values());
 
-          // add class object to map with neccesary data
           classesById.set(classId, {
             id: String(classId),
             code: classData.code,
             units: classData.units,
             description: classData.description,
-            prereqGroups: prereqGroups,
+            prereqGroups,
             fulfillsReqIds: []
           });
         }
@@ -125,8 +121,8 @@ async function getMajorByName(req, res) {
                           include: {
                             class: {
                               include: {
-                                prereqs: {
-                                  select: { 
+                                requiredFor: {
+                                  select: {
                                     prereqId: true,
                                     prereqGroupNumber: true
                                   }
