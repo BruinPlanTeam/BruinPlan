@@ -8,6 +8,7 @@ import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
+import { PlanSetupModal } from '../components/PlanSetupModal.jsx';
 import { Footer } from '../components/Footer.jsx';
 import {
   DndContext,
@@ -26,6 +27,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function DegreePlan() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [hasCompletedSetup, setHasCompletedSetup] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const {
@@ -61,6 +63,24 @@ export default function DegreePlan() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  // Handlers for setup modal
+  const handleCreateNewPlan = (completedClasses) => {
+    // completedClasses can be used later if we add that feature
+    setHasCompletedSetup(true);
+  };
+
+  const handleLoadPlanFromSetup = (plan) => {
+    loadPlan(plan);
+    setHasCompletedSetup(true);
+  };
+
+  const handleSkipSetup = () => {
+    setHasCompletedSetup(true);
+  };
+
+  // Show setup modal for authenticated users who haven't completed setup
+  const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
   return (
     <>
@@ -118,6 +138,15 @@ export default function DegreePlan() {
         </div>
       </DndContext>
       <Footer />
+
+      {showSetupModal && (
+        <PlanSetupModal
+          onCreateNew={handleCreateNewPlan}
+          onLoadPlan={handleLoadPlanFromSetup}
+          getPlans={getPlans}
+          onSkip={handleSkipSetup}
+        />
+      )}
     </>
   );
 }
