@@ -76,8 +76,55 @@ async function getPlans(req, res) {
   return res.status(200).json(plans);
 }
 
+async function deletePlan(req, res) {
+  const planId = parseInt(req.params.planId);
+  const userId = req.user.userId;
+  
+  try {
+    const plan = await prisma.plan.findUnique({
+      where: { id: planId },
+      include: { quarters: true }
+    });
+    
+    if (!plan) {
+      return res.status(404).json({ error: "Plan not found" });
+    }
+    
+    // verify ownership
+    if (plan.userId !== userId) {
+      return res.status(403).json({ error: "Not authorized to delete this plan" });
+    }
+    
+    // delete in order: PlanClasses -> Quarters -> Plan (due to foreign key constraints)
+    const quarterIds = plan.quarters.map(q => q.id);
+    
+    if (quarterIds.length > 0) {
+      // delete all PlanClasses for this plan's quarters
+      await prisma.planClass.deleteMany({
+        where: { quarterId: { in: quarterIds } }
+      });
+      
+      // delete all quarters for this plan
+      await prisma.quarter.deleteMany({
+        where: { planId: planId }
+      });
+    }
+    
+    // finally delete the plan
+    await prisma.plan.delete({
+      where: { id: planId }
+    });
+    
+    return res.status(200).json({ message: "Plan deleted successfully" });
+  } catch (error) {
+    console.error('Error deleting plan:', error);
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   createPlan,
-  getPlans
+  getPlans,
+  deletePlan
 };
 

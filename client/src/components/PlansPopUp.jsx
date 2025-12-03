@@ -1,6 +1,6 @@
 import "../styles/PlansPopUp.css";
 
-export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
+export function PlansPopUp({ savedPlans, handleLoadScreen, onClose, handleDelete }) {
 
     const handlePlanClick = (plan) => {
         console.log("Loading plan:", plan);
@@ -57,6 +57,12 @@ export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
                     ) : (
                         <div className="plans-list">
                             {savedPlans.map((plan) => (
+                                <div key={plan.id}>
+                                    <button className="plan-card-delete-button" onClick={() => handleDelete(plan.id)}>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
                                 <div 
                                     key={plan.id} 
                                     className="plan-card"
@@ -87,6 +93,7 @@ export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
                                             {plan.quarters?.length || 0} quarters
                                         </span>
                                     </div>
+                                </div>
                                 </div>
                             ))}
                         </div>

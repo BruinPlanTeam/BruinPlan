@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PlansPopUp } from "./PlansPopUp";
 import "../styles/SavedPlansButton.css";
 
-export function SavedPlansButton({ handleLoadScreen, getPlans }) {
+export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan }) {
     const [showPlans, setShowPlans] = useState(false);
     const [savedPlans, setSavedPlans] = useState([]);
 
@@ -13,6 +13,12 @@ export function SavedPlansButton({ handleLoadScreen, getPlans }) {
 
     const handleClose = () => {
         setShowPlans(false);
+    };
+
+    const handleDelete = (planId) => {
+        deletePlan(planId).then(() => {
+            getPlans().then(setSavedPlans);
+        });
     };
 
     return (
@@ -56,6 +62,7 @@ export function SavedPlansButton({ handleLoadScreen, getPlans }) {
                     savedPlans={savedPlans} 
                     handleLoadScreen={handleLoadScreen}
                     onClose={handleClose} 
+                    handleDelete={handleDelete}
                 />
             )}
         </>

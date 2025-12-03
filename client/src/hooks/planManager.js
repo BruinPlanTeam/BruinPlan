@@ -117,6 +117,27 @@ export function usePlanManager() {
         setDroppableZones(newZones);
     }
 
+    const deletePlan = async (planId) => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:3000/plans/${planId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error:', response.status, errorText);
+                throw new Error(`Failed to delete plan: ${response.status} - ${errorText.substring(0, 100)}`);
+            }
+            return response.json();
+        } catch (error) {
+            console.error('Delete plan error:', error);
+            throw error; // Re-throw so calling component can handle it
+        }
+    }
+
     useEffect(() => {
         if (!isLoadingPlan.current) return;
         if (!categorizedClasses) return;
@@ -145,6 +166,7 @@ export function usePlanManager() {
         savePlan,
         getPlans,
         loadPlan,
+        deletePlan,
         categorizedClasses, 
         requirementGroups,
         droppableZones,

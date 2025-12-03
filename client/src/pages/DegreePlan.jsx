@@ -33,6 +33,7 @@ export default function DegreePlan() {
     savePlan,
     getPlans,
     loadPlan,
+    deletePlan,
     categorizedClasses, 
     requirementGroups,
     droppableZones,
@@ -79,7 +80,7 @@ export default function DegreePlan() {
               </div>
               {isAuthenticated && 
                 <div className="plan-actions">
-                  <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
+                  <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans} deletePlan={deletePlan}/>
                   <SavePlanButton handleSavePlan={savePlan}/> 
                 </div>
               }
