@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "../styles/PlanSetupModal.css";
 
-export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip }) {
-    const [step, setStep] = useState("choice"); // "choice" | "load" | "completed-classes"
+export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setCurrentPlan }) {
+    const [step, setStep] = useState("choice"); // "choice" | "load" | "name-plan"
     const [savedPlans, setSavedPlans] = useState([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
+    const [newPlanName, setNewPlanName] = useState("");
+    const [nameError, setNameError] = useState("");
 
     const handleLoadExisting = async () => {
         setLoadingPlans(true);
@@ -24,10 +26,17 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip }) {
     };
 
     const handleCreateNew = () => {
-        setStep("completed-classes");
+        setStep("name-plan");
     };
 
-    const handleSkipCompletedClasses = () => {
+    const handleStartPlanning = () => {
+        const trimmedName = newPlanName.trim();
+        if (!trimmedName) {
+            setNameError("Please enter a plan name");
+            return;
+        }
+        // Set current plan with name but no id (new plan)
+        setCurrentPlan({ id: null, name: trimmedName });
         onCreateNew([]);
     };
 
@@ -45,7 +54,7 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip }) {
                                     <path d="M12 14v7" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                             </div>
-                            <h1 className="setup-title">Welcome to BruinPlan</h1>
+                            <h1 className="setup-title">Welcome to CourseCompiler</h1>
                             <p className="setup-subtitle">Plan your UCLA journey</p>
                         </div>
 
@@ -134,7 +143,7 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip }) {
                     </>
                 )}
 
-                {step === "completed-classes" && (
+                {step === "name-plan" && (
                     <>
                         <div className="setup-header compact">
                             <button className="setup-back" onClick={() => setStep("choice")}>
@@ -143,8 +152,24 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip }) {
                                 </svg>
                                 Back
                             </button>
-                            <h2>Completed Classes</h2>
-                            <p>Select any classes you've already taken (optional)</p>
+                            <h2>Name Your Plan</h2>
+                            <p>Give your degree plan a memorable name</p>
+                        </div>
+
+                        <div className="setup-name-input-wrapper">
+                            <input 
+                                type="text" 
+                                className={`setup-name-input ${nameError ? 'error' : ''}`}
+                                value={newPlanName} 
+                                onChange={(e) => {
+                                    setNewPlanName(e.target.value);
+                                    setNameError("");
+                                }} 
+                                placeholder="e.g., My CS Journey, 4-Year Plan..." 
+                                autoFocus
+                                onKeyDown={(e) => e.key === 'Enter' && handleStartPlanning()}
+                            />
+                            {nameError && <span className="setup-name-error">{nameError}</span>}
                         </div>
 
                         <div className="setup-completed-info">
@@ -161,9 +186,9 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip }) {
                         </div>
 
                         <div className="setup-actions">
-                            <button className="setup-primary-btn" onClick={handleSkipCompletedClasses}>
+                            <button className="setup-primary-btn" onClick={handleStartPlanning}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                                 Start Planning
                             </button>

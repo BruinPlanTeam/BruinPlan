@@ -327,6 +327,55 @@
     box-shadow: 0 6px 20px rgba(39, 116, 174, 0.3);
 }
 
+/* Plan Name Input */
+.setup-name-input-wrapper {
+    margin-bottom: 24px;
+}
+
+.setup-name-input {
+    width: 100%;
+    padding: 16px 18px;
+    
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    
+    color: #EAF6FF;
+    font-size: 16px;
+    font-weight: 500;
+    
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.setup-name-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.setup-name-input:focus {
+    border-color: rgba(39, 116, 174, 0.6);
+    background: rgba(39, 116, 174, 0.08);
+    box-shadow: 0 0 0 3px rgba(39, 116, 174, 0.15);
+}
+
+.setup-name-input.error {
+    border-color: rgba(239, 68, 68, 0.6);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.setup-name-input.error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.setup-name-error {
+    display: block;
+    margin-top: 8px;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 500;
+}
+
 /* Completed Classes Info */
 .setup-completed-info {
     display: flex;

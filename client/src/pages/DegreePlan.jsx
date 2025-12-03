@@ -70,7 +70,7 @@ export default function DegreePlan() {
   // Handlers for setup modal
   const handleCreateNewPlan = (completedClasses) => {
     // completedClasses can be used later if we add that feature
-    setCurrentPlan(null); // New plan has no name yet
+    // Note: currentPlan is already set by the modal with the plan name
     setHasCompletedSetup(true);
   };
 
@@ -174,6 +174,7 @@ export default function DegreePlan() {
           onLoadPlan={handleLoadPlanFromSetup}
           getPlans={getPlans}
           onSkip={handleSkipSetup}
+          setCurrentPlan={setCurrentPlan}
         />
       )}
     </>
