@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PlansPopUp } from "./PlansPopUp";
 import "../styles/SavedPlansButton.css";
 
-export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan }) {
+export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan, currentPlan }) {
     const [showPlans, setShowPlans] = useState(false);
     const [savedPlans, setSavedPlans] = useState([]);
 
@@ -73,6 +73,7 @@ export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan }) {
                     handleLoadScreen={handleLoadScreen}
                     onClose={handleClose} 
                     handleDelete={handleDelete}
+                    currentPlan={currentPlan}
                 />
             )}
         </>

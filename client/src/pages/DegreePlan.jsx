@@ -120,7 +120,7 @@ export default function DegreePlan() {
               </div>
               {isAuthenticated && 
                 <div className="plan-actions">
-                  <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan}/>
+                  <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan} currentPlan={currentPlan}/>
                   <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/> 
                 </div>
               }
