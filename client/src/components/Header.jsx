@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaUserCircle } from 'react-icons/fa';
 import CardNav from './ui/CardNav';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo2.png';
 
 export const Header = () => {
   const { isAuthenticated } = useAuth();
