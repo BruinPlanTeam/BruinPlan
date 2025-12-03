@@ -6,8 +6,10 @@ import CourseSidebar from '../components/CourseSidebar.jsx';
 import { ProgressBar } from '../components/ProgressBar.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
+import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
+import { PlanSetupModal } from '../components/PlanSetupModal.jsx';
 import { Footer } from '../components/Footer.jsx';
 import {
   DndContext,
@@ -26,6 +28,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function DegreePlan() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [hasCompletedSetup, setHasCompletedSetup] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState(null); // { id, name } or null for new plans
   const { isAuthenticated } = useAuth();
 
   const {
@@ -33,6 +37,8 @@ export default function DegreePlan() {
     savePlan,
     getPlans,
     loadPlan,
+    deletePlan,
+    resetPlan,
     categorizedClasses, 
     requirementGroups,
     droppableZones,
@@ -61,6 +67,47 @@ export default function DegreePlan() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  // Handlers for setup modal
+  const handleCreateNewPlan = (completedClasses) => {
+    // completedClasses can be used later if we add that feature
+    // Note: currentPlan is already set by the modal with the plan name
+    setHasCompletedSetup(true);
+  };
+
+  const handleLoadPlanFromSetup = (plan) => {
+    loadPlan(plan);
+    setCurrentPlan({ id: plan.id, name: plan.name });
+    setHasCompletedSetup(true);
+  };
+
+  const handleSkipSetup = () => {
+    setCurrentPlan(null);
+    setHasCompletedSetup(true);
+  };
+
+  // Handler for loading plan from SavedPlansButton
+  const handleLoadPlanFromButton = (plan) => {
+    loadPlan(plan);
+    setCurrentPlan({ id: plan.id, name: plan.name });
+  };
+
+  // Handler for saving - passes planId for updates, null for new plans
+  const handleSavePlan = async (planName) => {
+    const planId = currentPlan?.id || null;
+    const result = await savePlan(planName, planId);
+    setCurrentPlan({ id: result.id, name: result.name });
+    return result;
+  };
+
+  // Handler for resetting the plan
+  const handleResetPlan = () => {
+    resetPlan();
+    setCurrentPlan(null);
+  };
+
+  // Show setup modal for authenticated users who haven't completed setup
+  const showSetupModal = isAuthenticated && !hasCompletedSetup;
+
   return (
     <>
       <DndContext
@@ -74,13 +121,16 @@ export default function DegreePlan() {
           <div className="plan-header">
             <div className="plan-header-content">
               <div>
-                <h1>{major}</h1>
-                <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
+                <h1>{currentPlan?.name || major}</h1>
+                <p className="plan-subtitle">
+                  {currentPlan ? `${major} • ` : ''}Drag and drop courses to build your 4-year plan
+                </p>
               </div>
               {isAuthenticated && 
                 <div className="plan-actions">
-                  <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans}/>
-                  <SavePlanButton handleSavePlan={savePlan}/> 
+                  <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan} currentPlan={currentPlan}/>
+                  <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/>
+                  <ResetPlanButton onReset={handleResetPlan}/>
                 </div>
               }
             </div>
@@ -117,6 +167,17 @@ export default function DegreePlan() {
         </div>
       </DndContext>
       <Footer />
+
+      {showSetupModal && (
+        <PlanSetupModal
+          onCreateNew={handleCreateNewPlan}
+          onLoadPlan={handleLoadPlanFromSetup}
+          getPlans={getPlans}
+          onSkip={handleSkipSetup}
+          setCurrentPlan={setCurrentPlan}
+          categorizedClasses={categorizedClasses}
+        />
+      )}
     </>
   );
 }

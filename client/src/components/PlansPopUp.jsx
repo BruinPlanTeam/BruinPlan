@@ -1,6 +1,6 @@
 import "../styles/PlansPopUp.css";
 
-export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
+export function PlansPopUp({ savedPlans, handleLoadScreen, onClose, handleDelete, currentPlan }) {
 
     const handlePlanClick = (plan) => {
         console.log("Loading plan:", plan);
@@ -58,10 +58,22 @@ export function PlansPopUp({ savedPlans, handleLoadScreen, onClose }) {
                         <div className="plans-list">
                             {savedPlans.map((plan) => (
                                 <div 
-                                    key={plan.id} 
+                                    key={plan.id}
                                     className="plan-card"
-                                    onClick={() => handlePlanClick(plan)}
+                                    onClick={() => { handlePlanClick(plan); console.log("Plan clicked:", plan); }}
                                 >
+                                    {plan.id !== currentPlan?.id && <button 
+                                        className="plan-card-delete-button" 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(plan.id);
+                                        }}
+                                        aria-label="Delete plan"
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>}  
                                     <div className="plan-card-header">
                                         <h3 className="plan-card-name">{plan.name}</h3>
                                         <svg 
