@@ -28,6 +28,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function DegreePlan() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hasCompletedSetup, setHasCompletedSetup] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState(null); // { id, name } or null for new plans
   const { isAuthenticated } = useAuth();
 
   const {
@@ -67,16 +68,32 @@ export default function DegreePlan() {
   // Handlers for setup modal
   const handleCreateNewPlan = (completedClasses) => {
     // completedClasses can be used later if we add that feature
+    setCurrentPlan(null); // New plan has no name yet
     setHasCompletedSetup(true);
   };
 
   const handleLoadPlanFromSetup = (plan) => {
     loadPlan(plan);
+    setCurrentPlan({ id: plan.id, name: plan.name });
     setHasCompletedSetup(true);
   };
 
   const handleSkipSetup = () => {
+    setCurrentPlan(null);
     setHasCompletedSetup(true);
+  };
+
+  // Handler for loading plan from SavedPlansButton
+  const handleLoadPlanFromButton = (plan) => {
+    loadPlan(plan);
+    setCurrentPlan({ id: plan.id, name: plan.name });
+  };
+
+  // Handler for saving - updates currentPlan with the saved name
+  const handleSavePlan = async (planName) => {
+    const result = await savePlan(planName);
+    setCurrentPlan({ id: result.id, name: result.name });
+    return result;
   };
 
   // Show setup modal for authenticated users who haven't completed setup
@@ -95,13 +112,15 @@ export default function DegreePlan() {
           <div className="plan-header">
             <div className="plan-header-content">
               <div>
-                <h1>{major}</h1>
-                <p className="plan-subtitle">Drag and drop courses to build your 4-year plan</p>
+                <h1>{currentPlan?.name || major}</h1>
+                <p className="plan-subtitle">
+                  {currentPlan ? `${major} • ` : ''}Drag and drop courses to build your 4-year plan
+                </p>
               </div>
               {isAuthenticated && 
                 <div className="plan-actions">
-                  <SavedPlansButton handleLoadScreen={loadPlan} getPlans={getPlans} deletePlan={deletePlan}/>
-                  <SavePlanButton handleSavePlan={savePlan}/> 
+                  <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan}/>
+                  <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/> 
                 </div>
               }
             </div>

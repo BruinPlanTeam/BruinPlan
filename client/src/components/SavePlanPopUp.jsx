@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import "../styles/SavePlanPopUp.css";
 
-export function SavePlanPopUp({ handleSavePlan, onClose }) {
-    const [planName, setPlanName] = useState('');
+export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
+    const [planName, setPlanName] = useState(currentPlan?.name || '');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    
+    const isEditing = !!currentPlan;
 
     const handleSave = async () => {
         if (!planName.trim()) {
@@ -64,7 +66,7 @@ export function SavePlanPopUp({ handleSavePlan, onClose }) {
                                 strokeLinejoin="round"
                             />
                         </svg>
-                        <h2>Save Degree Plan</h2>
+                        <h2>{isEditing ? 'Update Plan' : 'Save New Plan'}</h2>
                     </div>
                     <button className="save-plan-close-btn" onClick={onClose} aria-label="Close">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -124,7 +126,7 @@ export function SavePlanPopUp({ handleSavePlan, onClose }) {
                                 Saving...
                             </>
                         ) : (
-                            'Save Plan'
+                            isEditing ? 'Update Plan' : 'Save Plan'
                         )}
                     </button>
                 </div>

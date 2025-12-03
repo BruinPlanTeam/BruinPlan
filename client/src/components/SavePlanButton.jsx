@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { SavePlanPopUp } from './SavePlanPopUp';
 import "../styles/SavePlanButton.css";
 
-export function SavePlanButton({ handleSavePlan }) {
+export function SavePlanButton({ handleSavePlan, currentPlan }) {
     const [showPopup, setShowPopup] = useState(false);
 
     return (
@@ -38,12 +38,13 @@ export function SavePlanButton({ handleSavePlan }) {
                         strokeLinejoin="round"
                     />
                 </svg>
-                Save Plan
+                {currentPlan ? 'Save Plan' : 'Save New Plan'}
             </button>
             
             {showPopup && (
                 <SavePlanPopUp 
                     handleSavePlan={handleSavePlan}
+                    currentPlan={currentPlan}
                     onClose={() => setShowPopup(false)}
                 />
             )}
