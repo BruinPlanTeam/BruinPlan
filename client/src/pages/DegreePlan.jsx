@@ -6,6 +6,7 @@ import CourseSidebar from '../components/CourseSidebar.jsx';
 import { ProgressBar } from '../components/ProgressBar.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
+import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
 import { PlanSetupModal } from '../components/PlanSetupModal.jsx';
@@ -37,6 +38,7 @@ export default function DegreePlan() {
     getPlans,
     loadPlan,
     deletePlan,
+    resetPlan,
     categorizedClasses, 
     requirementGroups,
     droppableZones,
@@ -97,6 +99,12 @@ export default function DegreePlan() {
     return result;
   };
 
+  // Handler for resetting the plan
+  const handleResetPlan = () => {
+    resetPlan();
+    setCurrentPlan(null);
+  };
+
   // Show setup modal for authenticated users who haven't completed setup
   const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
@@ -121,7 +129,8 @@ export default function DegreePlan() {
               {isAuthenticated && 
                 <div className="plan-actions">
                   <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan} currentPlan={currentPlan}/>
-                  <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/> 
+                  <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/>
+                  <ResetPlanButton onReset={handleResetPlan}/>
                 </div>
               }
             </div>

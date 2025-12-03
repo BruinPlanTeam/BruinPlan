@@ -1,0 +1,78 @@
+/* Shared Plan Action Button Styles */
+.plan-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    min-width: 140px;
+    padding: 12px 20px;
+    
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    
+    border: none;
+    border-radius: 10px;
+    
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Blue theme (default - Browse, Save) */
+.plan-action-button {
+    color: white;
+    background: linear-gradient(135deg, #2774AE 0%, #3284BE 100%);
+    box-shadow: 0 4px 12px rgba(39, 116, 174, 0.25);
+}
+
+.plan-action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(39, 116, 174, 0.35);
+}
+
+.plan-action-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(39, 116, 174, 0.3);
+}
+
+/* Reset button - red/orange theme */
+.plan-action-button.reset {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.plan-action-button.reset:hover {
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.35);
+}
+
+.plan-action-button.reset:active {
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.plan-action-button-icon {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.plan-action-button:hover .plan-action-button-icon {
+    transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .plan-action-button {
+        min-width: 120px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-action-button {
+        min-width: auto;
+        padding: 10px 14px;
+    }
+}
+

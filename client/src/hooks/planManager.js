@@ -141,6 +141,42 @@ export function usePlanManager() {
         }
     }
 
+    const resetPlan = () => {
+        // Collect all courses currently in the grid
+        const coursesToRestore = [];
+        for (let row = 1; row <= 4; row++) {
+            for (let col = 1; col <= 4; col++) {
+                const zoneId = `zone-${row}-${col}`;
+                const zone = droppableZones[zoneId];
+                if (zone && zone.items) {
+                    coursesToRestore.push(...zone.items);
+                }
+            }
+        }
+
+        // Create empty zones
+        const emptyZones = {};
+        const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
+        for (let row = 1; row <= 4; row++) {
+            for (let col = 1; col <= 4; col++) {
+                const zoneId = `zone-${row}-${col}`;
+                emptyZones[zoneId] = {
+                    id: zoneId,
+                    title: quarterTitles[col - 1],
+                    items: []
+                };
+            }
+        }
+
+        // Set empty zones
+        setDroppableZones(emptyZones);
+
+        // Add courses back to their categories
+        coursesToRestore.forEach(course => {
+            addCourseToCategory(course);
+        });
+    };
+
     useEffect(() => {
         if (!isLoadingPlan.current) return;
         if (!categorizedClasses) return;
@@ -170,6 +206,7 @@ export function usePlanManager() {
         getPlans,
         loadPlan,
         deletePlan,
+        resetPlan,
         categorizedClasses, 
         requirementGroups,
         droppableZones,
