@@ -1,3 +1,10 @@
+/* Degree Plan Page Wrapper - allows scrolling */
+.degree-plan-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+}
+
 /* Main Container */
 .app-container {
   min-height: 100vh;

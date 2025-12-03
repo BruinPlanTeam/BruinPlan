@@ -14,8 +14,7 @@ const handleAnimationComplete = () => {
 
 export default function HomeScreen() {
     return (
-        <> 
-            <div className="home-screen-container">
+        <div className="home-screen-container">
             <DotGrid 
                 dotSize={4}
                 gap={15}  
@@ -40,8 +39,7 @@ export default function HomeScreen() {
                 /> */}
                 <SearchBar />
             </div>
-            </div>
             <Footer />
-        </>
+        </div>
     );
 }

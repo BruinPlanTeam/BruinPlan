@@ -119,7 +119,7 @@ export default function Auth() {
   };
 
   return (
-    <>
+    <div className="auth-page-container">
       <Header />
       <div className="page">
         <div ref={arenaRef} className="arena">
@@ -201,6 +201,6 @@ export default function Auth() {
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }

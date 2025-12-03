@@ -124,7 +124,7 @@ export default function DegreePlan() {
   const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
   return (
-    <>
+    <div className="degree-plan-page">
       <Header />
       <DndContext
         sensors={sensors}
@@ -194,6 +194,6 @@ export default function DegreePlan() {
           categorizedClasses={categorizedClasses}
         />
       )}
-    </>
+    </div>
   );
 }

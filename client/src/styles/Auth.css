@@ -1,11 +1,23 @@
+.auth-page-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-page);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 .page {
-  min-height: 100vh;
+  flex: 1;
   width: 100%;
   display: grid;
   place-items: center;
   background-color: var(--color-bg-page);
-  overflow: hidden;
   padding-top: 72px; /* leave room under global nav */
+  box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .bgGlow {
@@ -26,8 +38,8 @@
 
 .card {
   position: relative;
-  width: min(92%, 520px);
-  padding: 3rem 2.5rem;
+  width: min(92%, 420px);
+  padding: 2rem 2rem;
   border-radius: 20px;
   background-color: var(--color-bg-surface);
   border: 1px solid rgba(255,255,255,0.1);
@@ -36,8 +48,8 @@
 }
 
 .title {
-  margin: 0 0 2rem;
-  font-size: 1.75rem;
+  margin: 0 0 1.5rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.3px;
   color: var(--white);
@@ -46,7 +58,7 @@
 
 .form {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
 .auth-toggle {
@@ -116,7 +128,7 @@
   border-radius: 12px;
   border: none;
   background-color: var(--color-button-primary-bg);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;

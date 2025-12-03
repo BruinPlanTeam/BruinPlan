@@ -1,11 +1,12 @@
 .footer {
-  position: static;
+  position: relative;
   width: 100%;
   background-color: var(--color-bg-surface);
   border-top: 1px solid rgba(201,207,212,0.25);
   backdrop-filter: blur(10px);
   padding: 12px 20px;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 @keyframes slideUp {

@@ -42,7 +42,7 @@ export default function Profile() {
   };
 
   return (
-    <>
+    <div className="profile-page-container">
       <Header />
       <div className="profile-container">
         <div className="profile-card">
@@ -110,7 +110,7 @@ export default function Profile() {
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 }
 
