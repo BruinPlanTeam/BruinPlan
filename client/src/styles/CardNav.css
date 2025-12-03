@@ -8,7 +8,7 @@
   
   .card-nav {
     display: block;
-    height: 60px;
+    height: 80px;
     padding: 0;
     border: none;
     border-radius: 0;
@@ -23,10 +23,10 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: 80px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0 1.1rem;
     z-index: 2;
   }
@@ -65,12 +65,11 @@
   }
   
   .logo-container {
-    display: flex;
-    align-items: center;
     position: absolute;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    transform: translateX(-50%);
+    padding-top: 10px;
     text-decoration: none;
     cursor: pointer;
     transition: opacity 0.2s ease;
@@ -81,7 +80,12 @@
   }
   
   .logo {
-    height: 28px;
+    height: 40px;
+    width: auto;
+    display: block;
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
   }
   
   .card-nav-cta-button {

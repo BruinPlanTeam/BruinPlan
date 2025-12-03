@@ -110,6 +110,7 @@
   display: flex;
   gap: 1rem;
   align-items: stretch;
+  flex: 1;
 }
 
 .year-label {
@@ -303,8 +304,9 @@
   min-width: 220px; 
   display: flex;
   flex-direction: column;
-  align-self: stretch;
-  height: 100%;
+  align-self: flex-start;
+  height: 870px;
+  position: relative;
 }
 
 .sidebar-header {
@@ -315,6 +317,8 @@
   background: rgba(255, 255, 255, 0.05);
   border-radius: 12px 12px 0 0;
   border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .sidebar-header h2 {
@@ -343,6 +347,7 @@
   padding: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 0 0 12px 12px;
+  min-height: 0;
 }
 
 .course-category {
