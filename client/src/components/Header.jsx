@@ -1,10 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { FaUserCircle } from 'react-icons/fa';
 import CardNav from './ui/CardNav';
 import logo from '../assets/logo.svg';
 
 export const Header = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+  
   const items = [
     {
       label: "Browse Majors",
@@ -40,10 +44,16 @@ export const Header = () => {
           ease="power3.out"
         />
       </div>
-      {!isAuthenticated && <Link to="/login" style={styles.loginButton}>
-        Log In
-      </Link>}
-      {isAuthenticated && <button onClick={() => logout()} style={styles.loginButton}>Log Out</button>}
+      {!isAuthenticated && !isLoginPage && (
+        <Link to="/login" style={styles.loginButton}>
+          Log In
+        </Link>
+      )}
+      {isAuthenticated && (
+        <Link to="/profile" style={styles.profileButton}>
+          <FaUserCircle size={20} />
+        </Link>
+      )}
     </div>
   );
 };
@@ -67,15 +77,32 @@ const styles = {
 
   loginButton: {
     position: "absolute",
-    top: "42.5px",
+    top: "50%",
     right: "22px",
+    transform: "translateY(-50%)",
     padding: "8px 18px",
     borderRadius: "10px",
     backgroundColor: "var(--color-button-primary-bg)",
-    color: "var(--color-button-primary-text)",
+    color: "rgba(255, 255, 255, 0.85)",
     textDecoration: "none",
     fontWeight: 700,
     fontSize: "0.95rem",
     boxShadow: "0 8px 18px rgba(39,116,174,0.35)",
+  },
+  profileButton: {
+    position: "absolute",
+    top: "50%",
+    right: "22px",
+    transform: "translateY(-50%)",
+    padding: "8px",
+    borderRadius: "10px",
+    backgroundColor: "var(--color-button-primary-bg)",
+    color: "rgba(255, 255, 255, 0.85)",
+    textDecoration: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 8px 18px rgba(39,116,174,0.35)",
+    transition: "opacity 0.2s ease",
   }
 };
