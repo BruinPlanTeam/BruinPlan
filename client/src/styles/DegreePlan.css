@@ -81,6 +81,7 @@
   display: flex;
   gap: 2rem;
   max-width: 1800px;
+  width: 100%;
   margin: 0 auto;
   overflow-x: auto; /* Allow horizontal scrolling if content is too wide */
   min-height: 0; /* Important for proper flexbox behavior */
@@ -91,6 +92,7 @@
 .plan-grid {
   flex: 1;
   min-width: 500px; /* Prevent grid from getting too narrow */
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -135,6 +137,7 @@
   display: flex;
   flex-direction: column;
   transition: border-color 0.15s ease;
+  width: 100%;
 }
 
 .droppable-zone:hover {

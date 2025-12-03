@@ -11,6 +11,7 @@ export default function Auth() {
   const [signUp, setSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -76,14 +77,19 @@ export default function Auth() {
     e.preventDefault();
     setErr('');
     
-    if (!email || !pw) {
-      setErr('Both fields are required');
+    if (!email || !pw || !confirmPw) {
+      setErr('All fields are required');
       return;
     }
 
     // basic validation
     if (pw.length < 6) {
       setErr('Password must be at least 6 characters');
+      return;
+    }
+
+    if (pw !== confirmPw) {
+      setErr('Passwords do not match');
       return;
     }
 
@@ -109,6 +115,7 @@ export default function Auth() {
     setErr(''); // Clear errors when switching modes
     setEmail('');
     setPw('');
+    setConfirmPw('');
   };
 
   return (
@@ -117,7 +124,7 @@ export default function Auth() {
       <div className="page">
         <div ref={arenaRef} className="arena">
           <div className="card" role="region" aria-label="Authentication form">
-            <h1 className="title">{signUp ? 'Create your CourseCompiler account' : 'Log in to CourseCompiler'}</h1>
+            <h1 className="title">{signUp ? 'Sign Up' : 'Log In'}</h1>
             <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">
               <label className="label">
                 Email
@@ -125,7 +132,7 @@ export default function Auth() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="yourname@ucla.edu"
+                  placeholder="eg: owen@swag.com"
                   className="input"
                   required
                 />
@@ -141,6 +148,19 @@ export default function Auth() {
                   required
                 />
               </label>
+              {signUp && (
+                <label className="label">
+                  Confirm Password
+                  <input
+                    type="password"
+                    value={confirmPw}
+                    onChange={(e) => setConfirmPw(e.target.value)}
+                    placeholder="••••••••"
+                    className="input"
+                    required
+                  />
+                </label>
+              )}
               {err ? <p className="error">{err}</p> : null}
               {!signUp ? (
                 <button type="submit" className="button" disabled={loading}>

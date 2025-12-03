@@ -52,6 +52,21 @@ export default function DegreePlan() {
     arePrereqsCompleted
   } = usePlanManager();
 
+  // check for pending plan to load from Profile page
+  useEffect(() => {
+    const pendingPlan = localStorage.getItem('pendingPlanToLoad');
+    if (pendingPlan) {
+      try {
+        const planData = JSON.parse(pendingPlan);
+        loadPlan(planData);
+        localStorage.removeItem('pendingPlanToLoad');
+      } catch (error) {
+        console.error('Failed to load pending plan:', error);
+        localStorage.removeItem('pendingPlanToLoad');
+      }
+    }
+  }, [loadPlan]);
+
   useEffect(() =>  {
     function handleOnBeforeUnload(event){ event.preventDefault(); }
     window.addEventListener('beforeunload', handleOnBeforeUnload, { capture: true});

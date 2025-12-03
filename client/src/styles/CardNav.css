@@ -71,6 +71,13 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .logo-container:hover {
+    opacity: 0.8;
   }
   
   .logo {
