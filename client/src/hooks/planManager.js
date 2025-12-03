@@ -35,8 +35,7 @@ export function usePlanManager() {
 
     const { arePrereqsCompleted } = useCourseValidation(droppableZones);
 
-    const savePlan = async (planName) => {
-
+    const savePlan = async (planName, planId = null) => {
         const token = localStorage.getItem('token');
         
         // serialize current state
@@ -46,17 +45,22 @@ export function usePlanManager() {
             quarters: serializeDroppableZones(droppableZones)
         };
         
-        console.log('Saving plan with data:', {
+        const isUpdate = planId !== null;
+        const url = isUpdate 
+            ? `http://localhost:3000/plans/${planId}` 
+            : 'http://localhost:3000/plans';
+        const method = isUpdate ? 'PUT' : 'POST';
+        
+        console.log(`${isUpdate ? 'Updating' : 'Creating'} plan with data:`, {
+            planId,
             planName,
             major,
-            quartersLength: planData.quarters?.length,
-            fullData: planData
+            quartersLength: planData.quarters?.length
         });
                 
         try {
-          // call backend
-          const response = await fetch('http://localhost:3000/plans', {
-            method: 'POST',
+          const response = await fetch(url, {
+            method,
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
@@ -64,17 +68,16 @@ export function usePlanManager() {
             body: JSON.stringify(planData)
           });
           
-          // check if response is ok before parsing
           if (!response.ok) {
             const errorText = await response.text();
             console.error('Server error:', response.status, errorText);
-            throw new Error(`Failed to save plan: ${response.status} - ${errorText.substring(0, 100)}`);
+            throw new Error(`Failed to ${isUpdate ? 'update' : 'save'} plan: ${response.status} - ${errorText.substring(0, 100)}`);
           }
           
           return response.json();
         } catch (error) {
-          console.error('Save plan error:', error);
-          throw error; // Re-throw so calling component can handle it
+          console.error(`${isUpdate ? 'Update' : 'Save'} plan error:`, error);
+          throw error;
         }
       };
 

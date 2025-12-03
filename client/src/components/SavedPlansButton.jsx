@@ -7,7 +7,11 @@ export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan }) {
     const [savedPlans, setSavedPlans] = useState([]);
 
     const handleClick = () => {
-        getPlans().then(setSavedPlans);
+        getPlans()
+            .then(setSavedPlans)
+            .catch((error) => {
+                console.error('Failed to load plans:', error);
+            });
         setShowPlans(!showPlans);
     };
 
@@ -16,9 +20,15 @@ export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan }) {
     };
 
     const handleDelete = (planId) => {
-        deletePlan(planId).then(() => {
-            getPlans().then(setSavedPlans);
-        });
+        deletePlan(planId)
+            .then(() => {
+                return getPlans();
+            })
+            .then(setSavedPlans)
+            .catch((error) => {
+                console.error('Failed to delete plan:', error);
+                alert('Failed to delete plan. Please try again.');
+            });
     };
 
     return (

@@ -89,9 +89,10 @@ export default function DegreePlan() {
     setCurrentPlan({ id: plan.id, name: plan.name });
   };
 
-  // Handler for saving - updates currentPlan with the saved name
+  // Handler for saving - passes planId for updates, null for new plans
   const handleSavePlan = async (planName) => {
-    const result = await savePlan(planName);
+    const planId = currentPlan?.id || null;
+    const result = await savePlan(planName, planId);
     setCurrentPlan({ id: result.id, name: result.name });
     return result;
   };

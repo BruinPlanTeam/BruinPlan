@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createPlan, getPlans, deletePlan } = require('../controllers/plan.controller');
+const { createPlan, getPlans, updatePlan, deletePlan } = require('../controllers/plan.controller');
 const { getAllMajors, getMajorByName } = require('../controllers/major.controller');
 const { createUser, login } = require('../controllers/auth.controller');
 const { authenticateToken } = require('../middleware/auth.middleware');
@@ -12,6 +12,7 @@ router.post('/users/login', login);
 // plan routes
 router.post('/plans', authenticateToken, createPlan);
 router.get('/plans', authenticateToken, getPlans);
+router.put('/plans/:planId', authenticateToken, updatePlan);
 router.delete('/plans/:planId', authenticateToken, deletePlan);
 
 // major routes
