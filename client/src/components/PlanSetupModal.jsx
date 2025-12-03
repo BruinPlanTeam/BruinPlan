@@ -1,12 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/PlanSetupModal.css";
 
-export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setCurrentPlan }) {
+export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setCurrentPlan, categorizedClasses }) {
     const [step, setStep] = useState("choice"); // "choice" | "load" | "name-plan"
     const [savedPlans, setSavedPlans] = useState([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
     const [newPlanName, setNewPlanName] = useState("");
     const [nameError, setNameError] = useState("");
+    const [classes, setClasses] = useState([]);
+    const [search, setSearch] = useState("");
+    const [completedClasses, setCompletedClasses] = useState(new Set());
+
+    useEffect(() => {
+        if (categorizedClasses) {
+            setClasses(Object.values(categorizedClasses).flat());
+        }
+    }, [categorizedClasses]);
+
+    const filteredClasses = classes.filter(course => 
+        course.code?.toLowerCase().includes(search.toLowerCase()) ||
+        course.name?.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const toggleCompleted = (courseId) => {
+        setCompletedClasses(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(courseId)) {
+                newSet.delete(courseId);
+            } else {
+                newSet.add(courseId);
+            }
+            return newSet;
+        });
+    };
+
 
     const handleLoadExisting = async () => {
         setLoadingPlans(true);
@@ -165,24 +192,71 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
                                     setNewPlanName(e.target.value);
                                     setNameError("");
                                 }} 
-                                placeholder="e.g., My CS Journey, 4-Year Plan..." 
+                                placeholder="Plan Name" 
                                 autoFocus
                                 onKeyDown={(e) => e.key === 'Enter' && handleStartPlanning()}
                             />
                             {nameError && <span className="setup-name-error">{nameError}</span>}
                         </div>
 
-                        <div className="setup-completed-info">
-                            <div className="info-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <path d="M12 16v-4M12 8h.01" strokeLinecap="round" strokeLinejoin="round"/>
+                        <div className="setup-classes-section">
+                            <label className="setup-classes-label">
+                                Mark completed classes (optional)
+                                <span className="setup-classes-count">
+                                    {completedClasses.size} selected
+                                </span>
+                            </label>
+                            <div className="setup-search-wrapper">
+                                <svg className="setup-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="M21 21l-4.35-4.35"/>
                                 </svg>
+                                <input 
+                                    type="text" 
+                                    className="setup-search-input"
+                                    placeholder="Search classes..." 
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)} 
+                                />
+                                {search && (
+                                    <button 
+                                        className="setup-search-clear"
+                                        onClick={() => setSearch("")}
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M18 6L6 18M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                )}
                             </div>
-                            <p>
-                                You can mark completed classes later by dragging them to past quarters. 
-                                For now, let's get you started with your plan!
-                            </p>
+                            <div className="setup-classes-list">
+                                {filteredClasses.length === 0 ? (
+                                    <div className="setup-classes-empty">
+                                        {search ? "No classes match your search" : "No classes available"}
+                                    </div>
+                                ) : (
+                                    filteredClasses.map((course) => (
+                                        <button 
+                                            key={course.id}
+                                            className={`setup-class-item ${completedClasses.has(course.id) ? 'selected' : ''}`}
+                                            onClick={() => toggleCompleted(course.id)}
+                                        >
+                                            <div className="setup-class-checkbox">
+                                                {completedClasses.has(course.id) && (
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                                        <path d="M20 6L9 17l-5-5"/>
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <div className="setup-class-info">
+                                                <span className="setup-class-code">{course.code}</span>
+                                                <span className="setup-class-name">{course.name}</span>
+                                            </div>
+                                            <span className="setup-class-units">{course.units}u</span>
+                                        </button>
+                                    ))
+                                )}
+                            </div>
                         </div>
 
                         <div className="setup-actions">

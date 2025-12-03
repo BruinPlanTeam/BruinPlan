@@ -175,6 +175,7 @@ export default function DegreePlan() {
           getPlans={getPlans}
           onSkip={handleSkipSetup}
           setCurrentPlan={setCurrentPlan}
+          categorizedClasses={categorizedClasses}
         />
       )}
     </>
