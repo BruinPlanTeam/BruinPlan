@@ -14,13 +14,12 @@ const handleAnimationComplete = () => {
 
 export default function HomeScreen() {
     return (
-        <> 
-            <div className="home-screen-container">
+        <div className="home-screen-container">
             <DotGrid 
                 dotSize={4}
                 gap={15}  
-                baseColor="#192225" 
-                activeColor="#124569"  
+                baseColor="#2774AE" 
+                activeColor="#FAEDBD"  
                 proximity={150} 
                 shockRadius={89}  
                 shockStrength={4}  
@@ -40,8 +39,7 @@ export default function HomeScreen() {
                 /> */}
                 <SearchBar />
             </div>
-            </div>
             <Footer />
-        </>
+        </div>
     );
 }

@@ -1,21 +1,18 @@
 .card-nav-container {
-    position: absolute;
-    top: 2em;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 1200px;
+    position: relative;
+    width: 100%;
+    max-width: none;
     z-index: 10;
     box-sizing: border-box;
   }
   
   .card-nav {
     display: block;
-    height: 60px;
+    height: 80px;
     padding: 0;
-    border: 0.5px solid rgba(255, 255, 255, 0.611);
-    border-radius: 0.75rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     position: relative;
     overflow: hidden;
     will-change: height;
@@ -26,10 +23,10 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: 80px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0 1.1rem;
     z-index: 2;
   }
@@ -68,20 +65,31 @@
   }
   
   .logo-container {
-    display: flex;
-    align-items: center;
     position: absolute;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    transform: translateX(-50%);
+    padding-top: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .logo-container:hover {
+    opacity: 0.8;
   }
   
   .logo {
-    height: 28px;
+    height: 40px;
+    width: auto;
+    display: block;
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
   }
   
   .card-nav-cta-button {
-    background-color: #111;
+    background-color: var(--color-button-primary-bg);
     border: none;
     border-radius: calc(0.75rem - 0.35rem);
     padding: 0 1rem;
@@ -95,27 +103,15 @@
   }
   
   .card-nav-cta-button:hover {
-    background-color: #333;
+    filter: brightness(1.05);
   }
   
   .card-nav-content {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 60px;
-    bottom: 0;
-    padding: 0.5rem;
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 1;
+    display: none;
   }
   
   .card-nav.open .card-nav-content {
-    visibility: visible;
-    pointer-events: auto;
+    display: none;
   }
   
   .nav-card {
@@ -160,8 +156,7 @@
   
   @media (max-width: 768px) {
     .card-nav-container {
-      width: 90%;
-      top: 1.2em;
+      width: 100%;
     }
   
     .card-nav-top {

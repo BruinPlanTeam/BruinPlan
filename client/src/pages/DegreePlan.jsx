@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import PlanGrid from '../components/PlanGrid.jsx';
 import CourseSidebar from '../components/CourseSidebar.jsx';
-
 import { ProgressBar } from '../components/ProgressBar.jsx';
+import { Header } from '../components/Header.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
 import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
@@ -51,6 +51,21 @@ export default function DegreePlan() {
     createHandleDragEnd,
     arePrereqsCompleted
   } = usePlanManager();
+
+  // check for pending plan to load from Profile page
+  useEffect(() => {
+    const pendingPlan = localStorage.getItem('pendingPlanToLoad');
+    if (pendingPlan) {
+      try {
+        const planData = JSON.parse(pendingPlan);
+        loadPlan(planData);
+        localStorage.removeItem('pendingPlanToLoad');
+      } catch (error) {
+        console.error('Failed to load pending plan:', error);
+        localStorage.removeItem('pendingPlanToLoad');
+      }
+    }
+  }, [loadPlan]);
 
   useEffect(() =>  {
     function handleOnBeforeUnload(event){ event.preventDefault(); }
@@ -109,7 +124,8 @@ export default function DegreePlan() {
   const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
   return (
-    <>
+    <div className="degree-plan-page">
+      <Header />
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -178,6 +194,6 @@ export default function DegreePlan() {
           categorizedClasses={categorizedClasses}
         />
       )}
-    </>
+    </div>
   );
 }

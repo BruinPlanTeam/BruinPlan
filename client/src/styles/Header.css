@@ -1,26 +1,27 @@
 .header-wrapper {
   width: 100%;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 9999;
 }
 
 .header-nav-bar {
   width: 100%;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)),
-    linear-gradient(180deg, #0a0f14 0%, #0b1520 100%);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background-color: var(--color-bg-surface);
+  border-bottom: 1px solid rgba(201,207,212,0.25);
   backdrop-filter: blur(10px);
 }
 
 .header-login-button {
   position: absolute;
-  top: 42.5px;
+  top: 50%;
   right: 22px;
   padding: 8px 18px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2774AE 0%, #2d89cc 50%, #2774AE 100%);
-  color: #FFFFFF;
+  background-color: var(--color-button-primary-bg);
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   font-weight: 700;
   font-size: 0.95rem;
@@ -28,9 +29,31 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
+  transform: translateY(-50%);
+}
+
+.header-profile-button {
+  position: absolute;
+  top: 50%;
+  right: 22px;
+  transform: translateY(-50%);
+  padding: 8px;
+  border-radius: 10px;
+  background-color: var(--color-button-primary-bg);
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px rgba(39,116,174,0.35);
+  transition: opacity 0.2s ease;
+}
+
+.header-profile-button:hover {
+  opacity: 0.9;
 }
 
 .header-login-button:hover {
-  background: linear-gradient(135deg, #2d89cc 0%, #3388dd 50%, #2d89cc 100%);
+  filter: brightness(1.05);
 }
 

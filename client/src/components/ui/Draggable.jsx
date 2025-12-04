@@ -43,7 +43,7 @@ export function Draggable({ id, item, showElectric }) {
   if (showElectric) {
     return (
       <ElectricBorder 
-        color="#64ffda" 
+        color="#2774AE" 
         speed={1.5} 
         chaos={0.5} 
         thickness={2}

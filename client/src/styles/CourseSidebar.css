@@ -14,23 +14,23 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 12px 12px 0 0;
-  border-bottom: 2px solid rgba(0, 212, 255, 0.2);
+  border-bottom: 2px solid rgba(201, 207, 212, 0.25);
 }
 
 .sidebar-header h2 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #ccd6f6;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .course-count {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #00d4ff;
-  background: rgba(0, 212, 255, 0.1);
+  color: var(--color-accent);
+  background: rgba(39, 116, 174, 0.15);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
 }
@@ -43,16 +43,16 @@
   overflow-y: auto;
   flex: 1;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.25);
   border-radius: 0 0 12px 12px;
 }
 
 .course-category {
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(168, 178, 209, 0.2);
+  border: 1px solid rgba(201, 207, 212, 0.2);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -61,8 +61,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: rgba(0, 212, 255, 0.05);
-  border-bottom: 1px solid rgba(168, 178, 209, 0.15);
+  background: rgba(39, 116, 174, 0.12);
+  border-bottom: 1px solid rgba(201, 207, 212, 0.15);
 }
 
 .category-title-row {
@@ -89,7 +89,7 @@
 
 .dropdown-arrow {
   font-size: 0.7rem;
-  color: #00d4ff;
+  color: var(--color-accent);
   transition: transform 0.2s ease;
   display: inline-block;
   transform: rotate(-90deg);
@@ -102,7 +102,7 @@
 .category-header h3 {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #00d4ff;
+  color: var(--color-accent);
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -163,7 +163,7 @@
 }
 
 .category-search-input:focus {
-  border-color: #00d4ff;
+  border-color: var(--color-accent);
 }
 
 .category-search-input::placeholder {

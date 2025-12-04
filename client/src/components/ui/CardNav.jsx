@@ -1,5 +1,6 @@
 // src/components/CardNav.jsx
 import { useLayoutEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { GoArrowUpRight } from 'react-icons/go';
 import '../../styles/CardNav.css';
@@ -147,9 +148,9 @@ const CardNav = ({
         <div className="card-nav-top">
           
 
-          <div className="logo-container">
+          <Link to="/" className="logo-container">
             <img src={logo} alt={logoAlt} className="logo" />
-          </div>
+          </Link>
         </div>
 
         <div className="card-nav-content" aria-hidden={!isExpanded}>
