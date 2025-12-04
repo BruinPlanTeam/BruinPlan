@@ -14,10 +14,10 @@ export function SavePlanButton({ handleSavePlan, currentPlan }) {
                     height="18" 
                     viewBox="0 0 24 24" 
                     fill="none" 
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
                 >
                     <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
                     <polyline points="17,21 17,13 7,13 7,21" />

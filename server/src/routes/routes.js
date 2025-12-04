@@ -3,6 +3,7 @@ const router = express.Router();
 const { createPlan, getPlans, updatePlan, deletePlan, updatePlanName } = require('../controllers/plan.controller');
 const { getAllMajors, getMajorByName } = require('../controllers/major.controller');
 const { createUser, login, updateUsername } = require('../controllers/auth.controller');
+const { chat } = require('../controllers/ai.controller');
 const { authenticateToken } = require('../middleware/auth.middleware');
 
 // user routes
@@ -20,6 +21,9 @@ router.delete('/plans/:planId', authenticateToken, deletePlan);
 // major routes
 router.get('/majors', getAllMajors);
 router.get('/majors/:majorName', getMajorByName);
+
+// ai routes
+router.post('/ai/chat', authenticateToken, chat);
 
 module.exports = router;
 

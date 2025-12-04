@@ -164,14 +164,14 @@ async function deletePlan(req, res) {
   const userId = req.user.userId;
   
   try {
-    const plan = await prisma.plan.findUnique({
+  const plan = await prisma.plan.findUnique({
       where: { id: planId },
       include: { quarters: true }
-    });
+  });
     
-    if (!plan) {
-      return res.status(404).json({ error: "Plan not found" });
-    }
+  if (!plan) {
+    return res.status(404).json({ error: "Plan not found" });
+  }
     
     // verify ownership
     if (plan.userId !== userId) {
@@ -194,11 +194,11 @@ async function deletePlan(req, res) {
     }
     
     // finally delete the plan
-    await prisma.plan.delete({
-      where: { id: planId }
-    });
+  await prisma.plan.delete({
+    where: { id: planId }
+  });
     
-    return res.status(200).json({ message: "Plan deleted successfully" });
+  return res.status(200).json({ message: "Plan deleted successfully" });
   } catch (error) {
     console.error('Error deleting plan:', error);
     return res.status(500).json({ error: error.message });

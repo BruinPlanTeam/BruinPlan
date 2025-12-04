@@ -19,7 +19,7 @@ export function AIChatPanel({ isOpen, onClose }) {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
 
     // add user message
@@ -31,14 +31,46 @@ export function AIChatPanel({ isOpen, onClose }) {
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
 
-    // simulate ai response (replace with actual ai call later)
-    setTimeout(() => {
-      const aiResponse = {
+    // add loading message
+    const loadingMessage = {
+      role: 'assistant',
+      content: '...',
+      isLoading: true
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const aiResponse = await response.json();
+      
+      // replace loading message with actual response
+      setMessages(prev => prev.filter(m => !m.isLoading).concat(aiResponse));
+    } catch (error) {
+      console.error('AI chat error:', error);
+      // replace loading message with error
+      setMessages(prev => prev.filter(m => !m.isLoading).concat({
         role: 'assistant',
-        content: 'This is a placeholder response. AI integration coming soon!'
-      };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+        content: 'Sorry, I encountered an error. Please try again.'
+      }));
+    }
   };
 
   const handleKeyPress = (e) => {
