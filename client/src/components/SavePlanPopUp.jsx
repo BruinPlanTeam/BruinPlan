@@ -9,7 +9,10 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
     const isEditing = !!currentPlan;
 
     const handleSave = async () => {
-        if (!planName.trim()) {
+        // If editing, use current plan name, otherwise require name input
+        const nameToSave = isEditing ? currentPlan.name : planName.trim();
+        
+        if (!nameToSave) {
             setError('Please enter a plan name');
             return;
         }
@@ -18,7 +21,7 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
         setError('');
         
         try {
-            await handleSavePlan(planName);
+            await handleSavePlan(nameToSave);
             setPlanName('');
             onClose();
         } catch (err) {
@@ -77,19 +80,25 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
 
                 {/* Content */}
                 <div className="save-plan-content">
-                    <label className="save-plan-label">
-                        Plan Name
-                        <input 
-                            type="text" 
-                            className="save-plan-input"
-                            placeholder="e.g., Fall 2024 CS Plan" 
-                            value={planName} 
-                            onChange={(e) => setPlanName(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            autoFocus
-                            disabled={loading}
-                        />
-                    </label>
+                    {isEditing ? (
+                        <div className="save-plan-info">
+                            <p>Saving changes to: <strong>{currentPlan.name}</strong></p>
+                        </div>
+                    ) : (
+                        <label className="save-plan-label">
+                            Plan Name
+                            <input 
+                                type="text" 
+                                className="save-plan-input"
+                                placeholder="e.g., Fall 2024 CS Plan" 
+                                value={planName} 
+                                onChange={(e) => setPlanName(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                autoFocus
+                                disabled={loading}
+                            />
+                        </label>
+                    )}
                     
                     {error && (
                         <div className="save-plan-error">
@@ -115,7 +124,7 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
                     <button 
                         className="save-plan-save-btn" 
                         onClick={handleSave}
-                        disabled={loading || !planName.trim()}
+                        disabled={loading || (!isEditing && !planName.trim())}
                     >
                         {loading ? (
                             <>

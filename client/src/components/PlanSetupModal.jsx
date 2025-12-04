@@ -1,7 +1,16 @@
 import { useState, useEffect } from "react";
+import { getRequirementDisplayName } from "../utils/requirementUtils";
 import "../styles/PlanSetupModal.css";
 
-export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setCurrentPlan, categorizedClasses }) {
+export function PlanSetupModal({
+    onCreateNew,
+    onLoadPlan,
+    getPlans,
+    onSkip,
+    setCurrentPlan,
+    categorizedClasses,
+    requirementGroups
+}) {
     const [step, setStep] = useState("choice"); // "choice" | "load" | "name-plan"
     const [savedPlans, setSavedPlans] = useState([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
@@ -10,10 +19,13 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
     const [classes, setClasses] = useState([]);
     const [search, setSearch] = useState("");
     const [completedClasses, setCompletedClasses] = useState(new Set());
+    const [selectedGeRequirements, setSelectedGeRequirements] = useState(new Set());
 
     useEffect(() => {
         if (categorizedClasses) {
-            setClasses(Object.values(categorizedClasses).flat());
+            // Only show Prep classes in the list
+            const prep = categorizedClasses['Prep'] || [];
+            setClasses(prep);
         }
     }, [categorizedClasses]);
 
@@ -31,6 +43,28 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
                 newSet.add(courseId);
             }
             return newSet;
+        });
+    };
+
+    const geRequirementItems = (requirementGroups || [])
+        .filter(group => (group.type || '').toLowerCase() === 'ge')
+        .flatMap(group =>
+            (group.requirements || []).map(req => ({
+                id: req.id,
+                name: req.name,
+                groupName: group.name
+            }))
+        );
+
+    const toggleGeRequirement = (reqId) => {
+        setSelectedGeRequirements(prev => {
+            const next = new Set(prev);
+            if (next.has(reqId)) {
+                next.delete(reqId);
+            } else {
+                next.add(reqId);
+            }
+            return next;
         });
     };
 
@@ -56,6 +90,12 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
         setStep("name-plan");
     };
 
+    const getGeCompletedClassIds = () => {
+        // GE completion is now tracked via selectedGeRequirements in DegreePlan/useRequirementProgress,
+        // so we no longer need to inject synthetic GE classes into quarter 0.
+        return [];
+    };
+
     const handleStartPlanning = () => {
         const trimmedName = newPlanName.trim();
         if (!trimmedName) {
@@ -64,7 +104,13 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
         }
         // Set current plan with name but no id (new plan)
         setCurrentPlan({ id: null, name: trimmedName });
-        onCreateNew([]);
+        // Prep completions (Prep classes)
+        const prepIds = Array.from(completedClasses);
+        // GE completions: pick representative classes
+        const geIds = getGeCompletedClassIds();
+        const combined = Array.from(new Set([...prepIds, ...geIds]));
+        // Pass combined completed class IDs (quarter 0) and the explicit GE requirement ids
+        onCreateNew(combined, Array.from(selectedGeRequirements));
     };
 
     return (
@@ -199,43 +245,63 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
                             {nameError && <span className="setup-name-error">{nameError}</span>}
                         </div>
 
+                        {geRequirementItems.length > 0 && (
+                            <div className="setup-classes-section" style={{ marginBottom: '1.5rem' }}>
+                                    <label className="setup-classes-label">
+                                        GE Requirements (check off ones you've already satisfied)
+                                    </label>
+                                <div className="setup-classes-list setup-classes-list--ge">
+                                    {geRequirementItems.map(req => (
+                                        <button
+                                            key={req.id}
+                                            className={`setup-class-item ${selectedGeRequirements.has(req.id) ? 'selected' : ''}`}
+                                            onClick={() => toggleGeRequirement(req.id)}
+                                        >
+                                            <div className="setup-class-checkbox">
+                                                {selectedGeRequirements.has(req.id) && (
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                                        <path d="M20 6L9 17l-5-5" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                            <div className="setup-class-info">
+                                                <span className="setup-class-name">
+                                                    {getRequirementDisplayName(req.name)}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="setup-classes-section">
                             <label className="setup-classes-label">
-                                Mark completed classes (optional)
+                                Mark completed Prep classes (AP credits, etc.)
                                 <span className="setup-classes-count">
                                     {completedClasses.size} selected
                                 </span>
                             </label>
-                            <div className="setup-search-wrapper">
-                                <svg className="setup-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <path d="M21 21l-4.35-4.35"/>
-                                </svg>
-                                <input 
-                                    type="text" 
-                                    className="setup-search-input"
-                                    placeholder="Search classes..." 
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)} 
-                                />
-                                {search && (
-                                    <button 
-                                        className="setup-search-clear"
-                                        onClick={() => setSearch("")}
-                                    >
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M18 6L6 18M6 6l12 12"/>
-                                        </svg>
-                                    </button>
-                                )}
-                            </div>
-                            <div className="setup-classes-list">
-                                {filteredClasses.length === 0 ? (
+                            <div className="setup-classes-list setup-classes-list--prep">
+                                {(() => {
+                                    const withSelectedFirst = [...filteredClasses].sort((a, b) => {
+                                        const aSel = completedClasses.has(a.id);
+                                        const bSel = completedClasses.has(b.id);
+                                        if (aSel === bSel) {
+                                            return a.code.localeCompare(b.code);
+                                        }
+                                        return aSel ? -1 : 1;
+                                    });
+
+                                    if (withSelectedFirst.length === 0) {
+                                        return (
                                     <div className="setup-classes-empty">
                                         {search ? "No classes match your search" : "No classes available"}
                                     </div>
-                                ) : (
-                                    filteredClasses.map((course) => (
+                                        );
+                                    }
+
+                                    return withSelectedFirst.map((course) => (
                                         <button 
                                             key={course.id}
                                             className={`setup-class-item ${completedClasses.has(course.id) ? 'selected' : ''}`}
@@ -254,8 +320,8 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
                                             </div>
                                             <span className="setup-class-units">{course.units}u</span>
                                         </button>
-                                    ))
-                                )}
+                                    ));
+                                })()}
                             </div>
                         </div>
 

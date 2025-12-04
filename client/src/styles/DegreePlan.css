@@ -47,6 +47,22 @@
   text-align: left;
 }
 
+.modify-plan-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modify-plan-btn:hover {
+  background-color: var(--color-primary-dark, #0056b3);
+}
+
 .plan-title-edit-btn {
   background: transparent;
   border: none;
@@ -334,6 +350,8 @@
   cursor: grab;
   transition: transform 0.1s ease, border-color 0.1s ease;
   user-select: none;
+  position: relative;
+  overflow: visible;
 }
 
 .draggable-item:hover {
@@ -347,6 +365,206 @@
 
 .draggable-item.dragging {
   opacity: 0.5;
+}
+
+.course-requirements-tooltip {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 50%;
+  transform: translateX(-50%);
+  /* Make the bubble fully solid, not "tinted glass" */
+  background-color: #020813 !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  border: 1px solid #274667;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-width: 250px;
+  max-width: 350px;
+  z-index: 10000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+  pointer-events: auto;
+}
+
+/* Upward pointing arrow to connect tooltip to the card */
+.course-requirements-tooltip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -100%);
+  border-width: 0 8px 8px 8px;
+  border-style: solid;
+  border-color: #020813;
+}
+
+
+.tooltip-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ucla-blue);
+  margin-bottom: 0.5rem;
+}
+
+.tooltip-requirement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+  color: var(--color-text-primary);
+}
+
+.tooltip-group {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.tooltip-separator {
+  color: var(--color-text-secondary);
+  opacity: 1.0;
+}
+
+.tooltip-req {
+  color: var(--color-text-primary);
+}
+
+.tooltip-prereqs {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.tooltip-prereq-group {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltip-prereqs-label {
+  font-weight: 500;
+}
+
+.tooltip-prereqs-codes {
+  opacity: 1.0;
+}
+
+.rejection-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.rejection-popup {
+  background: var(--color-bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.rejection-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rejection-popup-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+}
+
+.rejection-popup-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.rejection-popup-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.rejection-popup-content {
+  padding: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.rejection-popup-content p {
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.prereq-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.prereq-group {
+  background: rgba(39, 116, 174, 0.1);
+  border: 1px solid rgba(39, 116, 174, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.prereq-group-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ucla-blue);
+  margin-bottom: 0.5rem;
+}
+
+.prereq-courses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.prereq-course-code {
+  background: rgba(39, 116, 174, 0.2);
+  border: 1px solid rgba(39, 116, 174, 0.4);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+}
+
+.prereq-hint {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
 }
 
 .course-header {

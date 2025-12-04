@@ -4,7 +4,7 @@ import { Draggable } from './ui/Draggable.jsx';
 import '../styles/CourseSidebar.css'; 
 
 
-function CourseSidebar({ categorizedClasses, electricCourseId }) {
+function CourseSidebar({ categorizedClasses, electricCourseId, requirementGroups, allClassesMap = {} }) {
   const [expandedCategories, setExpandedCategories] = useState({
     'Prep': true,
     'Major': false,
@@ -146,6 +146,9 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
                         title=""
                         items={filteredCourses}
                         electricCourseId={electricCourseId}
+                        requirementGroups={requirementGroups}
+                        contextCategory={category}
+                        allClassesMap={allClassesMap}
                       >
                         {filteredCourses.map((item) => (
                           <Draggable 
@@ -153,6 +156,9 @@ function CourseSidebar({ categorizedClasses, electricCourseId }) {
                             id={item.id} 
                             item={item} 
                             showElectric={String(item.id) === electricCourseId}
+                            requirementGroups={requirementGroups}
+                            contextCategory={category}
+                            allClassesMap={allClassesMap}
                           >
                             <span className="course-code">{item.code}</span>
                             <span className="course-units">{item.units}u</span>

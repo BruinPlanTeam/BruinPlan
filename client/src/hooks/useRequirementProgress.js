@@ -1,13 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
+import { getRequirementDisplayName } from '../utils/requirementUtils';
 
 const CATEGORY_PRIORITY = ['Prep', 'Major', 'Tech Breadth', 'Sci-Tech', 'GE'];
-
-// small helper to get display name for a requirement
-const getDisplayName = (name) => {
-  if (!name) return '';
-  const parts = name.split(' - ');
-  return parts.length > 1 ? parts[parts.length - 1] : name;
-};
 
 // small helper to build a stable key for droppable zone contents
 const buildZonesKey = (droppableZones) => {
@@ -90,6 +84,7 @@ const buildOrderedRequirements = (requirementGroups) => {
 };
 
 // assign requirements to courses so each course fills at most one requirement
+// prep classes can only satisfy prep requirements, not sci-tech or other categories
 const assignRequirementsToCourses = (courses, orderedRequirements) => {
   if (!courses.length || !orderedRequirements.length) return;
 
@@ -97,10 +92,35 @@ const assignRequirementsToCourses = (courses, orderedRequirements) => {
     (entry.requirement.fulfilledByClassIds || []).map(id => String(id))
   ));
 
+  // build a map of course id -> set of requirement group types it belongs to
+  const courseToGroupTypes = new Map();
+  orderedRequirements.forEach((entry, idx) => {
+    const groupType = normalizeGroupType(entry.group);
+    const courseIdSet = requirementSets[idx];
+    courseIdSet.forEach(courseId => {
+      if (!courseToGroupTypes.has(courseId)) {
+        courseToGroupTypes.set(courseId, new Set());
+      }
+      courseToGroupTypes.get(courseId).add(groupType);
+    });
+  });
+
   courses.forEach(courseData => {
     const courseId = String(courseData.item.id);
+    const groupTypes = courseToGroupTypes.get(courseId) || new Set();
+    
+    // if this course is in Prep, it can only satisfy Prep requirements
+    const isPrepClass = groupTypes.has('Prep');
+    
     courseData.eligibleRequirementIndices = requirementSets
-      .map((set, idx) => set.has(courseId) ? idx : null)
+      .map((set, idx) => {
+        if (!set.has(courseId)) return null;
+        // if it's a prep class, only allow prep requirements
+        if (isPrepClass && normalizeGroupType(orderedRequirements[idx].group) !== 'Prep') {
+          return null;
+        }
+        return idx;
+      })
       .filter(idx => idx !== null);
     courseData.optionCount = courseData.eligibleRequirementIndices.length;
   });
@@ -132,7 +152,15 @@ const assignRequirementsToCourses = (courses, orderedRequirements) => {
 };
 
 // hook to compute requirement progress from requirement groups and planned courses
-export function useRequirementProgress(requirementGroups, droppableZones) {
+// completedClasses: Set of class ids for quarter 0 (completed before plan)
+// allClassesMap: Map from classId (string) -> full course object
+export function useRequirementProgress(
+  requirementGroups,
+  droppableZones,
+  completedClasses = new Set(),
+  allClassesMap = {},
+  selectedGeRequirements = new Set()
+) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
 
@@ -149,7 +177,27 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
     }
 
     // flatten zones to a simple, ordered course list
-    const courses = flattenZonesToCourses(droppableZones || {});
+    const planCourses = flattenZonesToCourses(droppableZones || {});
+
+    // add quarter 0 (completed) classes as virtual courses at the beginning
+    const completedEntries = [];
+    if (completedClasses && completedClasses.size > 0) {
+      Array.from(completedClasses).forEach((id, index) => {
+        const course = allClassesMap[String(id)];
+        if (course) {
+          completedEntries.push({
+            item: course,
+            order: -1000 + index,
+            eligibleRequirementIndices: [],
+            assignedRequirementId: null,
+            optionCount: 0
+          });
+        }
+      });
+    }
+
+    const courses = [...completedEntries, ...planCourses];
+
     const orderedRequirements = buildOrderedRequirements(requirementGroups);
     assignRequirementsToCourses(courses, orderedRequirements);
 
@@ -159,6 +207,14 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
 
     requirementGroups.forEach(group => {
       const type = group.type;
+      
+      // filter out "Technical Breadth" requirement groups from Major section
+      if (type && type.toLowerCase() === 'major') {
+        const groupNameLower = (group.name || '').toLowerCase();
+        if (groupNameLower.includes('technical breadth') || groupNameLower === 'technical breadth') {
+          return; // skip this group
+        }
+      }
 
       if (!typeGroups[type]) {
         typeGroups[type] = {
@@ -180,12 +236,14 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
 
       const numRequirementsToChoose = group.numRequirementsToChoose || 1;
 
-      // compute progress for each requirement in this group using assignments
+      const isGeGroup = (group.type || '').toLowerCase() === 'ge';
+
+      // compute progress for each requirement in this group using assignments + GE overrides
       (group.requirements || []).forEach(req => {
         const requiredCourses = req.fulfilledByClassIds || [];
         const coursesToChoose = req.coursesToChoose || 1;
 
-        const assignedCourses = courses.filter(course => {
+        let assignedCourses = courses.filter(course => {
           if (!course || !course.assignedRequirementId) return false;
           const matchesRequirement = course.assignedRequirementId === req.id;
           const isEligible = requiredCourses.some(
@@ -194,17 +252,22 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
           return matchesRequirement && isEligible;
         });
 
-        const completed = Math.min(assignedCourses.length, coursesToChoose);
+        // If this is a GE requirement and it's explicitly checked, treat it as fully complete
+        let completed = Math.min(assignedCourses.length, coursesToChoose);
+        if (isGeGroup && selectedGeRequirements && selectedGeRequirements.has(req.id)) {
+          completed = coursesToChoose;
+          assignedCourses = []; // don't double-count any underlying courses
+        }
         const isComplete = completed >= coursesToChoose;
 
-        groupEntry.requirements.push({
-          id: req.id,
-          name: req.name,
-          displayName: getDisplayName(req.name),
-          completed,
-          total: coursesToChoose,
-          isComplete
-        });
+          groupEntry.requirements.push({
+            id: req.id,
+            name: req.name,
+            displayName: getRequirementDisplayName(req.name),
+            completed,
+            total: coursesToChoose,
+            isComplete
+          });
       });
 
       // sort requirements in this group:
@@ -224,6 +287,9 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
       });
 
       // now roll requirement progress up to the group and type levels
+      // always preserve numRequirementsToChoose in the group entry
+      groupEntry.numRequirementsToChoose = numRequirementsToChoose;
+      
       if (groupEntry.requirements.length === 1) {
         // single requirement group: treat it like a leaf
         const req = groupEntry.requirements[0];
@@ -314,12 +380,12 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
     setOverallProgress(
       totalRequired > 0 ? (totalCompleted / totalRequired) * 100 : 0
     );
-  }, [requirementGroups, droppableZones, zonesKey]);
+  }, [requirementGroups, droppableZones, zonesKey, completedClasses, allClassesMap, selectedGeRequirements]);
 
   return {
     progressByType,
     overallProgress,
-    getDisplayName
+    getDisplayName: getRequirementDisplayName
   };
 }
 
