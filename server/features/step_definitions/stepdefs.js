@@ -1,3 +1,11 @@
+//use the test database instead
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
+});
+//log which db you're connecting to
+console.log('NODE_ENV=', process.env.NODE_ENV, 'DB_URL=', process.env.DB_URL);
+
+
 const assert = require('assert');
 const { Given, When, Then } = require('@cucumber/cucumber');
 const app = require('../../src/app');
