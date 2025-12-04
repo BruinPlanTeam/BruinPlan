@@ -8,7 +8,10 @@ export function ModifyPlanModal({
     categorizedClasses,
     currentCompletedClasses,
     droppableZones,
-    allClasses = []
+    allClasses = [],
+    requirementGroups = [],
+    initialGeSelections = new Set(),
+    onGeSelectionsChange,
 }) {
     const [planName, setPlanName] = useState(plan?.name || "");
     const [nameError, setNameError] = useState("");
@@ -23,6 +26,8 @@ export function ModifyPlanModal({
         return new Set();
     });
 
+    const [selectedGeRequirements, setSelectedGeRequirements] = useState(new Set(initialGeSelections));
+
     // Update completed classes when currentCompletedClasses changes (including when modal opens)
     useEffect(() => {
         if (currentCompletedClasses) {
@@ -35,9 +40,27 @@ export function ModifyPlanModal({
     }, [currentCompletedClasses]);
 
     useEffect(() => {
-        const catalog = (allClasses && allClasses.length > 0)
-            ? allClasses
-            : Object.values(categorizedClasses || {}).flat();
+        // Derive Prep catalog from requirementGroups + allClasses
+        let catalog = [];
+
+        if (allClasses && allClasses.length > 0 && requirementGroups && requirementGroups.length > 0) {
+            const prepIds = new Set();
+            requirementGroups
+                .filter(group => (group.type || '').toLowerCase() === 'prep')
+                .forEach(group => {
+                    (group.requirements || []).forEach(req => {
+                        (req.fulfilledByClassIds || []).forEach(id => {
+                            prepIds.add(String(id));
+                        });
+                    });
+                });
+
+            catalog = allClasses.filter(course => prepIds.has(String(course.id)));
+        } else {
+            // Fallback: use categorizedClasses['Prep'] if available
+            const prepFromCategories = (categorizedClasses && categorizedClasses['Prep']) || [];
+            catalog = prepFromCategories;
+        }
 
         if (catalog && catalog.length > 0) {
             setAllCatalogClasses(catalog);
@@ -75,15 +98,60 @@ export function ModifyPlanModal({
         }
     }, [categorizedClasses, droppableZones, completedClasses, allClasses]);
 
-    const filteredCompleted = completedClassesList.filter(course => 
-        course.code?.toLowerCase().includes(search.toLowerCase()) ||
-        course.name?.toLowerCase().includes(search.toLowerCase())
-    );
-    
-    const filteredAvailable = availableClasses.filter(course => 
-        course.code?.toLowerCase().includes(search.toLowerCase()) ||
-        course.name?.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredCompleted = completedClassesList;
+    const filteredAvailable = availableClasses;
+
+    const formatRequirementName = (name) => {
+        if (!name) return '';
+        const parts = name.split(' - ');
+        return parts[parts.length - 1];
+    };
+
+    const geRequirementItems = (requirementGroups || [])
+        .filter(group => (group.type || '').toLowerCase() === 'ge')
+        .flatMap(group =>
+            (group.requirements || []).map(req => ({
+                id: req.id,
+                name: req.name,
+                groupName: group.name
+            }))
+        );
+
+    const toggleGeRequirement = (reqId) => {
+        setSelectedGeRequirements(prev => {
+            const next = new Set(prev);
+            if (next.has(reqId)) {
+                next.delete(reqId);
+            } else {
+                next.add(reqId);
+            }
+            if (onGeSelectionsChange) {
+                onGeSelectionsChange(next);
+            }
+            return next;
+        });
+    };
+
+    const getGeCompletedClassIds = () => {
+        if (!requirementGroups || !requirementGroups.length) return [];
+        const picked = new Set();
+
+        requirementGroups.forEach(group => {
+            if ((group.type || '').toLowerCase() !== 'ge') return;
+            (group.requirements || []).forEach(req => {
+                if (!selectedGeRequirements.has(req.id)) return;
+                const options = req.fulfilledByClassIds || [];
+                for (const cid of options) {
+                    if (!picked.has(cid)) {
+                        picked.add(cid);
+                        break;
+                    }
+                }
+            });
+        });
+
+        return Array.from(picked);
+    };
 
     const toggleCompleted = (courseId) => {
         setCompletedClasses(prev => {
@@ -104,7 +172,10 @@ export function ModifyPlanModal({
             setNameError("Please enter a plan name");
             return;
         }
-        onSave(trimmedName, Array.from(completedClasses));
+        const prepIds = Array.from(completedClasses);
+        const geIds = getGeCompletedClassIds();
+        const combined = Array.from(new Set([...prepIds, ...geIds]));
+        onSave(trimmedName, combined);
     };
 
     return (
@@ -137,37 +208,44 @@ export function ModifyPlanModal({
                     {nameError && <span className="setup-name-error">{nameError}</span>}
                 </div>
 
+                {geRequirementItems.length > 0 && (
+                    <div className="setup-classes-section">
+                        <label className="setup-classes-label">
+                            GE Requirements (check off ones you've already satisfied)
+                        </label>
+                        <div className="setup-classes-list setup-classes-list--ge">
+                            {geRequirementItems.map(req => (
+                                <button
+                                    key={req.id}
+                                    className={`setup-class-item ${selectedGeRequirements.has(req.id) ? 'selected' : ''}`}
+                                    onClick={() => toggleGeRequirement(req.id)}
+                                >
+                                    <div className="setup-class-checkbox">
+                                        {selectedGeRequirements.has(req.id) && (
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                                <path d="M20 6L9 17l-5-5" />
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <div className="setup-class-info">
+                                        <span className="setup-class-name">
+                                            {formatRequirementName(req.name)}
+                                        </span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="setup-classes-section">
                     <label className="setup-classes-label">
-                        Mark completed classes (AP credits, etc.)
+                        Mark completed Prep classes (AP credits, etc.)
                         <span className="setup-classes-count">
                             {completedClasses.size} selected
                         </span>
                     </label>
-                    <div className="setup-search-wrapper">
-                        <svg className="setup-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="M21 21l-4.35-4.35"/>
-                        </svg>
-                        <input 
-                            type="text" 
-                            className="setup-search-input"
-                            placeholder="Search classes..." 
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)} 
-                        />
-                        {search && (
-                            <button 
-                                className="setup-search-clear"
-                                onClick={() => setSearch("")}
-                            >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M18 6L6 18M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        )}
-                    </div>
-                    <div className="setup-classes-list">
+                    <div className="setup-classes-list setup-classes-list--prep">
                         {/* Show completed classes (quarter 0) at the top */}
                         {filteredCompleted.length > 0 && (
                             <>

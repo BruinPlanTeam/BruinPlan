@@ -20,7 +20,7 @@ export function useDragAndDrop(
     removeCourseFromCategories,
     requirementGroups,
     completedClasses = new Set(),
-    allClassesMap = new Map()
+    allClassesMap = {}
 ) {
   // initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -110,7 +110,7 @@ export function useDragAndDrop(
     const itemIdNormalized = String(item.id);
     
     // Try to find the original course object from the master list to preserve all properties
-    const courseToAdd = allClassesMap.get(itemIdNormalized) || item;
+    const courseToAdd = allClassesMap[itemIdNormalized] || item;
     
     // remove from zone
     setDroppableZones((zones) => ({
@@ -252,19 +252,39 @@ export function useDragAndDrop(
     }
 
     // handle dropping on an item in the sidebar
-    if (targetItem) {
-      if (sourceZoneId) {
-        const item = droppableZones[sourceZoneId].items.find((item) => String(item.id) === activeIdNormalized);
-        if (item) {
-          returnCourseToSidebar(item, sourceZoneId);
+    if (targetItem || (isDroppedOnCategoryZone && sourceZoneId)) {
+      if (sourceZoneId && currentId != null) {
+        // Before returning to sidebar, ensure this class isn't a prereq for anything on the grid
+        const blockingDependents = new Set();
+        for (let row = 1; row <= 4; row++) {
+          for (let col = 1; col <= 4; col++) {
+            const zoneId = `zone-${row}-${col}`;
+            const zone = droppableZones[zoneId];
+            if (!zone || !zone.items) continue;
+            for (const item of zone.items) {
+              if (!Array.isArray(item.prereqGroups) || item.prereqGroups.length === 0) continue;
+              const isDependent = item.prereqGroups.some(group =>
+                Array.isArray(group) && group.some(id => String(id) === String(currentId))
+              );
+              if (isDependent) {
+                blockingDependents.add(item.code);
+              }
+            }
+          }
         }
-      }
-    } 
-    // handle dropping on a category zone
-    else if (isDroppedOnCategoryZone && sourceZoneId) {
-      const item = droppableZones[sourceZoneId].items.find((item) => String(item.id) === activeIdNormalized);
-      if (item) {
-        returnCourseToSidebar(item, sourceZoneId);
+
+        if (blockingDependents.size > 0) {
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'prereqs',
+            missingPrereqs: [Array.from(blockingDependents)],
+          });
+        } else {
+          const item = droppableZones[sourceZoneId].items.find((it) => String(it.id) === activeIdNormalized);
+          if (item) {
+            returnCourseToSidebar(item, sourceZoneId);
+          }
+        }
       }
     } 
     // handle dropping on a quarter zone
@@ -376,7 +396,7 @@ export function useDragAndDrop(
             )} units. Maximum is ${MAX_UNITS} units.`,
           });
         } else if (!prereqsCompleted || hasBlockingDependents) {
-          const missingPrereqs = buildMissingPrereqs(targetZoneId, currentId, filteredPrereqGroups);
+          const missingPrereqs = buildMissingPrereqsPayload();
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'prereqs',

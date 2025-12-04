@@ -138,7 +138,7 @@ export function useRequirementProgress(
   requirementGroups,
   droppableZones,
   completedClasses = new Set(),
-  allClassesMap = new Map()
+  allClassesMap = {}
 ) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
@@ -162,7 +162,7 @@ export function useRequirementProgress(
     const completedEntries = [];
     if (completedClasses && completedClasses.size > 0) {
       Array.from(completedClasses).forEach((id, index) => {
-        const course = allClassesMap.get(String(id));
+        const course = allClassesMap[String(id)];
         if (course) {
           completedEntries.push({
             item: course,
@@ -341,7 +341,7 @@ export function useRequirementProgress(
     setOverallProgress(
       totalRequired > 0 ? (totalCompleted / totalRequired) * 100 : 0
     );
-  }, [requirementGroups, droppableZones, zonesKey]);
+  }, [requirementGroups, droppableZones, zonesKey, completedClasses, allClassesMap]);
 
   return {
     progressByType,

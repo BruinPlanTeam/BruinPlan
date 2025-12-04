@@ -10,7 +10,7 @@ const MAX_COLS = 4;
 export function useCourseValidation(
   droppableZones,
   completedClasses = new Set(),
-  allClassesMap = new Map(),
+  allClassesMap = {},
   categorizedClasses = {}
 ) {
   // Simple boolean: are all prerequisite groups satisfied?
@@ -171,7 +171,7 @@ export function useCourseValidation(
 
           // Look up prerequisite course by id in the master map first
           const course =
-            allClassesMap.get(prereqIdStr) ||
+            allClassesMap[prereqIdStr] ||
             Object.values(categorizedClasses)
               .flat()
               .find((c) => String(c.id) === prereqIdStr);
@@ -227,7 +227,7 @@ export function useCourseValidation(
                     group.some(prereqId => String(prereqId) === String(currentId))
                   ) {
                     const code = classItem.code ||
-                      (allClassesMap.get(String(classItem.id)) || {}).code;
+                      (allClassesMap[String(classItem.id)] || {}).code;
                     if (code && !blockingDependents.includes(code)) {
                       blockingDependents.push(code);
                     }

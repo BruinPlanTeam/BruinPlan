@@ -112,25 +112,16 @@ export function usePlanManager() {
                 }
             });
             
-            // check if response is ok before parsing
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server error:', response.status, errorText);
-                
-                // If 403, the token might be invalid or expired
-                if (response.status === 403) {
-                    // Clear invalid token
-                    localStorage.removeItem('token');
-                    throw new Error('Authentication failed. Please log in again.');
-                }
-                
                 throw new Error(`Failed to load plans: ${response.status} - ${errorText.substring(0, 100)}`);
             }
             
             return response.json();
         } catch (error) {
             console.error('Get plans error:', error);
-            throw error; // Re-throw so calling component can handle it
+            throw error;
         }
     }
 
@@ -161,7 +152,7 @@ export function usePlanManager() {
         if (isLoadingPlan.current) return;
 
         removed.forEach(id => {
-            const course = allClassesMap.get(id);
+            const course = allClassesMap[id];
             if (course) {
                 addCourseToCategory(course, requirementGroups);
             }
@@ -229,13 +220,13 @@ export function usePlanManager() {
 
         // Add courses back to their categories (from grid)
         coursesToRestore.forEach(course => {
-            const courseToRestore = allClassesMap.get(String(course.id)) || course;
+            const courseToRestore = allClassesMap[String(course.id)] || course;
             addCourseToCategory(courseToRestore, requirementGroups);
         });
 
         // Add back completed classes (quarter 0) as available courses
         completedIds.forEach(id => {
-            const course = allClassesMap.get(String(id));
+            const course = allClassesMap[String(id)];
             if (course) {
                 addCourseToCategory(course, requirementGroups);
             }
@@ -355,7 +346,7 @@ function serializeDroppableZones(droppableZones, completedClasses = new Set()) {
     return quarters;
   }
 
-function deserializePlanToZones(planData, allClassesMap = new Map()) {
+function deserializePlanToZones(planData, allClassesMap = {}) {
     // initialize empty zones structure
     const zones = {};
     const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
@@ -394,7 +385,7 @@ function deserializePlanToZones(planData, allClassesMap = new Map()) {
         if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
           zones[zoneId].items = quarter.planClasses.map(pc => {
             const idStr = String(pc.class.id);
-            const catalogCourse = allClassesMap.get(idStr);
+            const catalogCourse = allClassesMap[idStr];
             if (catalogCourse) {
               // use the full course object from the catalog (includes prereqGroups, fulfillsReqIds, etc.)
               return {

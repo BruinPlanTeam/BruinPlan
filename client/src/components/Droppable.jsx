@@ -8,7 +8,7 @@ import '../styles/DegreePlan.css'
 const MAX_UNITS = 21;
 const MIN_UNITS = 12;
 
-export function Droppable({ id, title, items, units, maxUnits, electricCourseId }) {
+export function Droppable({ id, title, items, units, maxUnits, electricCourseId, requirementGroups = [] }) {
   const { setNodeRef, isOver } = useDroppable({
     id: id,
   })
@@ -62,6 +62,7 @@ export function Droppable({ id, title, items, units, maxUnits, electricCourseId 
               id={item.id} 
               item={item}
               showElectric={electricCourseId == item.id}
+              requirementGroups={requirementGroups}
             />
           ))}
         </SortableContext>

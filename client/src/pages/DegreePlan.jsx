@@ -34,6 +34,7 @@ export default function DegreePlan() {
   const [isEditingPlanName, setIsEditingPlanName] = useState(false);
   const [planNameValue, setPlanNameValue] = useState('');
   const [showModifyPlanModal, setShowModifyPlanModal] = useState(false);
+  const [geRequirementSelections, setGeRequirementSelections] = useState(new Set());
   const { isAuthenticated } = useAuth();
 
   const {
@@ -97,10 +98,11 @@ export default function DegreePlan() {
   );
 
   // Handlers for setup modal
-  const handleCreateNewPlan = (completedClassIds) => {
+  const handleCreateNewPlan = (completedClassIds, geRequirementIds = []) => {
     // Store completed classes (will be saved as quarter 0 when plan is saved)
     // The useEffect in planManager will remove them from the sidebar
     setCompletedClassesFromIds(completedClassIds);
+    setGeRequirementSelections(new Set(geRequirementIds));
     setHasCompletedSetup(true);
   };
 
@@ -108,6 +110,7 @@ export default function DegreePlan() {
     loadPlan(plan);
     setCurrentPlan({ id: plan.id, name: plan.name });
     setHasCompletedSetup(true);
+    setGeRequirementSelections(new Set());
   };
 
   const handleSkipSetup = () => {
@@ -120,6 +123,7 @@ export default function DegreePlan() {
     loadPlan(plan);
     setCurrentPlan({ id: plan.id, name: plan.name });
     setHasCompletedSetup(true); // Bypass setup modal when loading from SavedPlansButton
+    setGeRequirementSelections(new Set());
   };
 
   // Handler for saving - passes planId for updates, null for new plans
@@ -186,7 +190,7 @@ export default function DegreePlan() {
       setShowModifyPlanModal(false);
     } catch (error) {
       console.error('Failed to modify plan:', error);
-      alert('Failed to modify plan');
+      alert(error.message || 'Failed to modify plan');
     }
   };
 
@@ -260,6 +264,7 @@ export default function DegreePlan() {
                 droppableZones={droppableZones} 
                 electricCourseId={electricCourseId} 
                 activeId={activeId}
+                requirementGroups={requirementGroups}
             />
 
             <CourseSidebar 
@@ -326,6 +331,7 @@ export default function DegreePlan() {
           onSkip={handleSkipSetup}
           setCurrentPlan={setCurrentPlan}
           categorizedClasses={categorizedClasses}
+          requirementGroups={requirementGroups}
         />
       )}
 
@@ -338,6 +344,9 @@ export default function DegreePlan() {
           currentCompletedClasses={completedClasses}
           droppableZones={droppableZones}
           allClasses={allClasses}
+          requirementGroups={requirementGroups}
+          initialGeSelections={geRequirementSelections}
+          onGeSelectionsChange={setGeRequirementSelections}
         />
       )}
     </div>

@@ -14,7 +14,7 @@ export function useCategorizedCourses(major) {
 
   const [requirementGroups, setRequirementGroups] = useState([]);
   const [allClasses, setAllClasses] = useState([]);
-  const [allClassesMap, setAllClassesMap] = useState(new Map());
+  const [allClassesMap, setAllClassesMap] = useState({});
 
   const determinePreferredCategory = useCallback((categorySet, availableCategories) => {
     if (!categorySet || categorySet.size === 0) return null;
@@ -60,9 +60,9 @@ export function useCategorizedCourses(major) {
       });
     });
 
-    const classLookup = new Map();
+    const classLookup = {};
     allFetchedClasses.forEach(cls => {
-      classLookup.set(String(cls.id), cls);
+      classLookup[String(cls.id)] = cls;
       const preferred = determinePreferredCategory(classToCategories.get(String(cls.id)), categories);
       const finalCategory = preferred || 'GE';
       categories[finalCategory].push(cls);
