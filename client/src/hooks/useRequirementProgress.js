@@ -84,6 +84,7 @@ const buildOrderedRequirements = (requirementGroups) => {
 };
 
 // assign requirements to courses so each course fills at most one requirement
+// prep classes can only satisfy prep requirements, not sci-tech or other categories
 const assignRequirementsToCourses = (courses, orderedRequirements) => {
   if (!courses.length || !orderedRequirements.length) return;
 
@@ -91,10 +92,35 @@ const assignRequirementsToCourses = (courses, orderedRequirements) => {
     (entry.requirement.fulfilledByClassIds || []).map(id => String(id))
   ));
 
+  // build a map of course id -> set of requirement group types it belongs to
+  const courseToGroupTypes = new Map();
+  orderedRequirements.forEach((entry, idx) => {
+    const groupType = normalizeGroupType(entry.group);
+    const courseIdSet = requirementSets[idx];
+    courseIdSet.forEach(courseId => {
+      if (!courseToGroupTypes.has(courseId)) {
+        courseToGroupTypes.set(courseId, new Set());
+      }
+      courseToGroupTypes.get(courseId).add(groupType);
+    });
+  });
+
   courses.forEach(courseData => {
     const courseId = String(courseData.item.id);
+    const groupTypes = courseToGroupTypes.get(courseId) || new Set();
+    
+    // if this course is in Prep, it can only satisfy Prep requirements
+    const isPrepClass = groupTypes.has('Prep');
+    
     courseData.eligibleRequirementIndices = requirementSets
-      .map((set, idx) => set.has(courseId) ? idx : null)
+      .map((set, idx) => {
+        if (!set.has(courseId)) return null;
+        // if it's a prep class, only allow prep requirements
+        if (isPrepClass && normalizeGroupType(orderedRequirements[idx].group) !== 'Prep') {
+          return null;
+        }
+        return idx;
+      })
       .filter(idx => idx !== null);
     courseData.optionCount = courseData.eligibleRequirementIndices.length;
   });
@@ -181,6 +207,14 @@ export function useRequirementProgress(
 
     requirementGroups.forEach(group => {
       const type = group.type;
+      
+      // filter out "Technical Breadth" requirement groups from Major section
+      if (type && type.toLowerCase() === 'major') {
+        const groupNameLower = (group.name || '').toLowerCase();
+        if (groupNameLower.includes('technical breadth') || groupNameLower === 'technical breadth') {
+          return; // skip this group
+        }
+      }
 
       if (!typeGroups[type]) {
         typeGroups[type] = {
@@ -253,6 +287,9 @@ export function useRequirementProgress(
       });
 
       // now roll requirement progress up to the group and type levels
+      // always preserve numRequirementsToChoose in the group entry
+      groupEntry.numRequirementsToChoose = numRequirementsToChoose;
+      
       if (groupEntry.requirements.length === 1) {
         // single requirement group: treat it like a leaf
         const req = groupEntry.requirements[0];

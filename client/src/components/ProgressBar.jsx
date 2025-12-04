@@ -108,8 +108,12 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
                     const isGroupExpanded = expandedGroups[grp.id];
                     const groupPercentage = grp.groupTotal > 0 ? (grp.groupCompleted / grp.groupTotal) * 100 : 0;
 
-                    // If only one requirement in the group, show just the requirement (no group wrapper)
-                    if (grp.requirements.length === 1) {
+                    // always show the group name, even if there's only one requirement
+                    // if there are multiple requirements or numRequirementsToChoose > 1, show as collapsible group
+                    const shouldShowAsGroup = grp.requirements.length > 1 || (grp.numRequirementsToChoose && grp.numRequirementsToChoose > 1);
+                    
+                    if (!shouldShowAsGroup && grp.requirements.length === 1) {
+                      // single requirement, single choice: show just the requirement
                       const req = grp.requirements[0];
                       const reqPercentage = req.total > 0 ? (req.completed / req.total) * 100 : 0;
                       return (
@@ -136,7 +140,13 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
                       );
                     }
 
-                    // multiple requirements: show collapsible group
+                    // multiple requirements or multiple choices: show collapsible group with group name
+                    const groupDisplayName = progress.getDisplayName(grp.name);
+                    // always show (choose x) even if x is 1
+                    const chooseText = grp.numRequirementsToChoose 
+                      ? ` (choose ${grp.numRequirementsToChoose})` 
+                      : '';
+                    
                     return (
                       <div key={grp.id} className="requirement-group-item">
                         <div 
@@ -147,7 +157,7 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
                             <span className={`dropdown-arrow small ${isGroupExpanded ? 'expanded' : ''}`}>
                               ▼
                             </span>
-                            <span className="requirement-name">{progress.getDisplayName(grp.name)}</span>
+                            <span className="requirement-name">{groupDisplayName}{chooseText}</span>
                             <span className="requirement-stats">
                               {grp.groupCompleted}/{grp.groupTotal}
                             </span>
