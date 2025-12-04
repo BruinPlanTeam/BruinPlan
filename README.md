@@ -128,6 +128,7 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
    DB_PORT=your_database_port
    DB_URL=mysql://user:password@host:port/database
    ACCESS_TOKEN_SECRET=your_jwt_secret_key
+   OPENAI_API_KEY=you_open_ai_api_key
    ```
 
 3. **Set up the client**
