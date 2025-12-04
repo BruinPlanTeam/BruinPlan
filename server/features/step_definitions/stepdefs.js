@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 async function teardown(){
     try{
     await prisma.user.deleteMany({
-    where: { email: 'alice@example.com' },
+    where: { username: 'alice' },
         });
     }
     finally {
@@ -24,8 +24,7 @@ Given('there is no user yet with an email alice@example.com', async function () 
     });
 When('I try to create a new user that has the email alice@example.com', async function () {      
     const newUser = {
-        email: 'alice@example.com',
-        username: 'testuser',
+        username: 'alice',
         password: 'password123',
     };
 
@@ -38,8 +37,7 @@ Then('the account should be created', function () {
 
     assert.strictEqual(res.status, 201);
     assert.ok(res.body.id, 'response should have an id');
-    assert.strictEqual(res.body.email, 'alice@example.com');
-    assert.strictEqual(res.body.username, 'testuser');
+    assert.strictEqual(res.body.username, 'alice');
     });
 // Then('I should be on the homepage with the new account signed in', function () {
 //            // Write code here that turns the phrase above into concrete actions
@@ -49,8 +47,7 @@ Then('the account should be created', function () {
 //Scenario 2: You can't create a user that already exists
 Given('a user already exists with an email alice@example.com', async function () {
     const newUser = {
-        email: 'alice@example.com',
-        username: 'testuser',
+        username: 'alice',
         password: 'password123',
     };
 
@@ -60,8 +57,7 @@ Given('a user already exists with an email alice@example.com', async function ()
     });
 When('I try to create a new user that has the same email alice@example.com', async function () { 
     const newUser = {
-        email: 'alice@example.com',
-        username: 'testuser',
+        username: 'alice',
         password: 'password123',
     };
 
@@ -89,8 +85,7 @@ Then('the account should not be created', function () {
 
 Given('there is a user with an email alice@example.com', async function () {
                const newUser = {
-        email: 'alice@example.com',
-        username: 'testuser',
+        username: 'alice',
         password: 'password123',
     };
 
@@ -100,7 +95,7 @@ Given('there is a user with an email alice@example.com', async function () {
     });
 When('I try to log in with the email alice@example.com', async function () {
     const loginAttempt = {
-        "email": "alice@example.com",
+        "username": "alice",
         "password": "password123"
     };
 

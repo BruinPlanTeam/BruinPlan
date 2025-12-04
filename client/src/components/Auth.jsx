@@ -9,7 +9,7 @@ import '../styles/Auth.css';
 export default function Auth() {
   const { login, signup } = useAuth();
   const [signUp, setSignUp] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [pw, setPw] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
   const [err, setErr] = useState('');
@@ -57,13 +57,13 @@ export default function Auth() {
     e.preventDefault();
     setErr('');
     
-    if (!email || !pw) {
+    if (!username || !pw) {
       setErr('Both fields are required');
       return;
     }
     
     setLoading(true);
-    const result = await login(email, pw);
+    const result = await login(username, pw);
     setLoading(false);
     
     if (result.success) {
@@ -77,7 +77,7 @@ export default function Auth() {
     e.preventDefault();
     setErr('');
     
-    if (!email || !pw || !confirmPw) {
+    if (!username || !pw || !confirmPw) {
       setErr('All fields are required');
       return;
     }
@@ -93,13 +93,13 @@ export default function Auth() {
       return;
     }
 
-    if (!email.includes('@')) {
-      setErr('Please enter a valid email');
+    if (username.length < 3) {
+      setErr('Username must be at least 3 characters');
       return;
     }
 
     setLoading(true);
-    const result = await signup(email, pw);
+    const result = await signup(username, pw);
     setLoading(false);
     
     if (result.success) {
@@ -113,7 +113,7 @@ export default function Auth() {
   const handleChangeSignUp = () => {
     setSignUp(!signUp);
     setErr(''); // Clear errors when switching modes
-    setEmail('');
+    setUsername('');
     setPw('');
     setConfirmPw('');
   };
@@ -127,12 +127,12 @@ export default function Auth() {
             <h1 className="title">{signUp ? 'Sign Up' : 'Log In'}</h1>
             <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">
               <label className="label">
-                Email
+                Username
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="eg: owen@swag.com"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="eg: owen123"
                   className="input"
                   required
                 />

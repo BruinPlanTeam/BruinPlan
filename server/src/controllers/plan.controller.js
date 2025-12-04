@@ -30,8 +30,7 @@ async function createPlan(req, res) {
             quarterNumber: q.quarterNumber,
             planClasses: {
               create: q.classIds.map(classId => ({
-                classId,
-                status: "planned"
+                classId
               }))
             }
           }))
@@ -130,8 +129,7 @@ async function updatePlan(req, res) {
             quarterNumber: q.quarterNumber,
             planClasses: {
               create: q.classIds.map(classId => ({
-                classId,
-                status: "planned"
+                classId
               }))
             }
           }))
@@ -207,10 +205,41 @@ async function deletePlan(req, res) {
   }
 }
 
+async function updatePlanName(req, res) {
+  const planId = parseInt(req.params.planId);
+  const userId = req.user.userId;
+  const { name } = req.body;
+
+  try {
+    const plan = await prisma.plan.findUnique({
+      where: { id: planId }
+    });
+
+    if (!plan) {
+      return res.status(404).json({ error: "Plan not found" });
+    }
+
+    if (plan.userId !== userId) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+
+    const updated = await prisma.plan.update({
+      where: { id: planId },
+      data: { name }
+    });
+
+    return res.status(200).json(updated);
+  } catch (error) {
+    console.error('Error updating plan name:', error);
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   createPlan,
   getPlans,
   updatePlan,
-  deletePlan
+  deletePlan,
+  updatePlanName
 };
 

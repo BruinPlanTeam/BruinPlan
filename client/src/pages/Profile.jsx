@@ -7,11 +7,13 @@ import { Footer } from '../components/Footer';
 import '../styles/Profile.css';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUsername } = useAuth();
   const navigate = useNavigate();
   const { getPlans, loadPlan } = usePlanManager();
   const [savedPlans, setSavedPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [usernameValue, setUsernameValue] = useState('');
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -41,6 +43,33 @@ export default function Profile() {
     navigate('/degreeplan');
   };
 
+  const handleEditUsername = () => {
+    if (user?.username) {
+      setUsernameValue(user.username);
+      setIsEditingUsername(true);
+    }
+  };
+
+  const handleSaveUsername = async () => {
+    if (!usernameValue.trim()) return;
+    try {
+      const result = await updateUsername(usernameValue.trim());
+      if (result.success) {
+        setIsEditingUsername(false);
+      } else {
+        alert(result.error || 'Failed to update username');
+      }
+    } catch (error) {
+      console.error('Failed to update username:', error);
+      alert('Failed to update username');
+    }
+  };
+
+  const handleCancelEditUsername = () => {
+    setIsEditingUsername(false);
+    setUsernameValue('');
+  };
+
   return (
     <div className="profile-page-container">
       <Header />
@@ -48,10 +77,36 @@ export default function Profile() {
         <div className="profile-card">
           <h1 className="profile-title">Profile</h1>
           <div className="profile-content">
-            {user?.email && (
+            {user?.username && (
               <div className="profile-field">
-                <span className="profile-label">Email:</span>
-                <span className="profile-value">{user.email}</span>
+                <span className="profile-label">Username:</span>
+                {isEditingUsername ? (
+                  <div className="profile-username-edit">
+                    <input
+                      type="text"
+                      value={usernameValue}
+                      onChange={(e) => setUsernameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveUsername();
+                        if (e.key === 'Escape') handleCancelEditUsername();
+                      }}
+                      className="profile-username-input"
+                      autoFocus
+                    />
+                    <button onClick={handleSaveUsername} className="profile-username-save-btn">✓</button>
+                    <button onClick={handleCancelEditUsername} className="profile-username-cancel-btn">✕</button>
+                  </div>
+                ) : (
+                  <div className="profile-username-box">
+                    <span className="profile-value">{user.username}</span>
+                    <button onClick={handleEditUsername} className="profile-username-edit-btn" aria-label="Edit username">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
