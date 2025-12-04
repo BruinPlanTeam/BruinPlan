@@ -1,6 +1,7 @@
 Feature: Log in to an existing user account
     You should be able to log in to an existing user account to view saved plans.
 
+    @scenario3
     Scenario: You should be able to log in to an existing user account
         Given there is a user with an email alice@example.com
         When I try to log in with the email alice@example.com
@@ -9,6 +10,7 @@ Feature: Log in to an existing user account
 
     Rule: the account should exist
 
+    @scenario4
     Scenario: You should be not able to log in to a nonexistent user account
         Given there is no user with an email alice@example.com
         When I try to log in with the email alice@example.com
