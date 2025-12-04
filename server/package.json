@@ -7,6 +7,10 @@
     "prisma:generate": "prisma generate",
     "prisma:push:test": "cross-env NODE_ENV=test prisma db push",
     "test": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js",
+    "test:scenario1": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @scenario1",
+    "test:scenario2": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @scenario2",
+    "test:scenario3": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @scenario3",
+    "test:scenario4": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @scenario4",
     "devStart": "nodemon src/server.js"
   },
   "keywords": [],
@@ -20,16 +24,18 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "openai": "^6.9.1",
     "mysql": "^2.18.1",
-    "mysql2": "^3.15.3"
+    "mysql2": "^3.15.3",
+    "openai": "^6.9.1"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.2.0",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^24.10.1",
     "jest": "^30.2.0",
     "mysql2": "^3.15.3",
     "nodemon": "^3.1.11",
+    "playwright": "^1.57.0",
     "prisma": "^6.19.0",
     "supertest": "^7.1.4"
   }

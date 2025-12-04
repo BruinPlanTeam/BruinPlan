@@ -1,6 +1,7 @@
 Feature: Create a new user
     You can create a new user so that you can look at your saved plans and degree.
     
+    @scenario1
     Scenario: You should be able to create a new user
         Given there is no user yet with an email alice@example.com
         When I try to create a new user that has the email alice@example.com
@@ -9,6 +10,7 @@ Feature: Create a new user
 
     Rule: the email should be unique
 
+    @scenario2
     Scenario: You can't create a user that already exists
         Given a user already exists with an email alice@example.com
         When I try to create a new user that has the same email alice@example.com
