@@ -256,6 +256,7 @@ export default function DegreePlan() {
             droppableZones={droppableZones}
             completedClasses={completedClasses}
             allClassesMap={allClassesMap}
+            selectedGeRequirements={geRequirementSelections}
           />
           
           <div className="content-wrapper">
@@ -265,12 +266,14 @@ export default function DegreePlan() {
                 electricCourseId={electricCourseId} 
                 activeId={activeId}
                 requirementGroups={requirementGroups}
+                allClassesMap={allClassesMap}
             />
 
             <CourseSidebar 
                 categorizedClasses={categorizedClasses}
                 electricCourseId={electricCourseId}
                 requirementGroups={requirementGroups}
+                allClassesMap={allClassesMap}
             />
 
           </div>

@@ -1,13 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
+import { getRequirementDisplayName } from '../utils/requirementUtils';
 
 const CATEGORY_PRIORITY = ['Prep', 'Major', 'Tech Breadth', 'Sci-Tech', 'GE'];
-
-// small helper to get display name for a requirement
-const getDisplayName = (name) => {
-  if (!name) return '';
-  const parts = name.split(' - ');
-  return parts.length > 1 ? parts[parts.length - 1] : name;
-};
 
 // small helper to build a stable key for droppable zone contents
 const buildZonesKey = (droppableZones) => {
@@ -138,7 +132,8 @@ export function useRequirementProgress(
   requirementGroups,
   droppableZones,
   completedClasses = new Set(),
-  allClassesMap = {}
+  allClassesMap = {},
+  selectedGeRequirements = new Set()
 ) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
@@ -207,12 +202,14 @@ export function useRequirementProgress(
 
       const numRequirementsToChoose = group.numRequirementsToChoose || 1;
 
-      // compute progress for each requirement in this group using assignments
+      const isGeGroup = (group.type || '').toLowerCase() === 'ge';
+
+      // compute progress for each requirement in this group using assignments + GE overrides
       (group.requirements || []).forEach(req => {
         const requiredCourses = req.fulfilledByClassIds || [];
         const coursesToChoose = req.coursesToChoose || 1;
 
-        const assignedCourses = courses.filter(course => {
+        let assignedCourses = courses.filter(course => {
           if (!course || !course.assignedRequirementId) return false;
           const matchesRequirement = course.assignedRequirementId === req.id;
           const isEligible = requiredCourses.some(
@@ -221,17 +218,22 @@ export function useRequirementProgress(
           return matchesRequirement && isEligible;
         });
 
-        const completed = Math.min(assignedCourses.length, coursesToChoose);
+        // If this is a GE requirement and it's explicitly checked, treat it as fully complete
+        let completed = Math.min(assignedCourses.length, coursesToChoose);
+        if (isGeGroup && selectedGeRequirements && selectedGeRequirements.has(req.id)) {
+          completed = coursesToChoose;
+          assignedCourses = []; // don't double-count any underlying courses
+        }
         const isComplete = completed >= coursesToChoose;
 
-        groupEntry.requirements.push({
-          id: req.id,
-          name: req.name,
-          displayName: getDisplayName(req.name),
-          completed,
-          total: coursesToChoose,
-          isComplete
-        });
+          groupEntry.requirements.push({
+            id: req.id,
+            name: req.name,
+            displayName: getRequirementDisplayName(req.name),
+            completed,
+            total: coursesToChoose,
+            isComplete
+          });
       });
 
       // sort requirements in this group:
@@ -341,12 +343,12 @@ export function useRequirementProgress(
     setOverallProgress(
       totalRequired > 0 ? (totalCompleted / totalRequired) * 100 : 0
     );
-  }, [requirementGroups, droppableZones, zonesKey, completedClasses, allClassesMap]);
+  }, [requirementGroups, droppableZones, zonesKey, completedClasses, allClassesMap, selectedGeRequirements]);
 
   return {
     progressByType,
     overallProgress,
-    getDisplayName
+    getDisplayName: getRequirementDisplayName
   };
 }
 

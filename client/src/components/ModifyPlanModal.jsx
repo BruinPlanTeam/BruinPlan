@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getRequirementDisplayName } from "../utils/requirementUtils";
 import "../styles/PlanSetupModal.css";
 
 export function ModifyPlanModal({ 
@@ -101,12 +102,6 @@ export function ModifyPlanModal({
     const filteredCompleted = completedClassesList;
     const filteredAvailable = availableClasses;
 
-    const formatRequirementName = (name) => {
-        if (!name) return '';
-        const parts = name.split(' - ');
-        return parts[parts.length - 1];
-    };
-
     const geRequirementItems = (requirementGroups || [])
         .filter(group => (group.type || '').toLowerCase() === 'ge')
         .flatMap(group =>
@@ -133,24 +128,9 @@ export function ModifyPlanModal({
     };
 
     const getGeCompletedClassIds = () => {
-        if (!requirementGroups || !requirementGroups.length) return [];
-        const picked = new Set();
-
-        requirementGroups.forEach(group => {
-            if ((group.type || '').toLowerCase() !== 'ge') return;
-            (group.requirements || []).forEach(req => {
-                if (!selectedGeRequirements.has(req.id)) return;
-                const options = req.fulfilledByClassIds || [];
-                for (const cid of options) {
-                    if (!picked.has(cid)) {
-                        picked.add(cid);
-                        break;
-                    }
-                }
-            });
-        });
-
-        return Array.from(picked);
+        // GE completion is now tracked via selectedGeRequirements in DegreePlan/useRequirementProgress,
+        // so we no longer need to inject synthetic GE classes into quarter 0.
+        return [];
     };
 
     const toggleCompleted = (courseId) => {
@@ -229,7 +209,7 @@ export function ModifyPlanModal({
                                     </div>
                                     <div className="setup-class-info">
                                         <span className="setup-class-name">
-                                            {formatRequirementName(req.name)}
+                                            {getRequirementDisplayName(req.name)}
                                         </span>
                                     </div>
                                 </button>

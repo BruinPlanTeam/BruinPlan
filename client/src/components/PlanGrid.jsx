@@ -9,7 +9,7 @@ const MAX_COLS = 4;
 const QUARTERS = { 1: 'Fall', 2: 'Winter', 3: 'Spring', 4: 'Summer' };
 
 
-export default function PlanGrid({ droppableZones, electricCourseId, activeId, requirementGroups = [] }) {
+export default function PlanGrid({ droppableZones, electricCourseId, activeId, requirementGroups = [], allClassesMap = {} }) {
 
     return (
         <div className="plan-grid">
@@ -33,6 +33,8 @@ export default function PlanGrid({ droppableZones, electricCourseId, activeId, r
                                     maxUnits={MAX_UNITS}
                                     electricCourseId={electricCourseId}
                                     requirementGroups={requirementGroups}
+                                    contextCategory={null}
+                                    allClassesMap={allClassesMap}
                                 />
                             );
                         })}

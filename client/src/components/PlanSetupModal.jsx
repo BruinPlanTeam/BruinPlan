@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getRequirementDisplayName } from "../utils/requirementUtils";
 import "../styles/PlanSetupModal.css";
 
 export function PlanSetupModal({
@@ -32,12 +33,6 @@ export function PlanSetupModal({
         course.code?.toLowerCase().includes(search.toLowerCase()) ||
         course.name?.toLowerCase().includes(search.toLowerCase())
     );
-
-    const formatRequirementName = (name) => {
-        if (!name) return '';
-        const parts = name.split(' - ');
-        return parts[parts.length - 1];
-    };
 
     const toggleCompleted = (courseId) => {
         setCompletedClasses(prev => {
@@ -96,24 +91,9 @@ export function PlanSetupModal({
     };
 
     const getGeCompletedClassIds = () => {
-        if (!requirementGroups || !requirementGroups.length) return [];
-        const picked = new Set();
-
-        requirementGroups.forEach(group => {
-            if ((group.type || '').toLowerCase() !== 'ge') return;
-            (group.requirements || []).forEach(req => {
-                if (!selectedGeRequirements.has(req.id)) return;
-                const options = req.fulfilledByClassIds || [];
-                for (const cid of options) {
-                    if (!picked.has(cid)) {
-                        picked.add(cid);
-                        break;
-                    }
-                }
-            });
-        });
-
-        return Array.from(picked);
+        // GE completion is now tracked via selectedGeRequirements in DegreePlan/useRequirementProgress,
+        // so we no longer need to inject synthetic GE classes into quarter 0.
+        return [];
     };
 
     const handleStartPlanning = () => {
@@ -286,7 +266,7 @@ export function PlanSetupModal({
                                             </div>
                                             <div className="setup-class-info">
                                                 <span className="setup-class-name">
-                                                    {formatRequirementName(req.name)}
+                                                    {getRequirementDisplayName(req.name)}
                                                 </span>
                                             </div>
                                         </button>
@@ -297,7 +277,7 @@ export function PlanSetupModal({
 
                         <div className="setup-classes-section">
                             <label className="setup-classes-label">
-                                Mark completed Prep classes (optional)
+                                Mark completed Prep classes (AP credits, etc.)
                                 <span className="setup-classes-count">
                                     {completedClasses.size} selected
                                 </span>
@@ -315,9 +295,9 @@ export function PlanSetupModal({
 
                                     if (withSelectedFirst.length === 0) {
                                         return (
-                                            <div className="setup-classes-empty">
-                                                {search ? "No classes match your search" : "No classes available"}
-                                            </div>
+                                    <div className="setup-classes-empty">
+                                        {search ? "No classes match your search" : "No classes available"}
+                                    </div>
                                         );
                                     }
 

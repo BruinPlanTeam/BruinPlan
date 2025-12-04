@@ -393,6 +393,24 @@
   border-top-color: rgba(8, 15, 22, 0.98);
 }
 
+/* Sidebar variant – pop to the left of the card instead of on top */
+.course-requirements-tooltip--side {
+  position: fixed;
+  bottom: auto;
+  top: 0;
+  left: 0;
+  right: auto;
+  transform: none;
+}
+
+.course-requirements-tooltip--side::after {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-left-color: rgba(8, 15, 22, 0.98);
+}
+
 .tooltip-title {
   font-size: 0.85rem;
   font-weight: 600;
@@ -421,6 +439,21 @@
 
 .tooltip-req {
   color: var(--color-text-primary);
+}
+
+.tooltip-prereqs {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.tooltip-prereqs-label {
+  font-weight: 500;
+  margin-right: 0.25rem;
+}
+
+.tooltip-prereqs-codes {
+  opacity: 0.9;
 }
 
 .rejection-popup-backdrop {

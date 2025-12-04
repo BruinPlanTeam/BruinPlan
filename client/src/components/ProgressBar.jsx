@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles/ProgressBar.css';
 import { useRequirementProgress } from '../hooks/useRequirementProgress';
 
-export function ProgressBar({ requirementGroups, droppableZones, completedClasses, allClassesMap }) {
+export function ProgressBar({ requirementGroups, droppableZones, completedClasses, allClassesMap, selectedGeRequirements }) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
   const [expandedTypes, setExpandedTypes] = useState({});
@@ -13,7 +13,8 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
     requirementGroups,
     droppableZones,
     completedClasses,
-    allClassesMap
+    allClassesMap,
+    selectedGeRequirements
   );
 
   // keep a local copy so we can use existing render code with minimal changes

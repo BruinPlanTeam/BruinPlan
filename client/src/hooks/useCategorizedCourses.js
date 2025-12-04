@@ -37,6 +37,7 @@ export function useCategorizedCourses(major) {
     };
 
     const classToCategories = new Map();
+    const classToReqIds = {};
     
     allRequirementGroups.forEach(group => {
       let category = group.type;
@@ -56,16 +57,26 @@ export function useCategorizedCourses(major) {
             classToCategories.set(key, new Set());
           }
           classToCategories.get(key).add(category);
+
+          if (!classToReqIds[key]) {
+            classToReqIds[key] = [];
+          }
+          classToReqIds[key].push(req.id);
         });
       });
     });
 
     const classLookup = {};
     allFetchedClasses.forEach(cls => {
-      classLookup[String(cls.id)] = cls;
-      const preferred = determinePreferredCategory(classToCategories.get(String(cls.id)), categories);
+      const key = String(cls.id);
+      const withReqs = {
+        ...cls,
+        fulfillsReqIds: classToReqIds[key] || []
+      };
+      classLookup[key] = withReqs;
+      const preferred = determinePreferredCategory(classToCategories.get(key), categories);
       const finalCategory = preferred || 'GE';
-      categories[finalCategory].push(cls);
+      categories[finalCategory].push(withReqs);
     });
 
     Object.keys(categories).forEach(category => {
