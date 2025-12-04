@@ -157,6 +157,8 @@ function CourseSidebar({ categorizedClasses, electricCourseId, requirementGroups
                             item={item} 
                             showElectric={String(item.id) === electricCourseId}
                             requirementGroups={requirementGroups}
+                            contextCategory={category}
+                            allClassesMap={allClassesMap}
                           >
                             <span className="course-code">{item.code}</span>
                             <span className="course-units">{item.units}u</span>

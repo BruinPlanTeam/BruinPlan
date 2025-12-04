@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { useSortable} from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import ElectricBorder from './ElectricBorder'
@@ -7,8 +7,6 @@ import '../../styles/DegreePlan.css'
 
 export function Draggable({ id, item, showElectric, requirementGroups = [], contextCategory = null, allClassesMap = {} }) {
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipStyle, setTooltipStyle] = useState(null);
-  const cardRef = useRef(null);
   const {
     attributes,
     listeners,
@@ -77,84 +75,95 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
       return true;
     });
 
-    // If we know the context (sidebar category), show just ONE matching requirement
+    // Helper: pick a single "best" requirement, preferring Core/Prep-style labels
+    const pickSinglePreferred = (list) => {
+      if (!list || list.length === 0) return [];
+      const preferred = list.find((req) => {
+        const name = req.displayName.toLowerCase();
+        return name.includes('core') || name.includes('prep');
+      });
+      return [preferred || list[0]];
+    };
+
     if (contextCategory) {
       const lowerCat = contextCategory.toLowerCase();
-      const filtered = allReqs.filter(req => {
+
+      const matchesForCategory = (req) => {
         const combo = `${req.groupName} ${req.reqName}`.toLowerCase();
-        if (lowerCat === 'prep') {
-          return combo.includes('prep');
-        }
-        if (lowerCat === 'major') {
-          return combo.includes('major');
-        }
+        if (lowerCat === 'prep') return combo.includes('prep');
+        if (lowerCat === 'major') return combo.includes('major');
         if (lowerCat.includes('tech') || lowerCat.includes('breadth')) {
           return combo.includes('tbr') || combo.includes('tech breadth');
         }
         if (lowerCat.includes('sci-tech') || lowerCat.includes('sci')) {
-          return combo.includes('sci-tech') || combo.includes('sci tech') || (combo.includes('science') && combo.includes('technology'));
+          return (
+            combo.includes('sci-tech') ||
+            combo.includes('sci tech') ||
+            (combo.includes('science') && combo.includes('technology'))
+          );
         }
-        return true;
-      });
-      return filtered.length ? [filtered[0]] : [];
-    }
+        if (lowerCat.includes('ge')) {
+          return combo.includes('ge') || combo.includes('general education');
+        }
+        return false;
+      };
 
-    // For grid cells (no explicit context), pick a single representative bucket
-    const priority = ['prep', 'major', 'tech-breadth', 'sci-tech', 'ge', 'other'];
-    for (const bucket of priority) {
-      if (bucketMap.has(bucket)) {
-        return [bucketMap.get(bucket)];
+      const filtered = allReqs.filter(matchesForCategory);
+
+      // Prep / Major: **exactly one** requirement
+      if (lowerCat === 'prep' || lowerCat === 'major') {
+        if (filtered.length > 0) return pickSinglePreferred(filtered);
+        return pickSinglePreferred(allReqs);
       }
+
+      // Sci‑Tech / Tech Breadth / GE: show **all** matches (or allReqs if none matched)
+      if (filtered.length > 0) return filtered;
+      return allReqs;
     }
 
-    return [];
+    // Grid cells (no context):
+    // - If this class has any "Core"/"Prep" style requirement, show ONE of those
+    // - Otherwise (GE / Sci-Tech / TBR), show all deduped requirements
+    const coreOrPrepReqs = allReqs.filter((req) => {
+      const name = req.displayName.toLowerCase();
+      return name.includes('core') || name.includes('prep');
+    });
+
+    if (coreOrPrepReqs.length > 0) {
+      return pickSinglePreferred(coreOrPrepReqs);
+    }
+
+    return allReqs;
   };
 
   const fulfilledReqs = getFulfilledRequirements();
 
-  const getPrereqCodes = () => {
+  const getPrereqGroupsWithCodes = () => {
     const groups = Array.isArray(item.prereqGroups) ? item.prereqGroups : [];
-    const ids = new Set();
-    groups.forEach(group => {
-      if (Array.isArray(group)) {
-        group.forEach(id => ids.add(String(id)));
-      }
-    });
-    const codes = [];
-    ids.forEach(id => {
-      const course = allClassesMap[String(id)];
-      if (course && course.code) {
-        codes.push(course.code);
-      }
-    });
-    return codes;
+    return groups
+      .map(group => {
+        if (!Array.isArray(group) || group.length === 0) return null;
+        const codes = group
+          .map(id => {
+            const course = allClassesMap[String(id)];
+            return course?.code;
+          })
+          .filter(Boolean);
+        return codes.length ? codes : null;
+      })
+      .filter(Boolean);
   };
 
-  const prereqCodes = getPrereqCodes();
+  const prereqGroups = getPrereqGroupsWithCodes();
 
   const handleMouseEnter = () => {
     if (isDragging) return;
-    if (contextCategory && cardRef.current) {
-      const rect = cardRef.current.getBoundingClientRect();
-      setTooltipStyle({
-        position: 'fixed',
-        top: rect.top + rect.height / 2,
-        left: rect.left - 12,
-        transform: 'translate(-100%, -50%)',
-        pointerEvents: 'auto'
-      });
-    } else {
-      setTooltipStyle(null);
-    }
     setShowTooltip(true);
   };
 
   const courseCard = (
     <div
-      ref={(node) => {
-        setNodeRef(node);
-        cardRef.current = node;
-      }}
+      ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
@@ -169,10 +178,9 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
       {item.description && (
         <div className="course-description">{item.description}</div>
       )}
-      {showTooltip && (fulfilledReqs.length > 0 || prereqCodes.length > 0) && (
+      {showTooltip && (fulfilledReqs.length > 0 || prereqGroups.length > 0) && (
         <div
-          className={`course-requirements-tooltip ${contextCategory ? 'course-requirements-tooltip--side' : ''}`}
-          style={tooltipStyle || undefined}
+          className="course-requirements-tooltip"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={() => setShowTooltip(false)}
         >
@@ -186,10 +194,12 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
               ))}
             </>
           )}
-          {prereqCodes.length > 0 && (
+          {prereqGroups.length > 0 && (
             <div className="tooltip-prereqs">
               <span className="tooltip-prereqs-label">Prereqs:</span>
-              <span className="tooltip-prereqs-codes">{prereqCodes.join(', ')}</span>
+              <span className="tooltip-prereqs-codes">
+                {prereqGroups.map(group => group.join(' OR ')).join(' OR ')}
+              </span>
             </div>
           )}
         </div>

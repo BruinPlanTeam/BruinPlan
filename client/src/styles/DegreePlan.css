@@ -369,38 +369,39 @@
 
 .course-requirements-tooltip {
   position: absolute;
-  bottom: calc(100% + 0.5rem);
+  top: calc(100% + 0.35rem);
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(8, 15, 22, 0.98);
-  border: 1px solid rgba(39, 116, 174, 0.4);
+  /* Make the bubble fully solid, not "tinted glass" */
+  background-color: #020813 !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  border: 1px solid #274667;
   border-radius: 8px;
   padding: 0.75rem;
   min-width: 250px;
   max-width: 350px;
   z-index: 10000;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
   pointer-events: auto;
 }
 
+/* Upward pointing arrow to connect tooltip to the card */
 .course-requirements-tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
   left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: rgba(8, 15, 22, 0.98);
+  top: 0;
+  transform: translate(-50%, -100%);
+  border-width: 0 8px 8px 8px;
+  border-style: solid;
+  border-color: #020813;
 }
 
 /* Sidebar variant – pop to the left of the card instead of on top */
+/* Side variant currently shares base visual style; inline styles control position for sidebar */
 .course-requirements-tooltip--side {
-  position: fixed;
-  bottom: auto;
-  top: 0;
-  left: 0;
-  right: auto;
-  transform: none;
+  border-radius: 8px;
 }
 
 .course-requirements-tooltip--side::after {
@@ -421,6 +422,8 @@
 .tooltip-requirement {
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 0.5rem;
   font-size: 0.8rem;
   margin-bottom: 0.4rem;
@@ -434,7 +437,7 @@
 
 .tooltip-separator {
   color: var(--color-text-secondary);
-  opacity: 0.5;
+  opacity: 1.0;
 }
 
 .tooltip-req {
@@ -442,18 +445,27 @@
 }
 
 .tooltip-prereqs {
-  margin-top: 0.4rem;
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
   font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
+.tooltip-prereq-group {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+}
+
 .tooltip-prereqs-label {
   font-weight: 500;
-  margin-right: 0.25rem;
 }
 
 .tooltip-prereqs-codes {
-  opacity: 0.9;
+  opacity: 1.0;
 }
 
 .rejection-popup-backdrop {

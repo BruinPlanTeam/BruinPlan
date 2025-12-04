@@ -52,6 +52,21 @@ export function useDragAndDrop(
     }, 1000);
   }, []);
 
+  const getDependentCourses = useCallback((courseId) => {
+    const dependents = [];
+    Object.values(droppableZones).forEach(zone => {
+      (zone.items || []).forEach(item => {
+        const groups = Array.isArray(item.prereqGroups) ? item.prereqGroups : [];
+        groups.forEach(group => {
+          if (Array.isArray(group) && group.some(id => String(id) === String(courseId))) {
+            dependents.push(allClassesMap[String(item.id)]?.code || item.code);
+          }
+        });
+      });
+    });
+    return dependents;
+  }, [droppableZones, allClassesMap]);
+
   /**
    * Reorder items within a zone
    */
@@ -254,34 +269,16 @@ export function useDragAndDrop(
     // handle dropping on an item in the sidebar
     if (targetItem || (isDroppedOnCategoryZone && sourceZoneId)) {
       if (sourceZoneId && currentId != null) {
-        // Before returning to sidebar, ensure this class isn't a prereq for anything on the grid
-        const blockingDependents = new Set();
-        for (let row = 1; row <= 4; row++) {
-          for (let col = 1; col <= 4; col++) {
-            const zoneId = `zone-${row}-${col}`;
-            const zone = droppableZones[zoneId];
-            if (!zone || !zone.items) continue;
-            for (const item of zone.items) {
-              if (!Array.isArray(item.prereqGroups) || item.prereqGroups.length === 0) continue;
-              const isDependent = item.prereqGroups.some(group =>
-                Array.isArray(group) && group.some(id => String(id) === String(currentId))
-              );
-              if (isDependent) {
-                blockingDependents.add(item.code);
-              }
-            }
-          }
-        }
-
-        if (blockingDependents.size > 0) {
-          setRejectedCourseInfo({
-            courseCode: currentName,
-            reason: 'prereqs',
-            missingPrereqs: [Array.from(blockingDependents)],
-          });
-        } else {
-          const item = droppableZones[sourceZoneId].items.find((it) => String(it.id) === activeIdNormalized);
-          if (item) {
+        const item = droppableZones[sourceZoneId].items.find((it) => String(it.id) === activeIdNormalized);
+        if (item) {
+          const dependents = getDependentCourses(item.id);
+          if (dependents.length > 0) {
+            setRejectedCourseInfo({
+              courseCode: currentName,
+              reason: 'dependents',
+              dependents,
+            });
+          } else {
             returnCourseToSidebar(item, sourceZoneId);
           }
         }
@@ -318,6 +315,7 @@ export function useDragAndDrop(
             break;
           }
         }
+        if (targetQuarterNum !== null) break;
       }
 
       if (currentId != null && targetQuarterNum != null) {
@@ -352,11 +350,7 @@ export function useDragAndDrop(
           currentId,
           filteredPrereqGroups,
         );
-        const result = [...missingFromPrereqs];
-        if (hasBlockingDependents) {
-          result.push(Array.from(blockingDependents));
-        }
-        return result;
+        return [...missingFromPrereqs];
       };
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
@@ -373,12 +367,18 @@ export function useDragAndDrop(
               droppableZones,
             )} units. Maximum is ${MAX_UNITS} units.`,
           });
-        } else if (!prereqsCompleted || hasBlockingDependents) {
+        } else if (!prereqsCompleted) {
           const missingPrereqs = buildMissingPrereqsPayload();
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'prereqs',
             missingPrereqs,
+          });
+        } else if (hasBlockingDependents) {
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'dependents',
+            dependents: Array.from(blockingDependents),
           });
         } else {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
@@ -395,12 +395,18 @@ export function useDragAndDrop(
               droppableZones,
             )} units. Maximum is ${MAX_UNITS} units.`,
           });
-        } else if (!prereqsCompleted || hasBlockingDependents) {
+        } else if (!prereqsCompleted) {
           const missingPrereqs = buildMissingPrereqsPayload();
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'prereqs',
             missingPrereqs,
+          });
+        } else if (hasBlockingDependents) {
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'dependents',
+            dependents: Array.from(blockingDependents),
           });
         } else {
           moveCourseToZone(targetZoneId, foundItem);

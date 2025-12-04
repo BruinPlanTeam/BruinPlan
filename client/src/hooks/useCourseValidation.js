@@ -64,60 +64,7 @@ export function useCourseValidation(
       }
     }
 
-    if (!allGroupsSatisfied) {
-      return false;
-    }
-
-    // Also enforce: current class must be scheduled before any course that lists it as a prereq
-    // Find target quarter number
-    let targetQuarterNum = null;
-    for (let row = 1; row <= MAX_ROWS; row++) {
-      for (let col = 1; col <= MAX_COLS; col++) {
-        const zoneId = `zone-${row}-${col}`;
-        if (zoneId === targetZoneId) {
-          targetQuarterNum = (row - 1) * 4 + col;
-          break;
-        }
-      }
-      if (targetQuarterNum !== null) break;
-    }
-
-    if (targetQuarterNum === null) {
-      return true;
-    }
-
-    // Scan all zones to ensure no dependent course is in the same or an earlier quarter
-    for (let row = 1; row <= MAX_ROWS; row++) {
-      for (let col = 1; col <= MAX_COLS; col++) {
-        const zoneId = `zone-${row}-${col}`;
-        const zoneObj = droppableZones[zoneId];
-        if (!zoneObj || !zoneObj.items) continue;
-
-        const quarterNum = (row - 1) * 4 + col;
-
-        for (const classItem of zoneObj.items) {
-          if (String(classItem.id) === String(currentId)) continue;
-
-          const futurePrereqGroups = Array.isArray(classItem.prereqGroups)
-            ? classItem.prereqGroups
-            : [];
-
-          for (const group of futurePrereqGroups) {
-            if (
-              Array.isArray(group) &&
-              group.some(prereqId => String(prereqId) === String(currentId))
-            ) {
-              // current class is a prereq for classItem; it must be strictly before that course
-              if (targetQuarterNum >= quarterNum) {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return true;
+    return allGroupsSatisfied;
   }, [droppableZones, completedClasses]);
 
   // Detailed info: which prerequisite course codes are missing?
@@ -183,63 +130,6 @@ export function useCourseValidation(
 
         if (!groupSatisfied && missingInGroup.length > 0) {
           missingPrereqs.push(missingInGroup);
-        }
-      }
-
-      // 2) If none of the groups above produced missing prereqs, this may be due to
-      //    the current class being moved to the same/later quarter than a dependent course.
-      if (missingPrereqs.length === 0) {
-        const blockingDependents = [];
-
-        // recompute target quarter number
-        let targetQuarterNum = null;
-        for (let row = 1; row <= MAX_ROWS; row++) {
-          for (let col = 1; col <= MAX_COLS; col++) {
-            const zoneId = `zone-${row}-${col}`;
-            if (zoneId === targetZoneId) {
-              targetQuarterNum = (row - 1) * 4 + col;
-              break;
-            }
-          }
-          if (targetQuarterNum !== null) break;
-        }
-
-        if (targetQuarterNum !== null) {
-          for (let row = 1; row <= MAX_ROWS; row++) {
-            for (let col = 1; col <= MAX_COLS; col++) {
-              const zoneId = `zone-${row}-${col}`;
-              const zoneObj = droppableZones[zoneId];
-              if (!zoneObj || !zoneObj.items) continue;
-
-              const quarterNum = (row - 1) * 4 + col;
-              if (quarterNum <= targetQuarterNum) continue;
-
-              for (const classItem of zoneObj.items) {
-                if (String(classItem.id) === String(currentId)) continue;
-
-                const futurePrereqGroups = Array.isArray(classItem.prereqGroups)
-                  ? classItem.prereqGroups
-                  : [];
-
-                for (const group of futurePrereqGroups) {
-                  if (
-                    Array.isArray(group) &&
-                    group.some(prereqId => String(prereqId) === String(currentId))
-                  ) {
-                    const code = classItem.code ||
-                      (allClassesMap[String(classItem.id)] || {}).code;
-                    if (code && !blockingDependents.includes(code)) {
-                      blockingDependents.push(code);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        if (blockingDependents.length > 0) {
-          missingPrereqs.push(blockingDependents);
         }
       }
 

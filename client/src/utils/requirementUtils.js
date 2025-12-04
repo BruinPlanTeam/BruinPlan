@@ -3,5 +3,3 @@ export function getRequirementDisplayName(name) {
   const parts = String(name).split(' - ');
   return parts[parts.length - 1];
 }
-
-

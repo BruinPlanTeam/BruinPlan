@@ -297,17 +297,32 @@ export default function DegreePlan() {
         <div className="rejection-popup-backdrop" onClick={() => setRejectedCourseInfo(null)}>
           <div className="rejection-popup" onClick={(e) => e.stopPropagation()}>
             <div className="rejection-popup-header">
-              <h3>Cannot Add {rejectedCourseInfo.courseCode}</h3>
+              <h3>
+                {rejectedCourseInfo.reason === 'dependents'
+                  ? `${rejectedCourseInfo.courseCode} is required by other classes`
+                  : `Cannot Add ${rejectedCourseInfo.courseCode}`}
+              </h3>
               <button className="rejection-popup-close" onClick={() => setRejectedCourseInfo(null)}>×</button>
             </div>
             <div className="rejection-popup-content">
               {rejectedCourseInfo.reason === 'units' ? (
                 <p>{rejectedCourseInfo.message}</p>
+              ) : rejectedCourseInfo.reason === 'dependents' ? (
+                <>
+                  <p className="rejection-message">
+                    These courses on your map still need {rejectedCourseInfo.courseCode}. Move or remove them first:
+                  </p>
+                  <div className="prereq-groups">
+                    {(rejectedCourseInfo.dependents || []).map((code, idx) => (
+                      <span key={idx} className="prereq-course-code">{code}</span>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <>
                   <p>You need to schedule these prerequisite courses in earlier quarters first:</p>
                   <div className="prereq-groups">
-                    {rejectedCourseInfo.missingPrereqs.map((group, idx) => (
+                    {(rejectedCourseInfo.missingPrereqs || []).map((group, idx) => (
                       <div key={idx} className="prereq-group">
                         <span className="prereq-group-label">Group {idx + 1} (choose one):</span>
                         <div className="prereq-courses">
