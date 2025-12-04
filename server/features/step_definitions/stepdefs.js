@@ -118,46 +118,48 @@ Then('I should remain on the sign-up page', function () {
 //Scenario 3: You should be able to log in to an existing user account
 
 Given('there is a user with an email alice@example.com', async function () {
-    const newUser = {
-username: 'alice',
-password: 'password123',
-};
+               const newUser = {
+        username: 'alice',
+        password: 'password123',
+    };
 
-await request(app)
-.post('/users')
-.send(newUser);
-});
+    await request(app)
+        .post('/users')
+        .send(newUser);
+    });
 When('I try to log in with the email alice@example.com', async function () {
-const loginAttempt = {
-"username": "alice",
-"password": "password123"
-};
+    const loginAttempt = {
+        "username": "alice",
+        "password": "password123"
+    };
 
-this.response = await request(app)
-.post('/users/login')
-.send(loginAttempt)
+    this.response = await request(app)
+        .post('/users/login')
+        .send(loginAttempt);
 });
 Then('I should be logged in', function () {
-const res = this.response;
-assert.strictEqual(res.status, 200, 'should successfully log in')
+    const res = this.response;
+    assert.strictEqual(res.status, 200, 'should successfully log in');
 });
-// Then('I should be on the homepage with the new account signed in', function () {
-//            //Figure out how to test browser
-//          });
 
 
 //Scenario 4: You should be not able to log in to a nonexistent user account
 
 Given('there is no user with an email alice@example.com', async function () {
-await teardown()
+    await teardown();
 });
-// When('I try to log in with the email alice@example.com');
 Then('I should not be logged in', function () {
-const res = this.response 
-//return 404 not found, rather than  
-assert.strictEqual(res.status, 401, 'should return 401 for trying to operate without credentials.')
+    const res = this.response;
+    // Should return 401 for invalid credentials
+    assert.strictEqual(res.status, 401, 'should return 401 for trying to log in with nonexistent user');
+    assert.ok(res.body.error, 'response should contain an error message');
+    assert.ok(!res.body.token, 'response should not contain a token');
 });
-// Then('I should stay on the login page', function () {
-//            // Write code here that turns the phrase above into concrete actions
-//            return 'pending';
-//          });
+Then('I should stay on the login page', function () {
+    const res = this.response;
+    // For backend tests, staying on login page means the login request failed
+    // The 401 status already indicates login failed
+    assert.strictEqual(res.status, 401, 'should return 401, indicating login failed');
+    assert.ok(res.body.error, 'response should contain an error message');
+    assert.ok(!res.body.token, 'response should not contain a token');
+});
