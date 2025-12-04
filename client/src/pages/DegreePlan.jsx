@@ -66,7 +66,7 @@ export default function DegreePlan() {
     getBlockingDependents
   } = usePlanManager();
 
-  // check for pending plan to load from Profile page
+  // check for pending plan to load from profile page
   useEffect(() => {
     const pendingPlan = localStorage.getItem('pendingPlanToLoad');
     if (pendingPlan) {
@@ -74,7 +74,7 @@ export default function DegreePlan() {
         const planData = JSON.parse(pendingPlan);
         loadPlan(planData);
         setCurrentPlan({ id: planData.id, name: planData.name });
-        setHasCompletedSetup(true); // Bypass setup modal when loading from Profile
+        setHasCompletedSetup(true); // bypass setup modal when loading from profile
         localStorage.removeItem('pendingPlanToLoad');
       } catch (error) {
         console.error('Failed to load pending plan:', error);
@@ -103,10 +103,10 @@ export default function DegreePlan() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  // Handlers for setup modal
+  // handlers for setup modal
   const handleCreateNewPlan = (completedClassIds, geRequirementIds = []) => {
-    // Store completed classes (will be saved as quarter 0 when plan is saved)
-    // The useEffect in planManager will remove them from the sidebar
+    // store completed classes (will be saved as quarter 0 when plan is saved)
+    // the useEffect in planManager will remove them from the sidebar
     setCompletedClassesFromIds(completedClassIds);
     setGeRequirementSelections(new Set(geRequirementIds));
     setHasCompletedSetup(true);
@@ -124,15 +124,15 @@ export default function DegreePlan() {
     setHasCompletedSetup(true);
   };
 
-  // Handler for loading plan from SavedPlansButton
+  // handler for loading plan from saved plans button
   const handleLoadPlanFromButton = (plan) => {
     loadPlan(plan);
     setCurrentPlan({ id: plan.id, name: plan.name });
-    setHasCompletedSetup(true); // Bypass setup modal when loading from SavedPlansButton
+    setHasCompletedSetup(true); // bypass setup modal when loading from saved plans button
     setGeRequirementSelections(new Set());
   };
 
-  // Handler for saving - passes planId for updates, null for new plans
+  // handler for saving - passes planId for updates, null for new plans
   const handleSavePlan = async (planName) => {
     const planId = currentPlan?.id || null;
     const result = await savePlan(planName, planId);
@@ -140,13 +140,13 @@ export default function DegreePlan() {
     return result;
   };
 
-  // Handler for resetting the plan
+  // handler for resetting the plan
   const handleResetPlan = () => {
     resetPlan();
     setCurrentPlan(null);
   };
 
-  // Handler for editing plan name
+  // handler for editing plan name
   const handleEditPlanName = () => {
     if (currentPlan) {
       setPlanNameValue(currentPlan.name);
@@ -175,20 +175,20 @@ export default function DegreePlan() {
     if (!currentPlan) return;
     
     try {
-      // Convert to Set for savePlan
+      // convert to set for savePlan
       const completedClassesSet = new Set(completedClassIds.map(id => String(id)));
       
-      // Update completed classes state
+      // update completed classes state
       setCompletedClassesFromIds(completedClassIds);
       
-      // Update plan name if changed
+      // update plan name if changed
       if (newName !== currentPlan.name) {
         await updatePlanName(currentPlan.id, newName);
         setCurrentPlan({ ...currentPlan, name: newName });
       }
       
-      // Save the plan with updated completed classes (quarter 0)
-      // Pass completedClassesSet directly to avoid race condition
+      // save the plan with updated completed classes (quarter 0)
+      // pass completedClassesSet directly to avoid race condition
       const planId = currentPlan.id;
       const result = await savePlan(newName, planId, completedClassesSet);
       setCurrentPlan({ id: result.id, name: result.name });
@@ -200,7 +200,7 @@ export default function DegreePlan() {
     }
   };
 
-  // Show setup modal for authenticated users who haven't completed setup
+  // show setup modal for authenticated users who haven't completed setup
   const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
   return (

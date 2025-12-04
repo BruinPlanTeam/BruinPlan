@@ -23,7 +23,7 @@ export function PlanSetupModal({
 
     useEffect(() => {
         if (categorizedClasses) {
-            // Only show Prep classes in the list
+            // only show prep classes in the list
             const prep = categorizedClasses['Prep'] || [];
             setClasses(prep);
         }
@@ -90,27 +90,19 @@ export function PlanSetupModal({
         setStep("name-plan");
     };
 
-    const getGeCompletedClassIds = () => {
-        // GE completion is now tracked via selectedGeRequirements in DegreePlan/useRequirementProgress,
-        // so we no longer need to inject synthetic GE classes into quarter 0.
-        return [];
-    };
-
     const handleStartPlanning = () => {
         const trimmedName = newPlanName.trim();
         if (!trimmedName) {
             setNameError("Please enter a plan name");
             return;
         }
-        // Set current plan with name but no id (new plan)
+        // set current plan with name but no id (new plan)
         setCurrentPlan({ id: null, name: trimmedName });
-        // Prep completions (Prep classes)
+        // prep completions (prep classes)
         const prepIds = Array.from(completedClasses);
-        // GE completions: pick representative classes
-        const geIds = getGeCompletedClassIds();
-        const combined = Array.from(new Set([...prepIds, ...geIds]));
-        // Pass combined completed class IDs (quarter 0) and the explicit GE requirement ids
-        onCreateNew(combined, Array.from(selectedGeRequirements));
+        // ge completion is tracked via selectedGeRequirements, no synthetic classes needed
+        // pass combined completed class ids (quarter 0) and the explicit ge requirement ids
+        onCreateNew(prepIds, Array.from(selectedGeRequirements));
     };
 
     return (
@@ -296,7 +288,7 @@ export function PlanSetupModal({
                                     if (withSelectedFirst.length === 0) {
                                         return (
                                     <div className="setup-classes-empty">
-                                        {search ? "No classes match your search" : "No classes available"}
+                                        {search ? "No classes match your search" : (!categorizedClasses ? "Loading..." : "No classes available")}
                                     </div>
                                         );
                                     }

@@ -4,9 +4,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-/**
- * Basic chat endpoint using OpenAI
- */
+// basic chat endpoint using openai
 async function chat(req, res) {
   try {
     const { messages } = req.body;

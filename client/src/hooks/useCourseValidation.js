@@ -3,21 +3,18 @@ import { useCallback } from 'react';
 const MAX_ROWS = 4;
 const MAX_COLS = 4;
 
-/**
- * Custom hook for course validation logic (prerequisites, units, etc.)
- * Centralizes both the boolean prereq check and missing-prereq computation.
- */
+// custom hook for course validation logic - centralizes both the boolean prereq check and missing-prereq computation
 export function useCourseValidation(
   droppableZones,
   completedClasses = new Set(),
   allClassesMap = {},
   categorizedClasses = {}
 ) {
-  // Simple boolean: are all prerequisite groups satisfied?
-  const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqGroups = []) => {
+  // build list of taken classes (completed classes + classes in zones before targetZoneId)
+  const buildTakenClasses = useCallback((targetZoneId, currentId) => {
     let takenClasses = [];
 
-    // Include completed classes (quarter 0) in taken classes
+    // include completed classes (quarter 0) in taken classes
     if (completedClasses && completedClasses.size > 0) {
       takenClasses.push(...Array.from(completedClasses).map(id => String(id)));
     }
@@ -35,11 +32,16 @@ export function useCourseValidation(
       }
     }
 
-    takenClasses = takenClasses
+    return takenClasses
       .flat()
-      .filter(item => item != currentId)
+      .filter(item => item !== currentId)
       .filter(Boolean)
       .map(item => String(item));
+  }, [droppableZones, completedClasses]);
+
+  // simple boolean: are all prerequisite groups satisfied?
+  const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqGroups = []) => {
+    const takenClasses = buildTakenClasses(targetZoneId, currentId);
 
     let allGroupsSatisfied = true;
 
@@ -65,9 +67,9 @@ export function useCourseValidation(
     }
 
     return allGroupsSatisfied;
-  }, [droppableZones, completedClasses]);
+  }, [buildTakenClasses]);
 
-  // detailed info: which prerequisite course codes are missing?
+  // detailed info: which prerequisite course codes are missing
   const getMissingPrereqs = useCallback(
     (targetZoneId, currentId, currentPrereqGroups = []) => {
       // if prereqs are satisfied, nothing is missing
@@ -75,30 +77,7 @@ export function useCourseValidation(
         return [];
       }
 
-      let takenClasses = [];
-
-      if (completedClasses && completedClasses.size > 0) {
-        takenClasses.push(...Array.from(completedClasses).map((id) => String(id)));
-      }
-
-      outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
-        for (let col = 1; col <= MAX_COLS; col++) {
-          const zone = `zone-${row}-${col}`;
-          if (zone === targetZoneId) break outerLoop;
-
-          const zoneObj = droppableZones[zone];
-          if (zoneObj && zoneObj.items) {
-            const classesInZone = zoneObj.items.flatMap((item) => item.id);
-            takenClasses.push(classesInZone);
-          }
-        }
-      }
-
-      takenClasses = takenClasses
-        .flat()
-        .filter((item) => item != currentId)
-        .filter(Boolean)
-        .map((item) => String(item));
+      const takenClasses = buildTakenClasses(targetZoneId, currentId);
 
       const missingPrereqs = [];
 
@@ -135,26 +114,30 @@ export function useCourseValidation(
 
       return missingPrereqs;
     },
-    [arePrereqsCompleted, droppableZones, completedClasses, allClassesMap, categorizedClasses],
+    [arePrereqsCompleted, buildTakenClasses, allClassesMap, categorizedClasses],
   );
 
   // check if moving this course would violate any dependent courses (courses that need this one as a prereq)
+  // if targetZoneId is null, check all dependents (for returning to sidebar)
   const getBlockingDependents = useCallback(
     (targetZoneId, currentId) => {
-      let targetQuarterNum = null;
-      for (let row = 1; row <= MAX_ROWS; row++) {
-        for (let col = 1; col <= MAX_COLS; col++) {
-          const zoneId = `zone-${row}-${col}`;
-          if (zoneId === targetZoneId) {
-            targetQuarterNum = (row - 1) * 4 + col;
-            break;
-          }
-        }
-        if (targetQuarterNum !== null) break;
+      if (currentId === null) {
+        return [];
       }
 
-      if (targetQuarterNum === null || currentId == null) {
-        return [];
+      let targetQuarterNum = null;
+      // if targetZoneId is null, we're returning to sidebar - check all dependents
+      if (targetZoneId !== null) {
+        for (let row = 1; row <= MAX_ROWS; row++) {
+          for (let col = 1; col <= MAX_COLS; col++) {
+            const zoneId = `zone-${row}-${col}`;
+            if (zoneId === targetZoneId) {
+              targetQuarterNum = (row - 1) * 4 + col;
+              break;
+            }
+          }
+          if (targetQuarterNum !== null) break;
+        }
       }
 
       const blockingDependents = [];
@@ -178,8 +161,10 @@ export function useCourseValidation(
                 Array.isArray(group) &&
                 group.some((prereqId) => String(prereqId) === String(currentId))
               ) {
-                // this course depends on the dragged one, so it must be strictly after
-                if (zoneQuarterNum <= targetQuarterNum) {
+                // this course depends on the dragged one
+                // if targetZoneId is null (returning to sidebar), any dependent is a blocker
+                // if targetZoneId is set, dependent is a blocker if it's in the same or an earlier quarter
+                if (targetZoneId === null || (targetQuarterNum !== null && zoneQuarterNum <= targetQuarterNum)) {
                   const code =
                     item.code ||
                     (allClassesMap[String(item.id)] || {}).code;

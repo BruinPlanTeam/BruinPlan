@@ -1,9 +1,4 @@
-/**
- * Calculate the total units in a given zone
- * @param {string} targetZoneId - The ID of the zone to calculate units for
- * @param {Object} droppableZones - All droppable zones
- * @returns {number} Total units in the zone
- */
+// calculate the total units in a given zone
 export function getCurrentUnits(targetZoneId, droppableZones) {
   if (!droppableZones) return 0;
   let totalUnits = 0;

@@ -64,7 +64,7 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
       {/* Progress by Type */}
       <div className="progress-groups">
         {(() => {
-          // Define fixed order: Prep, Major, Tech Breadth, GE
+          // define fixed order: Prep, Major, Tech Breadth, GE
           const typeOrder = ['Prep', 'Major', 'Tech Breadth', 'GE'];
           return typeOrder
             .map(type => progressByType[type])

@@ -84,9 +84,8 @@ function processMajorRequirements(major) {
 
 // used for the homepage search bar
 async function getAllMajors(req, res) {
-  console.log('endpoint reached')
   try {
-    //load all majors from database and pull out just the names
+    // load all majors from database and pull out just the names
     const results = await prisma.major.findMany({
       select:{ 
         name: true

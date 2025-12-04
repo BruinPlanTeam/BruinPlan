@@ -17,7 +17,6 @@ export function MajorProvider({ children }) {
 
     const handleMajorSelect = (selectedMajor) => {
         setMajor(selectedMajor);
-        console.log("major: ", selectedMajor)
     };
 
     const value = { major, setMajor, handleMajorSelect };

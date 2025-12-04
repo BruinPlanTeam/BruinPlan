@@ -29,10 +29,10 @@ export function ModifyPlanModal({
 
     const [selectedGeRequirements, setSelectedGeRequirements] = useState(new Set(initialGeSelections));
 
-    // Update completed classes when currentCompletedClasses changes (including when modal opens)
+    // update completed classes when currentCompletedClasses changes (including when modal opens)
     useEffect(() => {
         if (currentCompletedClasses) {
-            // Convert all IDs to strings for consistent comparison
+            // convert all ids to strings for consistent comparison
             const completedIds = Array.from(currentCompletedClasses).map(id => String(id));
             setCompletedClasses(new Set(completedIds));
         } else {
@@ -41,7 +41,7 @@ export function ModifyPlanModal({
     }, [currentCompletedClasses]);
 
     useEffect(() => {
-        // Derive Prep catalog from requirementGroups + allClasses
+        // derive prep catalog from requirementGroups + allClasses
         let catalog = [];
 
         if (allClasses && allClasses.length > 0 && requirementGroups && requirementGroups.length > 0) {
@@ -58,7 +58,7 @@ export function ModifyPlanModal({
 
             catalog = allClasses.filter(course => prepIds.has(String(course.id)));
         } else {
-            // Fallback: use categorizedClasses['Prep'] if available
+            // fallback: use categorizedClasses['Prep'] if available
             const prepFromCategories = (categorizedClasses && categorizedClasses['Prep']) || [];
             catalog = prepFromCategories;
         }
@@ -66,7 +66,7 @@ export function ModifyPlanModal({
         if (catalog && catalog.length > 0) {
             setAllCatalogClasses(catalog);
 
-            // Get all class IDs that are in the plan grid (not quarter 0)
+            // get all class ids that are in the plan grid (not quarter 0)
             const classesInPlan = new Set();
             for (let row = 1; row <= 4; row++) {
                 for (let col = 1; col <= 4; col++) {
@@ -80,7 +80,7 @@ export function ModifyPlanModal({
                 }
             }
             
-            // Separate completed classes (quarter 0) from available classes
+            // separate completed classes (quarter 0) from available classes
             const completed = [];
             const available = [];
             
@@ -89,7 +89,7 @@ export function ModifyPlanModal({
                 if (completedClasses.has(courseId)) {
                     completed.push(course);
                 } else if (!classesInPlan.has(courseId)) {
-                    // Only include classes that are NOT in the plan grid
+                    // only include classes that are not in the plan grid
                     available.push(course);
                 }
             });
@@ -127,12 +127,6 @@ export function ModifyPlanModal({
         });
     };
 
-    const getGeCompletedClassIds = () => {
-        // GE completion is now tracked via selectedGeRequirements in DegreePlan/useRequirementProgress,
-        // so we no longer need to inject synthetic GE classes into quarter 0.
-        return [];
-    };
-
     const toggleCompleted = (courseId) => {
         setCompletedClasses(prev => {
             const newSet = new Set(prev);
@@ -152,10 +146,9 @@ export function ModifyPlanModal({
             setNameError("Please enter a plan name");
             return;
         }
+        // ge completion is tracked via selectedGeRequirements, no synthetic classes needed
         const prepIds = Array.from(completedClasses);
-        const geIds = getGeCompletedClassIds();
-        const combined = Array.from(new Set([...prepIds, ...geIds]));
-        onSave(trimmedName, combined);
+        onSave(trimmedName, prepIds);
     };
 
     return (

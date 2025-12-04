@@ -222,7 +222,16 @@ async function deletePlan(req, res) {
 }
 
 async function updatePlanName(req, res) {
-  const planId = parseInt(req.params.planId);
+  const planIdParam = req.params.planId;
+  if (!planIdParam) {
+    return res.status(400).json({ error: "Plan ID is required" });
+  }
+  
+  const planId = parseInt(planIdParam, 10);
+  if (isNaN(planId) || planId <= 0) {
+    return res.status(400).json({ error: "Invalid plan ID" });
+  }
+  
   const userId = req.user.userId;
   const { name } = req.body;
 

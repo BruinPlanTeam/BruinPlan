@@ -50,7 +50,7 @@ export function usePlanManager() {
     const savePlan = async (planName, planId = null, completedClassesOverride = null) => {
         const token = localStorage.getItem('token');
         
-        // Use override if provided, otherwise use state
+        // use override if provided, otherwise use state
         const classesToSave = completedClassesOverride !== null ? completedClassesOverride : completedClasses;
         
         // serialize current state including quarter 0 for completed classes
@@ -67,12 +67,6 @@ export function usePlanManager() {
             : 'http://localhost:3000/plans';
         const method = isUpdate ? 'PUT' : 'POST';
         
-        console.log(`${isUpdate ? 'Updating' : 'Creating'} plan with data:`, {
-            planId,
-            planName,
-            major,
-            quartersLength: planData.quarters?.length
-        });
                 
         try {
           const response = await fetch(url, {
@@ -126,7 +120,6 @@ export function usePlanManager() {
     }
 
     const loadPlan = (planData) => {
-        console.log("Loading plan: ", planData);
         isLoadingPlan.current = true;
 
         // set major if it's different from current
@@ -178,12 +171,12 @@ export function usePlanManager() {
             return response.json();
         } catch (error) {
             console.error('Delete plan error:', error);
-            throw error; // Re-throw so calling component can handle it
+            throw error; // re-throw so calling component can handle it
         }
     }
 
     const resetPlan = () => {
-        // Collect all courses currently in the grid
+        // collect all courses currently in the grid
         const coursesToRestore = [];
         for (let row = 1; row <= 4; row++) {
             for (let col = 1; col <= 4; col++) {
@@ -195,10 +188,10 @@ export function usePlanManager() {
             }
         }
 
-        // Collect all completed (quarter 0) class ids
+        // collect all completed (quarter 0) class ids
         const completedIds = Array.from(completedClasses);
 
-        // Create empty zones
+        // create empty zones
         const emptyZones = {};
         const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
         for (let row = 1; row <= 4; row++) {
@@ -212,19 +205,19 @@ export function usePlanManager() {
             }
         }
 
-        // Clear completed classes (quarter 0)
+        // clear completed classes (quarter 0)
         setCompletedClasses(new Set());
 
-        // Set empty zones
+        // set empty zones
         setDroppableZones(emptyZones);
 
-        // Add courses back to their categories (from grid)
+        // add courses back to their categories (from grid)
         coursesToRestore.forEach(course => {
             const courseToRestore = allClassesMap[String(course.id)] || course;
             addCourseToCategory(courseToRestore, requirementGroups);
         });
 
-        // Add back completed classes (quarter 0) as available courses
+        // add back completed classes (quarter 0) as available courses
         completedIds.forEach(id => {
             const course = allClassesMap[String(id)];
             if (course) {
@@ -239,7 +232,7 @@ export function usePlanManager() {
 
         const idsToRemove = [];
 
-        // Remove classes from grid zones
+        // remove classes from grid zones
         for (let row = 1; row <= 4; row++) {
             for (let col = 1; col <= 4; col++) {
                 const zoneId = `zone-${row}-${col}`;
@@ -253,7 +246,7 @@ export function usePlanManager() {
             }
         }
 
-        // Also remove completed classes (quarter 0)
+        // also remove completed classes (quarter 0)
         completedClasses.forEach(id => idsToRemove.push(String(id)));
 
         idsToRemove.forEach(id => removeCourseFromCategories(id));   
@@ -314,7 +307,7 @@ export function usePlanManager() {
 function serializeDroppableZones(droppableZones, completedClasses = new Set()) {
     const quarters = [];
     
-    // Add quarter 0 for completed classes
+    // add quarter 0 for completed classes
     if (completedClasses && completedClasses.size > 0) {
       const completedIds = Array.from(completedClasses).map(id => parseInt(id));
       quarters.push({
@@ -367,15 +360,15 @@ function deserializePlanToZones(planData, allClassesMap = {}) {
     // fill zones with classes from planData
     if (planData.quarters && Array.isArray(planData.quarters)) {
       planData.quarters.forEach(quarter => {
-        // Handle quarter 0 (completed classes)
-        if (quarter.quarterNumber === 0) {
-          if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
-            quarter.planClasses.forEach(pc => {
-              completed.add(String(pc.class.id));
-            });
+          // handle quarter 0 (completed classes)
+          if (quarter.quarterNumber === 0) {
+            if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
+              quarter.planClasses.forEach(pc => {
+                completed.add(String(pc.class.id));
+              });
+            }
+            return; // don't add to zones
           }
-          return; // Don't add to zones
-        }
         
         // convert quarterNumber back to zone coordinates
         const year = Math.ceil(quarter.quarterNumber / 4);

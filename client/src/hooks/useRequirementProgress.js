@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { getRequirementDisplayName } from '../utils/requirementUtils';
 
 const CATEGORY_PRIORITY = ['Prep', 'Major', 'Tech Breadth', 'Sci-Tech', 'GE'];
+const ORDER_ROW_MULTIPLIER = 1000;
+const ORDER_COL_MULTIPLIER = 100;
 
 // small helper to build a stable key for droppable zone contents
 const buildZonesKey = (droppableZones) => {
@@ -50,7 +52,7 @@ const flattenZonesToCourses = (zones) => {
       (entry.zone.items || []).forEach((item, index) => {
         courses.push({
           item,
-          order: entry.row * 1000 + entry.col * 100 + index,
+          order: entry.row * ORDER_ROW_MULTIPLIER + entry.col * ORDER_COL_MULTIPLIER + index,
           eligibleRequirementIndices: [],
           assignedRequirementId: null,
           optionCount: 0
@@ -252,7 +254,7 @@ export function useRequirementProgress(
           return matchesRequirement && isEligible;
         });
 
-        // If this is a GE requirement and it's explicitly checked, treat it as fully complete
+        // if this is a ge requirement and it's explicitly checked, treat it as fully complete
         let completed = Math.min(assignedCourses.length, coursesToChoose);
         if (isGeGroup && selectedGeRequirements && selectedGeRequirements.has(req.id)) {
           completed = coursesToChoose;

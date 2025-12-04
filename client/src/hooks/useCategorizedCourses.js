@@ -43,7 +43,7 @@ export function useCategorizedCourses(major) {
       let category = group.type;
       const groupName = group.name || '';
       
-      // For CS, map Sci-Tech requirement group to Sci-Tech category in sidebar
+      // for cs, map sci-tech requirement group to sci-tech category in sidebar
       if (isCS && groupName.includes('Sci-tech')) {
         category = 'Sci-Tech';
       } else if (!categories[category]) {
@@ -103,16 +103,12 @@ export function useCategorizedCourses(major) {
     fetchData();
   }, [major, categorizeClasses]);
 
-  /**
-   * Add a course back to its appropriate category
-   * @param {Object} item - The course item to add back
-   * @param {Array} requirementGroups - All major requirement groups
-   */
+  // add a course back to its appropriate category
   const addCourseToCategory = useCallback((item, requirementGroups) => {
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       
-      // Normalize item ID for consistent comparison
+      // normalize item id for consistent comparison
       const itemId = String(item.id);
       
       // check if already exists
@@ -128,7 +124,7 @@ export function useCategorizedCourses(major) {
         let category = group.type;
         const groupName = group.name;
         
-        // For CS, map Sci-Tech requirement group to Sci-Tech category
+        // for cs, map sci-tech requirement group to sci-tech category
         if (isCS && groupName.includes('Sci-tech')) {
           category = 'Sci-Tech';
         } else if (!updated[category]) {
@@ -150,12 +146,9 @@ export function useCategorizedCourses(major) {
     });
   }, [major, determinePreferredCategory]);
 
-  /**
-   * Remove a course from all categories
-   * @param {string|number} courseId - The ID of the course to remove
-   */
+  // remove a course from all categories
   const removeCourseFromCategories = useCallback((courseId) => {
-    // Normalize ID to string for consistent comparison
+    // normalize id to string for consistent comparison
     const normalizedId = String(courseId);
     setCategorizedClasses(prev => {
       const updated = { ...prev };

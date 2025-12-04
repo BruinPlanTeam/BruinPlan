@@ -22,7 +22,6 @@ export function SearchBar() {
       try{
         const majors = await retrieveMajors()
         setMajorList(majors)
-        console.log("edited major list")
       } catch(e){
         console.error("Error retrieving majors: ", e)
       }

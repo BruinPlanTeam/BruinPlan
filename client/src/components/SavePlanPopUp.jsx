@@ -9,7 +9,7 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
     const isEditing = !!currentPlan;
 
     const handleSave = async () => {
-        // If editing, use current plan name, otherwise require name input
+        // if editing, use current plan name, otherwise require name input
         const nameToSave = isEditing ? currentPlan.name : planName.trim();
         
         if (!nameToSave) {

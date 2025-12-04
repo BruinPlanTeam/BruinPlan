@@ -29,10 +29,15 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ username, password })
       });
 
-      // Check if response is ok before trying to parse JSON
+      // check if response is ok before trying to parse json
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || `Server error: ${response.status}`);
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -48,7 +53,7 @@ export function AuthProvider({ children }) {
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      // Provide more helpful error messages
+      // provide more helpful error messages
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         return { 
           success: false, 
@@ -72,10 +77,15 @@ export function AuthProvider({ children }) {
         })
       });
 
-      // Check if response is ok before trying to parse JSON
+      // check if response is ok before trying to parse json
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || `Server error: ${response.status}`);
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -84,7 +94,7 @@ export function AuthProvider({ children }) {
       return await login(username, password);
     } catch (error) {
       console.error('Signup error:', error);
-      // Provide more helpful error messages
+      // provide more helpful error messages
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         return { 
           success: false, 
@@ -114,8 +124,13 @@ export function AuthProvider({ children }) {
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to update username');
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(errorData.error || 'Failed to update username');
       }
 
       const data = await response.json();
