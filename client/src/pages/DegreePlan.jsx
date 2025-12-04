@@ -60,6 +60,7 @@ export default function DegreePlan() {
     completedClasses,
     setCompletedClassesFromIds,
     allClasses,
+    allClassesMap,
     getMissingPrereqs
   } = usePlanManager();
 
@@ -246,7 +247,12 @@ export default function DegreePlan() {
             </div>
           </div>
 
-          <ProgressBar requirementGroups={requirementGroups} droppableZones={droppableZones} />
+          <ProgressBar
+            requirementGroups={requirementGroups}
+            droppableZones={droppableZones}
+            completedClasses={completedClasses}
+            allClassesMap={allClassesMap}
+          />
           
           <div className="content-wrapper">
             

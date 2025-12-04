@@ -132,7 +132,14 @@ const assignRequirementsToCourses = (courses, orderedRequirements) => {
 };
 
 // hook to compute requirement progress from requirement groups and planned courses
-export function useRequirementProgress(requirementGroups, droppableZones) {
+// completedClasses: Set of class ids for quarter 0 (completed before plan)
+// allClassesMap: Map from classId (string) -> full course object
+export function useRequirementProgress(
+  requirementGroups,
+  droppableZones,
+  completedClasses = new Set(),
+  allClassesMap = new Map()
+) {
   const [progressByType, setProgressByType] = useState({});
   const [overallProgress, setOverallProgress] = useState(0);
 
@@ -149,7 +156,27 @@ export function useRequirementProgress(requirementGroups, droppableZones) {
     }
 
     // flatten zones to a simple, ordered course list
-    const courses = flattenZonesToCourses(droppableZones || {});
+    const planCourses = flattenZonesToCourses(droppableZones || {});
+
+    // add quarter 0 (completed) classes as virtual courses at the beginning
+    const completedEntries = [];
+    if (completedClasses && completedClasses.size > 0) {
+      Array.from(completedClasses).forEach((id, index) => {
+        const course = allClassesMap.get(String(id));
+        if (course) {
+          completedEntries.push({
+            item: course,
+            order: -1000 + index,
+            eligibleRequirementIndices: [],
+            assignedRequirementId: null,
+            optionCount: 0
+          });
+        }
+      });
+    }
+
+    const courses = [...completedEntries, ...planCourses];
+
     const orderedRequirements = buildOrderedRequirements(requirementGroups);
     assignRequirementsToCourses(courses, orderedRequirements);
 

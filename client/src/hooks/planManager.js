@@ -144,7 +144,7 @@ export function usePlanManager() {
         }
 
         // deserialize plan data to droppable zones format
-        const { zones, completed } = deserializePlanToZones(planData);
+        const { zones, completed } = deserializePlanToZones(planData, allClassesMap);
         setDroppableZones(zones);
         setCompletedClasses(completed);
     }
@@ -204,6 +204,9 @@ export function usePlanManager() {
             }
         }
 
+        // Collect all completed (quarter 0) class ids
+        const completedIds = Array.from(completedClasses);
+
         // Create empty zones
         const emptyZones = {};
         const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
@@ -218,13 +221,24 @@ export function usePlanManager() {
             }
         }
 
+        // Clear completed classes (quarter 0)
+        setCompletedClasses(new Set());
+
         // Set empty zones
         setDroppableZones(emptyZones);
 
-        // Add courses back to their categories
+        // Add courses back to their categories (from grid)
         coursesToRestore.forEach(course => {
             const courseToRestore = allClassesMap.get(String(course.id)) || course;
             addCourseToCategory(courseToRestore, requirementGroups);
+        });
+
+        // Add back completed classes (quarter 0) as available courses
+        completedIds.forEach(id => {
+            const course = allClassesMap.get(String(id));
+            if (course) {
+                addCourseToCategory(course, requirementGroups);
+            }
         });
     };
 
@@ -300,6 +314,7 @@ export function usePlanManager() {
         completedClasses,
         setCompletedClassesFromIds,
         allClasses,
+        allClassesMap,
         getMissingPrereqs
     }   
 }
@@ -340,7 +355,7 @@ function serializeDroppableZones(droppableZones, completedClasses = new Set()) {
     return quarters;
   }
 
-  function deserializePlanToZones(planData) {
+function deserializePlanToZones(planData, allClassesMap = new Map()) {
     // initialize empty zones structure
     const zones = {};
     const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
@@ -375,15 +390,26 @@ function serializeDroppableZones(droppableZones, completedClasses = new Set()) {
         const quarterInYear = ((quarter.quarterNumber - 1) % 4) + 1;
         const zoneId = `zone-${year}-${quarterInYear}`;
         
-        // map planClasses to zone items
+        // map planClasses to zone items, restoring prereqGroups from the master catalog when possible
         if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
-          zones[zoneId].items = quarter.planClasses.map(pc => ({
-            id: String(pc.class.id),
-            code: pc.class.code,
-            units: pc.class.units,
-            description: pc.class.description,
-            prereqGroups: []
-          }));
+          zones[zoneId].items = quarter.planClasses.map(pc => {
+            const idStr = String(pc.class.id);
+            const catalogCourse = allClassesMap.get(idStr);
+            if (catalogCourse) {
+              // use the full course object from the catalog (includes prereqGroups, fulfillsReqIds, etc.)
+              return {
+                ...catalogCourse
+              };
+            }
+            // fallback: build a minimal course object from the plan data
+            return {
+              id: idStr,
+              code: pc.class.code,
+              units: pc.class.units,
+              description: pc.class.description,
+              prereqGroups: []
+            };
+          });
         }
       });
     }
