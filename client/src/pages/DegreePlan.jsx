@@ -83,10 +83,15 @@ export default function DegreePlan() {
     }
   }, [loadPlan]);
 
-  useEffect(() =>  {
-    function handleOnBeforeUnload(event){ event.preventDefault(); }
-    window.addEventListener('beforeunload', handleOnBeforeUnload, { capture: true});
-    return () => window.removeEventListener('beforeunload', handleOnBeforeUnload, { capture: true});
+  // show browser confirmation when leaving the page
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      event.preventDefault();
+      event.returnValue = ''; // modern browsers require returnValue to be set
+      return ''; // some browsers require return value
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
   const handleDragEnd = useMemo(() => {
