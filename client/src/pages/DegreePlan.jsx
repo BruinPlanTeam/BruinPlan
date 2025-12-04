@@ -10,6 +10,7 @@ import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
 import { PlanSetupModal } from '../components/PlanSetupModal.jsx';
+import { ModifyPlanModal } from '../components/ModifyPlanModal.jsx';
 import { Footer } from '../components/Footer.jsx';
 import {
   DndContext,
@@ -32,6 +33,7 @@ export default function DegreePlan() {
   const [currentPlan, setCurrentPlan] = useState(null); // { id, name } or null for new plans
   const [isEditingPlanName, setIsEditingPlanName] = useState(false);
   const [planNameValue, setPlanNameValue] = useState('');
+  const [showModifyPlanModal, setShowModifyPlanModal] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const {
@@ -49,10 +51,16 @@ export default function DegreePlan() {
     activeId,
     activeItem,
     electricCourseId,
+    rejectedCourseInfo,
+    setRejectedCourseInfo,
     handleDragStart,
     handleDragOver,
     createHandleDragEnd,
-    arePrereqsCompleted
+    arePrereqsCompleted,
+    completedClasses,
+    setCompletedClassesFromIds,
+    allClasses,
+    getMissingPrereqs
   } = usePlanManager();
 
   // check for pending plan to load from Profile page
@@ -79,8 +87,8 @@ export default function DegreePlan() {
   }, []);
 
   const handleDragEnd = useMemo(() => {
-    return createHandleDragEnd(arePrereqsCompleted);
-  }, [createHandleDragEnd, arePrereqsCompleted]);
+    return createHandleDragEnd(arePrereqsCompleted, getMissingPrereqs);
+  }, [createHandleDragEnd, arePrereqsCompleted, getMissingPrereqs]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -88,9 +96,10 @@ export default function DegreePlan() {
   );
 
   // Handlers for setup modal
-  const handleCreateNewPlan = (completedClasses) => {
-    // completedClasses can be used later if we add that feature
-    // Note: currentPlan is already set by the modal with the plan name
+  const handleCreateNewPlan = (completedClassIds) => {
+    // Store completed classes (will be saved as quarter 0 when plan is saved)
+    // The useEffect in planManager will remove them from the sidebar
+    setCompletedClassesFromIds(completedClassIds);
     setHasCompletedSetup(true);
   };
 
@@ -151,6 +160,35 @@ export default function DegreePlan() {
     setPlanNameValue('');
   };
 
+  const handleModifyPlanSave = async (newName, completedClassIds) => {
+    if (!currentPlan) return;
+    
+    try {
+      // Convert to Set for savePlan
+      const completedClassesSet = new Set(completedClassIds.map(id => String(id)));
+      
+      // Update completed classes state
+      setCompletedClassesFromIds(completedClassIds);
+      
+      // Update plan name if changed
+      if (newName !== currentPlan.name) {
+        await updatePlanName(currentPlan.id, newName);
+        setCurrentPlan({ ...currentPlan, name: newName });
+      }
+      
+      // Save the plan with updated completed classes (quarter 0)
+      // Pass completedClassesSet directly to avoid race condition
+      const planId = currentPlan.id;
+      const result = await savePlan(newName, planId, completedClassesSet);
+      setCurrentPlan({ id: result.id, name: result.name });
+      
+      setShowModifyPlanModal(false);
+    } catch (error) {
+      console.error('Failed to modify plan:', error);
+      alert('Failed to modify plan');
+    }
+  };
+
   // Show setup modal for authenticated users who haven't completed setup
   const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
@@ -188,11 +226,8 @@ export default function DegreePlan() {
                   <div className="plan-title-wrapper">
                     <h1>{currentPlan?.name || major}</h1>
                     {currentPlan && isAuthenticated && (
-                      <button onClick={handleEditPlanName} className="plan-title-edit-btn" aria-label="Edit plan name">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
+                      <button onClick={() => setShowModifyPlanModal(true)} className="modify-plan-btn" aria-label="Modify plan">
+                        Modify Plan
                       </button>
                     )}
                   </div>
@@ -224,6 +259,7 @@ export default function DegreePlan() {
             <CourseSidebar 
                 categorizedClasses={categorizedClasses}
                 electricCourseId={electricCourseId}
+                requirementGroups={requirementGroups}
             />
 
           </div>
@@ -243,6 +279,39 @@ export default function DegreePlan() {
       </DndContext>
       <Footer />
 
+      {rejectedCourseInfo && (
+        <div className="rejection-popup-backdrop" onClick={() => setRejectedCourseInfo(null)}>
+          <div className="rejection-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="rejection-popup-header">
+              <h3>Cannot Add {rejectedCourseInfo.courseCode}</h3>
+              <button className="rejection-popup-close" onClick={() => setRejectedCourseInfo(null)}>×</button>
+            </div>
+            <div className="rejection-popup-content">
+              {rejectedCourseInfo.reason === 'units' ? (
+                <p>{rejectedCourseInfo.message}</p>
+              ) : (
+                <>
+                  <p>You need to schedule these prerequisite courses in earlier quarters first:</p>
+                  <div className="prereq-groups">
+                    {rejectedCourseInfo.missingPrereqs.map((group, idx) => (
+                      <div key={idx} className="prereq-group">
+                        <span className="prereq-group-label">Group {idx + 1} (choose one):</span>
+                        <div className="prereq-courses">
+                          {group.map((code, codeIdx) => (
+                            <span key={codeIdx} className="prereq-course-code">{code}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="prereq-hint">Drag these courses into earlier quarters first, then try adding {rejectedCourseInfo.courseCode} again.</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSetupModal && (
         <PlanSetupModal
           onCreateNew={handleCreateNewPlan}
@@ -251,6 +320,18 @@ export default function DegreePlan() {
           onSkip={handleSkipSetup}
           setCurrentPlan={setCurrentPlan}
           categorizedClasses={categorizedClasses}
+        />
+      )}
+
+      {showModifyPlanModal && currentPlan && (
+        <ModifyPlanModal
+          plan={currentPlan}
+          onSave={handleModifyPlanSave}
+          onClose={() => setShowModifyPlanModal(false)}
+          categorizedClasses={categorizedClasses}
+          currentCompletedClasses={completedClasses}
+          droppableZones={droppableZones}
+          allClasses={allClasses}
         />
       )}
     </div>

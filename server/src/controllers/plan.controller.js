@@ -19,6 +19,11 @@ async function createPlan(req, res) {
       return res.status(404).json({ error: "Major not found" });
     }
 
+    // validate quarters
+    if (!quarters || !Array.isArray(quarters)) {
+      return res.status(400).json({ error: "Missing or invalid quarters array" });
+    }
+
     // create plan with nested quarters and planClasses
     const plan = await prisma.plan.create({
       data: {
@@ -29,8 +34,8 @@ async function createPlan(req, res) {
           create: quarters.map(q => ({
             quarterNumber: q.quarterNumber,
             planClasses: {
-              create: q.classIds.map(classId => ({
-                classId
+              create: (q.classIds || []).map(classId => ({
+                classId: parseInt(classId)
               }))
             }
           }))
@@ -95,6 +100,11 @@ async function updatePlan(req, res) {
       return res.status(403).json({ error: "Not authorized to update this plan" });
     }
 
+    // validate quarters if provided
+    if (!quarters || !Array.isArray(quarters)) {
+      return res.status(400).json({ error: "Missing or invalid quarters array" });
+    }
+
     // look up major id if majorName provided
     let majorId = existingPlan.majorId;
     if (majorName) {
@@ -119,22 +129,28 @@ async function updatePlan(req, res) {
     }
 
     // update plan with new data
+    const updateData = {
+      name: name || existingPlan.name,
+      majorId
+    };
+
+    // only add quarters if there are any
+    if (quarters.length > 0) {
+      updateData.quarters = {
+        create: quarters.map(q => ({
+          quarterNumber: q.quarterNumber,
+          planClasses: {
+            create: (q.classIds || []).map(classId => ({
+              classId: parseInt(classId)
+            }))
+          }
+        }))
+      };
+    }
+
     const updatedPlan = await prisma.plan.update({
       where: { id: planId },
-      data: {
-        name: name || existingPlan.name,
-        majorId,
-        quarters: {
-          create: quarters.map(q => ({
-            quarterNumber: q.quarterNumber,
-            planClasses: {
-              create: q.classIds.map(classId => ({
-                classId
-              }))
-            }
-          }))
-        }
-      },
+      data: updateData,
       include: {
         major: true,
         quarters: {

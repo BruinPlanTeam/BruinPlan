@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'; // import these
+import { useState, useEffect, useRef } from 'react';
 import { useMajor } from "../providers/Major";
 import { useCategorizedCourses } from "./useCategorizedCourses";
 import { useDragAndDrop } from "./useDragAndDrop";
@@ -8,13 +8,16 @@ export function usePlanManager() {
     const { major, setMajor } = useMajor(); 
 
     const isLoadingPlan = useRef(false);
+    const [completedClasses, setCompletedClasses] = useState(new Set());
 
     const { 
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories,
         requirementGroups,
-        fetchData 
+        fetchData,
+        allClasses,
+        allClassesMap
     } = useCategorizedCourses(major);
 
     const {
@@ -23,6 +26,8 @@ export function usePlanManager() {
         activeId,
         activeItem,
         electricCourseId,
+        rejectedCourseInfo,
+        setRejectedCourseInfo,
         handleDragStart,
         handleDragOver,
         createHandleDragEnd,
@@ -30,19 +35,30 @@ export function usePlanManager() {
         categorizedClasses, 
         addCourseToCategory, 
         removeCourseFromCategories, 
-        requirementGroups 
+        requirementGroups,
+        completedClasses,
+        allClassesMap
     );
 
-    const { arePrereqsCompleted } = useCourseValidation(droppableZones);
+    const { arePrereqsCompleted, getMissingPrereqs } = useCourseValidation(
+        droppableZones,
+        completedClasses,
+        allClassesMap,
+        categorizedClasses
+    );
 
-    const savePlan = async (planName, planId = null) => {
+    const savePlan = async (planName, planId = null, completedClassesOverride = null) => {
         const token = localStorage.getItem('token');
         
-        // serialize current state
+        // Use override if provided, otherwise use state
+        const classesToSave = completedClassesOverride !== null ? completedClassesOverride : completedClasses;
+        
+        // serialize current state including quarter 0 for completed classes
+        const quarters = serializeDroppableZones(droppableZones, classesToSave);
         const planData = {
             name: planName,
             majorName: major,
-            quarters: serializeDroppableZones(droppableZones)
+            quarters
         };
         
         const isUpdate = planId !== null;
@@ -84,6 +100,10 @@ export function usePlanManager() {
     const getPlans = async () => {
         const token = localStorage.getItem('token');
         
+        if (!token) {
+            throw new Error('No authentication token found. Please log in.');
+        }
+        
         try {
             const response = await fetch('http://localhost:3000/plans', {
                 method: 'GET',
@@ -96,6 +116,14 @@ export function usePlanManager() {
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server error:', response.status, errorText);
+                
+                // If 403, the token might be invalid or expired
+                if (response.status === 403) {
+                    // Clear invalid token
+                    localStorage.removeItem('token');
+                    throw new Error('Authentication failed. Please log in again.');
+                }
+                
                 throw new Error(`Failed to load plans: ${response.status} - ${errorText.substring(0, 100)}`);
             }
             
@@ -116,8 +144,30 @@ export function usePlanManager() {
         }
 
         // deserialize plan data to droppable zones format
-        const newZones = deserializePlanToZones(planData);
-        setDroppableZones(newZones);
+        const { zones, completed } = deserializePlanToZones(planData);
+        setDroppableZones(zones);
+        setCompletedClasses(completed);
+    }
+
+    const setCompletedClassesFromIds = (classIds) => {
+        const normalizedIds = classIds.map(id => String(id));
+        const newCompletedSet = new Set(normalizedIds);
+
+        const removed = [...completedClasses].filter(id => !newCompletedSet.has(id));
+        const added = normalizedIds.filter(id => !completedClasses.has(id));
+
+        setCompletedClasses(newCompletedSet);
+
+        if (isLoadingPlan.current) return;
+
+        removed.forEach(id => {
+            const course = allClassesMap.get(id);
+            if (course) {
+                addCourseToCategory(course, requirementGroups);
+            }
+        });
+
+        added.forEach(id => removeCourseFromCategories(id));
     }
 
     const deletePlan = async (planId) => {
@@ -173,7 +223,8 @@ export function usePlanManager() {
 
         // Add courses back to their categories
         coursesToRestore.forEach(course => {
-            addCourseToCategory(course);
+            const courseToRestore = allClassesMap.get(String(course.id)) || course;
+            addCourseToCategory(courseToRestore, requirementGroups);
         });
     };
 
@@ -183,6 +234,7 @@ export function usePlanManager() {
 
         const idsToRemove = [];
 
+        // Remove classes from grid zones
         for (let row = 1; row <= 4; row++) {
             for (let col = 1; col <= 4; col++) {
                 const zoneId = `zone-${row}-${col}`;
@@ -195,6 +247,9 @@ export function usePlanManager() {
                 }
             }
         }
+
+        // Also remove completed classes (quarter 0)
+        completedClasses.forEach(id => idsToRemove.push(String(id)));
 
         idsToRemove.forEach(id => removeCourseFromCategories(id));   
         isLoadingPlan.current = false;
@@ -236,15 +291,30 @@ export function usePlanManager() {
         activeId,
         activeItem,
         electricCourseId,
+        rejectedCourseInfo,
+        setRejectedCourseInfo,
         handleDragStart,
         handleDragOver,
         createHandleDragEnd,
-        arePrereqsCompleted
+        arePrereqsCompleted,
+        completedClasses,
+        setCompletedClassesFromIds,
+        allClasses,
+        getMissingPrereqs
     }   
 }
 
-function serializeDroppableZones(droppableZones, majorName) {
+function serializeDroppableZones(droppableZones, completedClasses = new Set()) {
     const quarters = [];
+    
+    // Add quarter 0 for completed classes
+    if (completedClasses && completedClasses.size > 0) {
+      const completedIds = Array.from(completedClasses).map(id => parseInt(id));
+      quarters.push({
+        quarterNumber: 0,
+        classIds: completedIds
+      });
+    }
     
     // loop through all zones
     for (let year = 1; year <= 4; year++) {
@@ -274,6 +344,7 @@ function serializeDroppableZones(droppableZones, majorName) {
     // initialize empty zones structure
     const zones = {};
     const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
+    const completed = new Set();
     
     for (let year = 1; year <= 4; year++) {
       for (let quarter = 1; quarter <= 4; quarter++) {
@@ -289,6 +360,16 @@ function serializeDroppableZones(droppableZones, majorName) {
     // fill zones with classes from planData
     if (planData.quarters && Array.isArray(planData.quarters)) {
       planData.quarters.forEach(quarter => {
+        // Handle quarter 0 (completed classes)
+        if (quarter.quarterNumber === 0) {
+          if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
+            quarter.planClasses.forEach(pc => {
+              completed.add(String(pc.class.id));
+            });
+          }
+          return; // Don't add to zones
+        }
+        
         // convert quarterNumber back to zone coordinates
         const year = Math.ceil(quarter.quarterNumber / 4);
         const quarterInYear = ((quarter.quarterNumber - 1) % 4) + 1;
@@ -307,5 +388,5 @@ function serializeDroppableZones(droppableZones, majorName) {
       });
     }
     
-    return zones;
+    return { zones, completed };
   }

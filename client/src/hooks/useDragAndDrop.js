@@ -18,7 +18,9 @@ export function useDragAndDrop(
     categorizedClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    requirementGroups
+    requirementGroups,
+    completedClasses = new Set(),
+    allClassesMap = new Map()
 ) {
   // initialize droppable zones
   const [droppableZones, setDroppableZones] = useState(() => {
@@ -38,6 +40,7 @@ export function useDragAndDrop(
   
   const [activeId, setActiveId] = useState(null);
   const [electricCourseId, setElectricCourseId] = useState(null);
+  const [rejectedCourseInfo, setRejectedCourseInfo] = useState(null);
 
   /**
    * Trigger the electric border effect
@@ -106,6 +109,9 @@ export function useDragAndDrop(
     // Normalize item ID for consistent comparison
     const itemIdNormalized = String(item.id);
     
+    // Try to find the original course object from the master list to preserve all properties
+    const courseToAdd = allClassesMap.get(itemIdNormalized) || item;
+    
     // remove from zone
     setDroppableZones((zones) => ({
       ...zones,
@@ -115,9 +121,11 @@ export function useDragAndDrop(
       },
     }));
     
-    // add back to category
-    addCourseToCategory(item, requirementGroups);
-  }, [addCourseToCategory, requirementGroups]);
+    // add back to category - use requestAnimationFrame to ensure zone update is processed first
+    requestAnimationFrame(() => {
+      addCourseToCategory(courseToAdd, requirementGroups);
+    });
+  }, [addCourseToCategory, requirementGroups, allClassesMap]);
 
   /**
    * Move course from category sidebar to zone
@@ -158,7 +166,7 @@ export function useDragAndDrop(
    * Handle drag end event
    * Note: This returns a function that needs validation injected
    */
-  const createHandleDragEnd = useCallback((arePrereqsCompleted) => (event) => {
+  const createHandleDragEnd = useCallback((arePrereqsCompleted, getMissingPrereqs) => (event) => {
     const { active, over } = event;
     let currentName = null;
     let currentId = null;
@@ -276,13 +284,39 @@ export function useDragAndDrop(
         reorderZone(targetZoneId, event);
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
         // moving from one zone to another
-        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
+        if (totalUnits > MAX_UNITS) {
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'units',
+            message: `This quarter already has ${getCurrentUnits(targetZoneId, droppableZones)} units. Maximum is ${MAX_UNITS} units.`
+          });
+        } else if (!prereqsCompleted) {
+          const missingPrereqs = getMissingPrereqs(targetZoneId, currentId, filteredPrereqGroups);
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'prereqs',
+            missingPrereqs: missingPrereqs
+          });
+        } else {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
           triggerElectricEffect(currentId);
         }
       } else if (isInDraggableList && foundItem) {
         // moving from category list to zone
-        if (totalUnits <= MAX_UNITS && prereqsCompleted) {
+        if (totalUnits > MAX_UNITS) {
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'units',
+            message: `This quarter already has ${getCurrentUnits(targetZoneId, droppableZones)} units. Maximum is ${MAX_UNITS} units.`
+          });
+        } else if (!prereqsCompleted) {
+          const missingPrereqs = getMissingPrereqs(targetZoneId, currentId, filteredPrereqGroups);
+          setRejectedCourseInfo({
+            courseCode: currentName,
+            reason: 'prereqs',
+            missingPrereqs: missingPrereqs
+          });
+        } else {
           moveCourseToZone(targetZoneId, foundItem);
           triggerElectricEffect(currentId);
         }
@@ -316,6 +350,8 @@ export function useDragAndDrop(
     activeId,
     activeItem,
     electricCourseId,
+    rejectedCourseInfo,
+    setRejectedCourseInfo,
     handleDragStart,
     handleDragOver,
     createHandleDragEnd,

@@ -64,7 +64,8 @@ export function PlanSetupModal({ onCreateNew, onLoadPlan, getPlans, onSkip, setC
         }
         // Set current plan with name but no id (new plan)
         setCurrentPlan({ id: null, name: trimmedName });
-        onCreateNew([]);
+        // Pass completed classes as array of IDs
+        onCreateNew(Array.from(completedClasses));
     };
 
     return (

@@ -406,6 +406,17 @@
     margin-bottom: 24px;
 }
 
+.setup-classes-section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(39, 116, 174, 0.2);
+}
+
 .setup-classes-label {
     display: flex;
     justify-content: space-between;

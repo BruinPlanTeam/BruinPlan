@@ -4,7 +4,8 @@ import { CSS } from '@dnd-kit/utilities'
 import ElectricBorder from './ElectricBorder'
 import '../../styles/DegreePlan.css'
 
-export function Draggable({ id, item, showElectric }) {
+export function Draggable({ id, item, showElectric, requirementGroups = [] }) {
+  const [showTooltip, setShowTooltip] = useState(false);
   const {
     attributes,
     listeners,
@@ -20,6 +21,28 @@ export function Draggable({ id, item, showElectric }) {
     opacity: isDragging ? 0.5 : 1,
   }
 
+  // get requirements this course fulfills
+  const getFulfilledRequirements = () => {
+    if (!item.fulfillsReqIds || !Array.isArray(item.fulfillsReqIds) || item.fulfillsReqIds.length === 0) {
+      return [];
+    }
+    
+    const fulfilledReqs = [];
+    requirementGroups.forEach(group => {
+      (group.requirements || []).forEach(req => {
+        if (item.fulfillsReqIds.includes(req.id)) {
+          fulfilledReqs.push({
+            groupName: group.name,
+            reqName: req.name
+          });
+        }
+      });
+    });
+    return fulfilledReqs;
+  };
+
+  const fulfilledReqs = getFulfilledRequirements();
+
   const courseCard = (
     <div
       ref={setNodeRef}
@@ -27,6 +50,12 @@ export function Draggable({ id, item, showElectric }) {
       {...attributes}
       {...listeners}
       className="draggable-item"
+      onMouseEnter={(e) => {
+        if (!isDragging) {
+          setShowTooltip(true);
+        }
+      }}
+      onMouseLeave={() => setShowTooltip(false)}
     >
       <div className="course-header">
         <span className="course-code">{item.code}</span>
@@ -34,6 +63,18 @@ export function Draggable({ id, item, showElectric }) {
       </div>
       {item.description && (
         <div className="course-description">{item.description}</div>
+      )}
+      {showTooltip && fulfilledReqs.length > 0 && (
+        <div className="course-requirements-tooltip" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
+          <div className="tooltip-title">Fulfills Requirements:</div>
+          {fulfilledReqs.map((req, idx) => (
+            <div key={idx} className="tooltip-requirement">
+              <span className="tooltip-group">{req.groupName}</span>
+              <span className="tooltip-separator">•</span>
+              <span className="tooltip-req">{req.reqName}</span>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

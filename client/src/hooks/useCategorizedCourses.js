@@ -13,6 +13,8 @@ export function useCategorizedCourses(major) {
   });
 
   const [requirementGroups, setRequirementGroups] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
+  const [allClassesMap, setAllClassesMap] = useState(new Map());
 
   const determinePreferredCategory = useCallback((categorySet, availableCategories) => {
     if (!categorySet || categorySet.size === 0) return null;
@@ -24,7 +26,7 @@ export function useCategorizedCourses(major) {
     return null;
   }, []);
 
-  const categorizeClasses = useCallback((allClasses, allRequirementGroups) => {
+  const categorizeClasses = useCallback((allFetchedClasses, allRequirementGroups) => {
     const isCS = major === 'Computer Science';
     const categories = {
       'Prep': [],
@@ -58,7 +60,9 @@ export function useCategorizedCourses(major) {
       });
     });
 
-    allClasses.forEach(cls => {
+    const classLookup = new Map();
+    allFetchedClasses.forEach(cls => {
+      classLookup.set(String(cls.id), cls);
       const preferred = determinePreferredCategory(classToCategories.get(String(cls.id)), categories);
       const finalCategory = preferred || 'GE';
       categories[finalCategory].push(cls);
@@ -68,6 +72,8 @@ export function useCategorizedCourses(major) {
       categories[category].sort((a, b) => a.code.localeCompare(b.code));
     });
 
+    setAllClasses(allFetchedClasses);
+    setAllClassesMap(classLookup);
     setCategorizedClasses(categories);
   }, [major, determinePreferredCategory]);
 
@@ -153,7 +159,9 @@ export function useCategorizedCourses(major) {
     categorizedClasses,
     addCourseToCategory,
     removeCourseFromCategories,
-    requirementGroups
+    requirementGroups,
+    allClasses,
+    allClassesMap
   };
 }
 
