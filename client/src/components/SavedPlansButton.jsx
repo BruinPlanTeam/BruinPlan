@@ -28,7 +28,7 @@ export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan, curre
             .catch((error) => {
                 console.error('Failed to delete plan:', error);
                 alert('Failed to delete plan. Please try again.');
-            });
+        });
     };
 
     return (
@@ -40,10 +40,10 @@ export function SavedPlansButton({ handleLoadScreen, getPlans, deletePlan, curre
                     height="18" 
                     viewBox="0 0 24 24" 
                     fill="none" 
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
                 >
                     <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
