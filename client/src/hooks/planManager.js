@@ -200,6 +200,27 @@ export function usePlanManager() {
         isLoadingPlan.current = false;
     }, [droppableZones, categorizedClasses]);
 
+    const updatePlanName = async (planId, newName) => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:3000/plans/${planId}/name`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name: newName })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update plan name');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Update plan name error:', error);
+            throw error;
+        }
+    };
+
     return {
         major,
         savePlan,
@@ -207,6 +228,7 @@ export function usePlanManager() {
         loadPlan,
         deletePlan,
         resetPlan,
+        updatePlanName,
         categorizedClasses, 
         requirementGroups,
         droppableZones,

@@ -23,17 +23,87 @@
 .plan-header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 2rem;
   max-width: 1800px;
   margin: 0 auto;
 }
 
+.plan-title-section {
+  flex: 1;
+}
+
+.plan-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .plan-header h1 {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0 0 0.5rem 0;
+  text-align: left;
+}
+
+.plan-title-edit-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.plan-title-edit-btn:hover {
+  color: var(--ucla-blue);
+}
+
+.plan-title-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plan-title-input {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background: rgba(39, 116, 174, 0.1);
+  border: 2px solid var(--ucla-blue);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  outline: none;
+  flex: 1;
+  max-width: 600px;
+}
+
+.plan-title-save-btn,
+.plan-title-cancel-btn {
+  background: var(--ucla-blue);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: opacity 0.2s ease;
+}
+
+.plan-title-cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.plan-title-save-btn:hover,
+.plan-title-cancel-btn:hover {
+  opacity: 0.8;
 }
 
 .plan-subtitle {
@@ -61,11 +131,24 @@
     width: 100%;
     justify-content: flex-start;
   }
+
+  .plan-header h1 {
+    font-size: 2.75rem;
+  }
+
+  .plan-title-input {
+    font-size: 2.75rem;
+  }
 }
 
 @media (max-width: 640px) {
   .plan-header h1 {
     font-size: 2rem;
+  }
+
+  .plan-title-input {
+    font-size: 2rem;
+    max-width: 100%;
   }
   
   .plan-subtitle {

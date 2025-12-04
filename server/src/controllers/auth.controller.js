@@ -7,15 +7,15 @@ const { prisma } = require('../config/database');
 
 
 async function createUser(req, res) {
-  const {username, email, password} = req.body
-  if (!email || !username) return res.status(400).json({ error: 'email and username required' });
+  const {username, password} = req.body
+  if (!username) return res.status(400).json({ error: 'username required' });
 
   try {
     // create hashed password with salt added at end in one step (10 default)
     const hashedPassword = await bcrypt.hash(password, 10)
     // post the user to the db with the hashed password
     const user = await prisma.user.create({
-      data: { username, email, password: hashedPassword } 
+      data: { username, password: hashedPassword } 
     });
     return res.status(201).json(user);
   } catch(err){
@@ -30,36 +30,36 @@ async function createUser(req, res) {
 }
 
 async function login(req, res) {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   // basic validation
-  if (!email || !password) {
-    return res.status(400).json({ error: 'email and password required' });
+  if (!username || !password) {
+    return res.status(400).json({ error: 'username and password required' });
   }
 
   try {
-    // find user by email
+    // find user by username
     const user = await prisma.user.findUnique({
-      where: { email }, // assumes email is unique in your prisma schema
+      where: { username }, // username is unique in prisma schema
     });
 
     if (!user) {
-      // don't reveal whether email or password is wrong
-      return res.status(401).json({ error: 'invalid email or password' });
+      // don't reveal whether username or password is wrong
+      return res.status(401).json({ error: 'invalid username or password' });
     }
 
     // compare provided password with stored hash
     const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {
-      return res.status(401).json({ error: 'invalid email or password' });
+      return res.status(401).json({ error: 'invalid username or password' });
     }
 
     // build a safe user object
     const { password: _password, ...safeUser } = user;
 
     // create jwt with user info payload
-    const payload = { userId: user.id, email: user.email };
+    const payload = { userId: user.id, username: user.username };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '1h', // optional but recommended
     });
@@ -74,8 +74,35 @@ async function login(req, res) {
   }
 }
 
+async function updateUsername(req, res) {
+  const userId = req.user.userId;
+  const { username } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { username }
+    });
+
+    const { password: _password, ...safeUser } = updated;
+    return res.status(200).json(safeUser);
+  } catch (error) {
+    console.error('Error updating username:', error);
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   createUser,
-  login
+  login,
+  updateUsername
 };
 

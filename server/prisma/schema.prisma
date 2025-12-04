@@ -21,7 +21,6 @@ datasource db {
 
 model User {
   id       Int    @id @default(autoincrement())
-  email    String @unique
   username String @unique
   password String
   plans    Plan[]
@@ -43,7 +42,6 @@ model Plan {
 model Major {
   id                    Int                     @id @default(autoincrement())
   name                  String
-  majorRequirements     MajorRequirement[]
   MajorRequirementGroup MajorRequirementGroup[]
   plans                 Plan[]
 }
@@ -62,7 +60,6 @@ model Requirement {
   id                  Int                   @id @default(autoincrement())
   name                String
   coursesToChoose     Int
-  majorRequirements   MajorRequirement[]
   requirementClasses  RequirementClasses[]
   requirementsInGroup RequirementsInGroup[]
 }
@@ -81,23 +78,11 @@ model Class {
 model PlanClass {
   quarterId Int
   classId   Int
-  status    String
   class     Class   @relation(fields: [classId], references: [id])
   quarter   Quarter @relation(fields: [quarterId], references: [id])
 
   @@id([quarterId, classId])
   @@index([classId], map: "PlanClass_classId_fkey")
-}
-
-model MajorRequirement {
-  majorId      Int
-  reqId        Int
-  displayOrder Int
-  major        Major       @relation(fields: [majorId], references: [id])
-  req          Requirement @relation(fields: [reqId], references: [id])
-
-  @@id([majorId, reqId])
-  @@index([reqId], map: "MajorRequirement_reqId_fkey")
 }
 
 model RequirementClasses {

@@ -95,9 +95,12 @@ export function useCategorizedCourses(major) {
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       
+      // Normalize item ID for consistent comparison
+      const itemId = String(item.id);
+      
       // check if already exists
       for (const courseList of Object.values(updated)) {
-        if (courseList.some(c => c.id === item.id)) {
+        if (courseList.some(c => String(c.id) === itemId)) {
           return updated;
         }
       }
@@ -132,13 +135,15 @@ export function useCategorizedCourses(major) {
 
   /**
    * Remove a course from all categories
-   * @param {string} courseId - The ID of the course to remove
+   * @param {string|number} courseId - The ID of the course to remove
    */
   const removeCourseFromCategories = useCallback((courseId) => {
+    // Normalize ID to string for consistent comparison
+    const normalizedId = String(courseId);
     setCategorizedClasses(prev => {
       const updated = { ...prev };
       for (const [category, courseList] of Object.entries(updated)) {
-        updated[category] = courseList.filter(c => c.id !== courseId);
+        updated[category] = courseList.filter(c => String(c.id) !== normalizedId);
       }
       return updated;
     });

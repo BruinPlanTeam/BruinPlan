@@ -60,7 +60,7 @@ Ciaran u gotta add this
 
 i didnt wanna leave this blank either so also asked ai to make a random paragraph idk how well it aligns with yours
 
-Users can have multiple Plans. Each Plan belongs to one Major and has multiple Quarters. Each Quarter has multiple PlanClasses, which link to Class records. Majors have Requirements through MajorRequirement, and Requirements link to Classes through RequirementClasses. Classes can have Prerequisites pointing to other Classes. The schema supports complex prerequisite relationships and tracks which classes fulfill which requirements.
+Users can have multiple Plans. Each Plan belongs to one Major and has multiple Quarters. Each Quarter has multiple PlanClasses, which link to Class records. Majors have Requirements through MajorRequirementGroup (which links to RequirementGroup), and Requirements link to Classes through RequirementClasses. Classes can have Prerequisites pointing to other Classes. The schema supports complex prerequisite relationships and tracks which classes fulfill which requirements.
 
 ### 3. Application State Diagram
 
@@ -165,7 +165,6 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
 **POST /users** - Create account
 ```json
 {
-  "email": "user@example.com",
   "username": "username",
   "password": "password123"
 }
@@ -175,7 +174,7 @@ Returns 201 with user data (no password).
 **POST /users/login** - Log in
 ```json
 {
-  "email": "user@example.com",
+  "username": "username",
   "password": "password123"
 }
 ```
@@ -191,7 +190,7 @@ Returns courses and requirements for that engineering major:
 ```json
 {
   "availableClasses": [...],
-  "majorRequirements": [...]
+  "majorRequirementGroups": [...]
 }
 ```
 

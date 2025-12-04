@@ -19,14 +19,14 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
       const response = await fetch('http://localhost:3000/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ username, password })
       });
 
       // Check if response is ok before trying to parse JSON
@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signup = async (email, password) => {
+  const signup = async (username, password) => {
     try {
       const response = await fetch('http://localhost:3000/users', {
         method: 'POST',
@@ -67,8 +67,7 @@ export function AuthProvider({ children }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: email, // Using email as username for now
-          email,
+          username,
           password
         })
       });
@@ -82,7 +81,7 @@ export function AuthProvider({ children }) {
       const data = await response.json();
 
       // signup successful - now auto-login
-      return await login(email, password);
+      return await login(username, password);
     } catch (error) {
       console.error('Signup error:', error);
       // Provide more helpful error messages
@@ -103,6 +102,32 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user');
   };
 
+  const updateUsername = async (newUsername) => {
+    try {
+      const response = await fetch('http://localhost:3000/users/username', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ username: newUsername })
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to update username');
+      }
+
+      const data = await response.json();
+      setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
+      return { success: true };
+    } catch (error) {
+      console.error('Update username error:', error);
+      return { success: false, error: error.message || 'Failed to update username' };
+    }
+  };
+
   const isAuthenticated = !!user && !!token;
 
   const value = {
@@ -111,6 +136,7 @@ export function AuthProvider({ children }) {
     login,
     signup,
     logout,
+    updateUsername,
     isAuthenticated,
     loading
   };

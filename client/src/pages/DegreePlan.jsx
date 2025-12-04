@@ -30,6 +30,8 @@ export default function DegreePlan() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hasCompletedSetup, setHasCompletedSetup] = useState(false);
   const [currentPlan, setCurrentPlan] = useState(null); // { id, name } or null for new plans
+  const [isEditingPlanName, setIsEditingPlanName] = useState(false);
+  const [planNameValue, setPlanNameValue] = useState('');
   const { isAuthenticated } = useAuth();
 
   const {
@@ -39,6 +41,7 @@ export default function DegreePlan() {
     loadPlan,
     deletePlan,
     resetPlan,
+    updatePlanName,
     categorizedClasses, 
     requirementGroups,
     droppableZones,
@@ -59,6 +62,8 @@ export default function DegreePlan() {
       try {
         const planData = JSON.parse(pendingPlan);
         loadPlan(planData);
+        setCurrentPlan({ id: planData.id, name: planData.name });
+        setHasCompletedSetup(true); // Bypass setup modal when loading from Profile
         localStorage.removeItem('pendingPlanToLoad');
       } catch (error) {
         console.error('Failed to load pending plan:', error);
@@ -104,6 +109,7 @@ export default function DegreePlan() {
   const handleLoadPlanFromButton = (plan) => {
     loadPlan(plan);
     setCurrentPlan({ id: plan.id, name: plan.name });
+    setHasCompletedSetup(true); // Bypass setup modal when loading from SavedPlansButton
   };
 
   // Handler for saving - passes planId for updates, null for new plans
@@ -118,6 +124,31 @@ export default function DegreePlan() {
   const handleResetPlan = () => {
     resetPlan();
     setCurrentPlan(null);
+  };
+
+  // Handler for editing plan name
+  const handleEditPlanName = () => {
+    if (currentPlan) {
+      setPlanNameValue(currentPlan.name);
+      setIsEditingPlanName(true);
+    }
+  };
+
+  const handleSavePlanName = async () => {
+    if (!currentPlan || !planNameValue.trim()) return;
+    try {
+      await updatePlanName(currentPlan.id, planNameValue.trim());
+      setCurrentPlan({ ...currentPlan, name: planNameValue.trim() });
+      setIsEditingPlanName(false);
+    } catch (error) {
+      console.error('Failed to update plan name:', error);
+      alert('Failed to update plan name');
+    }
+  };
+
+  const handleCancelEditPlanName = () => {
+    setIsEditingPlanName(false);
+    setPlanNameValue('');
   };
 
   // Show setup modal for authenticated users who haven't completed setup
@@ -136,8 +167,36 @@ export default function DegreePlan() {
         <div className="app-container">
           <div className="plan-header">
             <div className="plan-header-content">
-              <div>
-                <h1>{currentPlan?.name || major}</h1>
+              <div className="plan-title-section">
+                {isEditingPlanName && currentPlan ? (
+                  <div className="plan-title-edit">
+                    <input
+                      type="text"
+                      value={planNameValue}
+                      onChange={(e) => setPlanNameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSavePlanName();
+                        if (e.key === 'Escape') handleCancelEditPlanName();
+                      }}
+                      className="plan-title-input"
+                      autoFocus
+                    />
+                    <button onClick={handleSavePlanName} className="plan-title-save-btn">✓</button>
+                    <button onClick={handleCancelEditPlanName} className="plan-title-cancel-btn">✕</button>
+                  </div>
+                ) : (
+                  <div className="plan-title-wrapper">
+                    <h1>{currentPlan?.name || major}</h1>
+                    {currentPlan && isAuthenticated && (
+                      <button onClick={handleEditPlanName} className="plan-title-edit-btn" aria-label="Edit plan name">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
                 <p className="plan-subtitle">
                   {currentPlan ? `${major} • ` : ''}Drag and drop courses to build your 4-year plan
                 </p>

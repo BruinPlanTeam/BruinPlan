@@ -11,11 +11,12 @@
 .profile-container {
   flex: 1;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   background-color: var(--color-bg-page);
-  padding: 1rem 2rem;
+  padding-top: 80px; /* leave room under global nav */
+  padding-left: 2rem;
+  padding-right: 2rem;
   box-sizing: border-box;
   min-height: 0;
   overflow: hidden;
@@ -68,6 +69,83 @@
 .profile-value {
   font-size: 1rem;
   color: var(--color-text-primary);
+}
+
+.profile-username-box {
+  padding: 1rem 1.25rem;
+  background: rgba(39, 116, 174, 0.1);
+  border: 1px solid rgba(39, 116, 174, 0.3);
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.profile-username-box .profile-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.profile-username-edit-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+  opacity: 0.6;
+}
+
+.profile-username-edit-btn:hover {
+  color: var(--ucla-blue);
+  opacity: 1;
+}
+
+.profile-username-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-username-input {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: rgba(39, 116, 174, 0.1);
+  border: 2px solid var(--ucla-blue);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  outline: none;
+  flex: 1;
+  max-width: 400px;
+}
+
+.profile-username-save-btn,
+.profile-username-cancel-btn {
+  background: var(--ucla-blue);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: opacity 0.2s ease;
+}
+
+.profile-username-cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-username-save-btn:hover,
+.profile-username-cancel-btn:hover {
+  opacity: 0.8;
 }
 
 .profile-logout-button {

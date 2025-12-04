@@ -55,8 +55,10 @@ export function useDragAndDrop(
   const reorderZone = useCallback((targetZoneId, event) => {
     setDroppableZones((zones) => {
       const zone = zones[targetZoneId];
-      const oldIndex = zone.items.findIndex((item) => item.id === event.active.id);
-      const newIndex = zone.items.findIndex((item) => item.id === event.over.id);
+      const activeIdNormalized = String(event.active.id);
+      const overIdNormalized = String(event.over.id);
+      const oldIndex = zone.items.findIndex((item) => String(item.id) === activeIdNormalized);
+      const newIndex = zone.items.findIndex((item) => String(item.id) === overIdNormalized);
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         return {
           ...zones,
@@ -77,14 +79,15 @@ export function useDragAndDrop(
     setDroppableZones((zones) => {
       const sourceZone = zones[sourceZoneId];
       const targetZone = zones[targetZoneId];
-      const item = sourceZone.items.find((item) => item.id === event.active.id);
+      const activeIdNormalized = String(event.active.id);
+      const item = sourceZone.items.find((item) => String(item.id) === activeIdNormalized);
 
       if (item) {
         return {
           ...zones,
           [sourceZoneId]: {
             ...sourceZone,
-            items: sourceZone.items.filter((i) => i.id !== event.active.id),
+            items: sourceZone.items.filter((i) => String(i.id) !== activeIdNormalized),
           },
           [targetZoneId]: {
             ...targetZone,
@@ -100,12 +103,15 @@ export function useDragAndDrop(
    * Remove course from zone and add back to categories
    */
   const returnCourseToSidebar = useCallback((item, sourceZoneId) => {
+    // Normalize item ID for consistent comparison
+    const itemIdNormalized = String(item.id);
+    
     // remove from zone
     setDroppableZones((zones) => ({
       ...zones,
       [sourceZoneId]: {
         ...zones[sourceZoneId],
-        items: zones[sourceZoneId].items.filter((i) => i.id !== item.id),
+        items: zones[sourceZoneId].items.filter((i) => String(i.id) !== itemIdNormalized),
       },
     }));
     
@@ -117,8 +123,11 @@ export function useDragAndDrop(
    * Move course from category sidebar to zone
    */
   const moveCourseToZone = useCallback((targetZoneId, item) => {
+    // Normalize ID to string for consistent removal
+    const courseId = String(item.id);
+    
     // remove from categories
-    removeCourseFromCategories(item.id);
+    removeCourseFromCategories(courseId);
     
     // add to zone
     setDroppableZones((zones) => ({
@@ -169,10 +178,13 @@ export function useDragAndDrop(
       return item.prereqGroups.filter(group => Array.isArray(group) && group.length > 0);
     };
 
+    // Normalize active ID for consistent comparison
+    const activeIdNormalized = String(active.id);
+
     // get the id of where the object came from
     let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
-      const matchedItem = zone.items.find((item) => item.id === active.id);
+      const matchedItem = zone.items.find((item) => String(item.id) === activeIdNormalized);
       if (matchedItem) {
         currentName = matchedItem.code;
         currentId = matchedItem.id;
@@ -188,7 +200,7 @@ export function useDragAndDrop(
     let foundItem = null;
 
     for (const [category, courseList] of Object.entries(categorizedClasses)) {
-      const item = courseList.find((course) => course.id === active.id);
+      const item = courseList.find((course) => String(course.id) === activeIdNormalized);
       if (item) {
         isInDraggableList = true;
         foundItem = item;
@@ -208,10 +220,13 @@ export function useDragAndDrop(
     // check if the current item is over any category zone
     const isDroppedOnCategoryZone = over.id && over.id.startsWith('category-');
 
+    // Normalize over ID for consistent comparison
+    const overIdNormalized = String(over.id);
+
     // find draggable item that current draggable item is hovering over
     let targetItem = null;
     for (const courseList of Object.values(categorizedClasses)) {
-      const item = courseList.find((course) => course.id === over.id);
+      const item = courseList.find((course) => String(course.id) === overIdNormalized);
       if (item) {
         targetItem = item;
         break;
@@ -221,7 +236,7 @@ export function useDragAndDrop(
     // if not dropped directly on a zone, check if dropped on an item inside a zone
     if (!targetZoneId && !isDroppedOnCategoryZone && !targetItem) {
       for (const [key, zone] of Object.entries(droppableZones)) {
-        if (zone.items.some((item) => item.id === over.id)) {
+        if (zone.items.some((item) => String(item.id) === overIdNormalized)) {
           targetZoneId = key;
           break;
         }
@@ -231,7 +246,7 @@ export function useDragAndDrop(
     // handle dropping on an item in the sidebar
     if (targetItem) {
       if (sourceZoneId) {
-        const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id);
+        const item = droppableZones[sourceZoneId].items.find((item) => String(item.id) === activeIdNormalized);
         if (item) {
           returnCourseToSidebar(item, sourceZoneId);
         }
@@ -239,7 +254,7 @@ export function useDragAndDrop(
     } 
     // handle dropping on a category zone
     else if (isDroppedOnCategoryZone && sourceZoneId) {
-      const item = droppableZones[sourceZoneId].items.find((item) => item.id === active.id);
+      const item = droppableZones[sourceZoneId].items.find((item) => String(item.id) === activeIdNormalized);
       if (item) {
         returnCourseToSidebar(item, sourceZoneId);
       }
@@ -247,7 +262,7 @@ export function useDragAndDrop(
     // handle dropping on a quarter zone
     else if (targetZoneId) {
       const targetZone = droppableZones[targetZoneId];
-      const isHoveringOverItemInZone = targetZone.items.some((item) => item.id === over.id);
+      const isHoveringOverItemInZone = targetZone.items.some((item) => String(item.id) === overIdNormalized);
 
       const filteredPrereqGroups = (currentPrereqGroups || [])
         .map(group => group.filter(prereq => String(prereq) !== String(currentId)))
@@ -289,10 +304,10 @@ export function useDragAndDrop(
   const activeItem = activeId
     ? Object.values(categorizedClasses)
         .flat()
-        .find((item) => item.id === activeId) ||
+        .find((item) => String(item.id) === String(activeId)) ||
       Object.values(droppableZones)
         .flatMap((zone) => zone.items)
-        .find((item) => item.id === activeId)
+        .find((item) => String(item.id) === String(activeId))
     : null;
 
   return {
