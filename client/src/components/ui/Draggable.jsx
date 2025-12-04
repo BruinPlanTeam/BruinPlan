@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSortable} from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import ElectricBorder from './ElectricBorder'
@@ -7,6 +7,13 @@ import '../../styles/DegreePlan.css'
 
 export function Draggable({ id, item, showElectric, requirementGroups = [], contextCategory = null, allClassesMap = {} }) {
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // never show tooltips in the sidebar
+  useEffect(() => {
+    if (contextCategory) {
+      setShowTooltip(false);
+    }
+  }, [contextCategory]);
   const {
     attributes,
     listeners,
@@ -156,9 +163,16 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
 
   const prereqGroups = getPrereqGroupsWithCodes();
 
+  // only show tooltip on grid items, never in the sidebar
   const handleMouseEnter = () => {
-    if (isDragging) return;
+    if (isDragging || contextCategory) return;
     setShowTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!contextCategory) {
+      setShowTooltip(false);
+    }
   };
 
   const courseCard = (
@@ -168,8 +182,8 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
       {...attributes}
       {...listeners}
       className="draggable-item"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setShowTooltip(false)}
+      onMouseEnter={contextCategory ? undefined : handleMouseEnter}
+      onMouseLeave={contextCategory ? undefined : handleMouseLeave}
     >
       <div className="course-header">
         <span className="course-code">{item.code}</span>
@@ -178,11 +192,11 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
       {item.description && (
         <div className="course-description">{item.description}</div>
       )}
-      {showTooltip && (fulfilledReqs.length > 0 || prereqGroups.length > 0) && (
+      {!contextCategory && showTooltip && (fulfilledReqs.length > 0 || prereqGroups.length > 0) && (
         <div
           className="course-requirements-tooltip"
           onMouseEnter={handleMouseEnter}
-          onMouseLeave={() => setShowTooltip(false)}
+          onMouseLeave={handleMouseLeave}
         >
           {fulfilledReqs.length > 0 && (
             <>

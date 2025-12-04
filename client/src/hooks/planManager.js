@@ -40,7 +40,7 @@ export function usePlanManager() {
         allClassesMap
     );
 
-    const { arePrereqsCompleted, getMissingPrereqs } = useCourseValidation(
+    const { arePrereqsCompleted, getMissingPrereqs, getBlockingDependents } = useCourseValidation(
         droppableZones,
         completedClasses,
         allClassesMap,
@@ -302,11 +302,12 @@ export function usePlanManager() {
         handleDragOver,
         createHandleDragEnd,
         arePrereqsCompleted,
+        getMissingPrereqs,
+        getBlockingDependents,
         completedClasses,
         setCompletedClassesFromIds,
         allClasses,
-        allClassesMap,
-        getMissingPrereqs
+        allClassesMap
     }   
 }
 

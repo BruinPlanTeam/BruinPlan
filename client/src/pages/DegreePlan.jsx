@@ -62,7 +62,8 @@ export default function DegreePlan() {
     setCompletedClassesFromIds,
     allClasses,
     allClassesMap,
-    getMissingPrereqs
+    getMissingPrereqs,
+    getBlockingDependents
   } = usePlanManager();
 
   // check for pending plan to load from Profile page
@@ -89,8 +90,8 @@ export default function DegreePlan() {
   }, []);
 
   const handleDragEnd = useMemo(() => {
-    return createHandleDragEnd(arePrereqsCompleted, getMissingPrereqs);
-  }, [createHandleDragEnd, arePrereqsCompleted, getMissingPrereqs]);
+    return createHandleDragEnd(arePrereqsCompleted, getMissingPrereqs, getBlockingDependents);
+  }, [createHandleDragEnd, arePrereqsCompleted, getMissingPrereqs, getBlockingDependents]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),

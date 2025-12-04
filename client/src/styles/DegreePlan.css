@@ -398,19 +398,6 @@
   border-color: #020813;
 }
 
-/* Sidebar variant – pop to the left of the card instead of on top */
-/* Side variant currently shares base visual style; inline styles control position for sidebar */
-.course-requirements-tooltip--side {
-  border-radius: 8px;
-}
-
-.course-requirements-tooltip--side::after {
-  top: 50%;
-  left: 100%;
-  transform: translateY(-50%);
-  border: 6px solid transparent;
-  border-left-color: rgba(8, 15, 22, 0.98);
-}
 
 .tooltip-title {
   font-size: 0.85rem;

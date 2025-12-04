@@ -67,10 +67,10 @@ export function useCourseValidation(
     return allGroupsSatisfied;
   }, [droppableZones, completedClasses]);
 
-  // Detailed info: which prerequisite course codes are missing?
+  // detailed info: which prerequisite course codes are missing?
   const getMissingPrereqs = useCallback(
     (targetZoneId, currentId, currentPrereqGroups = []) => {
-      // if prereqs are satisfied and there is no dependent violation, nothing is missing
+      // if prereqs are satisfied, nothing is missing
       if (arePrereqsCompleted(targetZoneId, currentId, currentPrereqGroups)) {
         return [];
       }
@@ -102,7 +102,7 @@ export function useCourseValidation(
 
       const missingPrereqs = [];
 
-      // 1) Missing prerequisites of the current class itself
+      // missing prerequisites of the current class itself
       for (const group of currentPrereqGroups || []) {
         if (!Array.isArray(group) || group.length === 0) continue;
 
@@ -116,7 +116,7 @@ export function useCourseValidation(
             break;
           }
 
-          // Look up prerequisite course by id in the master map first
+          // look up prerequisite course by id in the master map first
           const course =
             allClassesMap[prereqIdStr] ||
             Object.values(categorizedClasses)
@@ -138,9 +138,70 @@ export function useCourseValidation(
     [arePrereqsCompleted, droppableZones, completedClasses, allClassesMap, categorizedClasses],
   );
 
+  // check if moving this course would violate any dependent courses (courses that need this one as a prereq)
+  const getBlockingDependents = useCallback(
+    (targetZoneId, currentId) => {
+      let targetQuarterNum = null;
+      for (let row = 1; row <= MAX_ROWS; row++) {
+        for (let col = 1; col <= MAX_COLS; col++) {
+          const zoneId = `zone-${row}-${col}`;
+          if (zoneId === targetZoneId) {
+            targetQuarterNum = (row - 1) * 4 + col;
+            break;
+          }
+        }
+        if (targetQuarterNum !== null) break;
+      }
+
+      if (targetQuarterNum === null || currentId == null) {
+        return [];
+      }
+
+      const blockingDependents = [];
+      for (let row = 1; row <= MAX_ROWS; row++) {
+        for (let col = 1; col <= MAX_COLS; col++) {
+          const zoneId = `zone-${row}-${col}`;
+          const zoneObj = droppableZones[zoneId];
+          if (!zoneObj || !zoneObj.items) continue;
+
+          const zoneQuarterNum = (row - 1) * 4 + col;
+
+          for (const item of zoneObj.items) {
+            if (String(item.id) === String(currentId)) continue;
+
+            const futurePrereqGroups = Array.isArray(item.prereqGroups)
+              ? item.prereqGroups
+              : [];
+
+            for (const group of futurePrereqGroups) {
+              if (
+                Array.isArray(group) &&
+                group.some((prereqId) => String(prereqId) === String(currentId))
+              ) {
+                // this course depends on the dragged one, so it must be strictly after
+                if (zoneQuarterNum <= targetQuarterNum) {
+                  const code =
+                    item.code ||
+                    (allClassesMap[String(item.id)] || {}).code;
+                  if (code && !blockingDependents.includes(code)) {
+                    blockingDependents.push(code);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return blockingDependents;
+    },
+    [droppableZones, allClassesMap],
+  );
+
   return {
     arePrereqsCompleted,
     getMissingPrereqs,
+    getBlockingDependents,
   };
 }
 

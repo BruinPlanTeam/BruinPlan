@@ -22,7 +22,7 @@ export function useDragAndDrop(
     completedClasses = new Set(),
     allClassesMap = {}
 ) {
-  // initialize droppable zones
+  // set up the grid zones for each quarter
   const [droppableZones, setDroppableZones] = useState(() => {
     const zones = {};
     for (let row = 1; row <= 4; row++) {
@@ -42,9 +42,7 @@ export function useDragAndDrop(
   const [electricCourseId, setElectricCourseId] = useState(null);
   const [rejectedCourseInfo, setRejectedCourseInfo] = useState(null);
 
-  /**
-   * Trigger the electric border effect
-   */
+  // flash the electric border when a course is successfully added
   const triggerElectricEffect = useCallback((courseId) => {
     setElectricCourseId(courseId);
     setTimeout(() => {
@@ -67,9 +65,7 @@ export function useDragAndDrop(
     return dependents;
   }, [droppableZones, allClassesMap]);
 
-  /**
-   * Reorder items within a zone
-   */
+  // reorder courses within the same quarter
   const reorderZone = useCallback((targetZoneId, event) => {
     setDroppableZones((zones) => {
       const zone = zones[targetZoneId];
@@ -90,9 +86,7 @@ export function useDragAndDrop(
     });
   }, []);
 
-  /**
-   * Move item from one zone to another
-   */
+  // move a course from one quarter to another
   const moveFromZoneToZone = useCallback((sourceZoneId, targetZoneId, event) => {
     setDroppableZones((zones) => {
       const sourceZone = zones[sourceZoneId];
@@ -117,17 +111,13 @@ export function useDragAndDrop(
     });
   }, []);
 
-  /**
-   * Remove course from zone and add back to categories
-   */
+  // return a course from the grid back to the available courses sidebar
   const returnCourseToSidebar = useCallback((item, sourceZoneId) => {
-    // Normalize item ID for consistent comparison
     const itemIdNormalized = String(item.id);
-    
-    // Try to find the original course object from the master list to preserve all properties
+    // grab the full course object from the master list so we don't lose any properties
     const courseToAdd = allClassesMap[itemIdNormalized] || item;
     
-    // remove from zone
+    // remove it from the quarter zone
     setDroppableZones((zones) => ({
       ...zones,
       [sourceZoneId]: {
@@ -136,23 +126,18 @@ export function useDragAndDrop(
       },
     }));
     
-    // add back to category - use requestAnimationFrame to ensure zone update is processed first
+    // add it back to the sidebar - wait a frame so the zone update happens first
     requestAnimationFrame(() => {
       addCourseToCategory(courseToAdd, requirementGroups);
     });
   }, [addCourseToCategory, requirementGroups, allClassesMap]);
 
-  /**
-   * Move course from category sidebar to zone
-   */
+  // move a course from the sidebar into a quarter on the grid
   const moveCourseToZone = useCallback((targetZoneId, item) => {
-    // Normalize ID to string for consistent removal
     const courseId = String(item.id);
-    
-    // remove from categories
+    // remove it from the sidebar
     removeCourseFromCategories(courseId);
-    
-    // add to zone
+    // add it to the target quarter
     setDroppableZones((zones) => ({
       ...zones,
       [targetZoneId]: {
@@ -162,49 +147,39 @@ export function useDragAndDrop(
     }));
   }, [removeCourseFromCategories]);
 
-  /**
-   * Handle drag start event
-   */
+  // track which course is being dragged
   const handleDragStart = useCallback((event) => {
     setActiveId(event.active.id);
   }, []);
 
-  /**
-   * Handle drag over event
-   */
+  // handle hover during drag (not used for anything right now)
   const handleDragOver = useCallback((event) => {
     const { active, over } = event;
-    // could add hover effects here if needed
   }, []);
 
-  /**
-   * Handle drag end event
-   * Note: This returns a function that needs validation injected
-   */
-  const createHandleDragEnd = useCallback((arePrereqsCompleted, getMissingPrereqs) => (event) => {
+  // handle drag end event - validation functions are injected from useCourseValidation
+  const createHandleDragEnd = useCallback((arePrereqsCompleted, getMissingPrereqs, getBlockingDependents) => (event) => {
     const { active, over } = event;
     let currentName = null;
     let currentId = null;
     let currentUnits = null;
     let currentPrereqGroups = null;
 
-    // if the item is still being dragged don't assign it to a box
+    // if we dropped it outside of any valid target, just cancel
     if (!over) {
       setActiveId(null);
       return;
     }
 
-          
-
+    // helper to extract valid prereq groups from a course
     const getPrereqGroups = (item) => {
       if (!item || !Array.isArray(item.prereqGroups)) return [];
       return item.prereqGroups.filter(group => Array.isArray(group) && group.length > 0);
     };
 
-    // Normalize active ID for consistent comparison
     const activeIdNormalized = String(active.id);
 
-    // get the id of where the object came from
+    // figure out where this course is coming from (grid or sidebar)
     let sourceZoneId = null;
     for (const [key, zone] of Object.entries(droppableZones)) {
       const matchedItem = zone.items.find((item) => String(item.id) === activeIdNormalized);
@@ -218,7 +193,7 @@ export function useDragAndDrop(
       }
     }
 
-    // check if the current item is in any of the categorized lists
+    // check if it's coming from the sidebar
     let isInDraggableList = false;
     let foundItem = null;
 
@@ -235,18 +210,17 @@ export function useDragAndDrop(
       }
     }
 
-    // check if the current item is over a droppable zone
+    // figure out which quarter zone we're dropping on
     let targetZoneId = Object.keys(droppableZones).find(
       (key) => droppableZones[key].id === over.id
     );
 
-    // check if the current item is over any category zone
+    // check if we're dropping on a sidebar category zone
     const isDroppedOnCategoryZone = over.id && over.id.startsWith('category-');
 
-    // Normalize over ID for consistent comparison
     const overIdNormalized = String(over.id);
 
-    // find draggable item that current draggable item is hovering over
+    // check if we're dropping on another course in the sidebar
     let targetItem = null;
     for (const courseList of Object.values(categorizedClasses)) {
       const item = courseList.find((course) => String(course.id) === overIdNormalized);
@@ -256,7 +230,7 @@ export function useDragAndDrop(
       }
     }
 
-    // if not dropped directly on a zone, check if dropped on an item inside a zone
+    // if we didn't hit a zone directly, maybe we dropped on a course inside a zone
     if (!targetZoneId && !isDroppedOnCategoryZone && !targetItem) {
       for (const [key, zone] of Object.entries(droppableZones)) {
         if (zone.items.some((item) => String(item.id) === overIdNormalized)) {
@@ -266,11 +240,12 @@ export function useDragAndDrop(
       }
     }
 
-    // handle dropping on an item in the sidebar
+    // dropping on the sidebar - return the course to available courses
     if (targetItem || (isDroppedOnCategoryZone && sourceZoneId)) {
       if (sourceZoneId && currentId != null) {
         const item = droppableZones[sourceZoneId].items.find((it) => String(it.id) === activeIdNormalized);
         if (item) {
+          // check if any courses on the grid need this one as a prereq
           const dependents = getDependentCourses(item.id);
           if (dependents.length > 0) {
             setRejectedCourseInfo({
@@ -284,17 +259,19 @@ export function useDragAndDrop(
         }
       }
     } 
-    // handle dropping on a quarter zone
+    // dropping on a quarter zone on the grid
     else if (targetZoneId) {
       const targetZone = droppableZones[targetZoneId];
       const isHoveringOverItemInZone = targetZone.items.some(
         (item) => String(item.id) === overIdNormalized,
       );
 
+      // filter out self-references from prereq groups
       const filteredPrereqGroups = (currentPrereqGroups || [])
         .map((group) => group.filter((prereq) => String(prereq) !== String(currentId)))
         .filter((group) => group.length > 0);
 
+      // check total units and prereqs
       const totalUnits = getCurrentUnits(targetZoneId, droppableZones) + currentUnits;
       const prereqsCompleted = arePrereqsCompleted(
         targetZoneId,
@@ -302,47 +279,9 @@ export function useDragAndDrop(
         filteredPrereqGroups,
       );
 
-      // Re-check dependent courses every time: any course that has currentId in its prereqGroups
-      // must be scheduled strictly AFTER the target quarter
-      const blockingDependents = new Set();
-      let targetQuarterNum = null;
-      // compute target quarter number
-      for (let row = 1; row <= 4; row++) {
-        for (let col = 1; col <= 4; col++) {
-          const zone = `zone-${row}-${col}`;
-          if (zone === targetZoneId) {
-            targetQuarterNum = (row - 1) * 4 + col;
-            break;
-          }
-        }
-        if (targetQuarterNum !== null) break;
-      }
-
-      if (currentId != null && targetQuarterNum != null) {
-        for (let row = 1; row <= 4; row++) {
-          for (let col = 1; col <= 4; col++) {
-            const zoneId = `zone-${row}-${col}`;
-            const zone = droppableZones[zoneId];
-            if (!zone || !zone.items) continue;
-
-            const zoneQuarterNum = (row - 1) * 4 + col;
-
-            for (const item of zone.items) {
-              if (!Array.isArray(item.prereqGroups) || item.prereqGroups.length === 0) continue;
-              const isDependent = item.prereqGroups.some((group) =>
-                Array.isArray(group) && group.some((id) => String(id) === String(currentId)),
-              );
-
-              if (isDependent && zoneQuarterNum <= targetQuarterNum) {
-                // This course depends on the dragged one but is not strictly after it
-                blockingDependents.add(item.code);
-              }
-            }
-          }
-        }
-      }
-
-      const hasBlockingDependents = blockingDependents.size > 0;
+      // check if any courses on the grid need this one as a prereq and would be blocked
+      const blockingDependents = getBlockingDependents(targetZoneId, currentId);
+      const hasBlockingDependents = blockingDependents.length > 0;
 
       const buildMissingPrereqsPayload = () => {
         const missingFromPrereqs = getMissingPrereqs(
@@ -354,10 +293,10 @@ export function useDragAndDrop(
       };
 
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
-        // reordering within the same zone
+        // just reordering within the same quarter
         reorderZone(targetZoneId, event);
       } else if (sourceZoneId && sourceZoneId !== targetZoneId) {
-        // moving from one zone to another
+        // moving from one quarter to another
         if (totalUnits > MAX_UNITS) {
           setRejectedCourseInfo({
             courseCode: currentName,
@@ -378,14 +317,14 @@ export function useDragAndDrop(
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'dependents',
-            dependents: Array.from(blockingDependents),
+            dependents: blockingDependents,
           });
         } else {
           moveFromZoneToZone(sourceZoneId, targetZoneId, event);
           triggerElectricEffect(currentId);
         }
       } else if (isInDraggableList && foundItem) {
-        // moving from category list to zone
+        // moving from sidebar to a quarter on the grid
         if (totalUnits > MAX_UNITS) {
           setRejectedCourseInfo({
             courseCode: currentName,
@@ -406,7 +345,7 @@ export function useDragAndDrop(
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'dependents',
-            dependents: Array.from(blockingDependents),
+            dependents: blockingDependents,
           });
         } else {
           moveCourseToZone(targetZoneId, foundItem);
@@ -426,7 +365,7 @@ export function useDragAndDrop(
     triggerElectricEffect
   ]);
 
-  // find active item from either category lists or zones
+  // get the full course object for whatever's being dragged
   const activeItem = activeId
     ? Object.values(categorizedClasses)
         .flat()
