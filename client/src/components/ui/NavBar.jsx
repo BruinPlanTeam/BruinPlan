@@ -1,11 +1,11 @@
-// src/components/CardNav.jsx
+// src/components/NavBar.jsx
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { GoArrowUpRight } from 'react-icons/go';
-import '../../styles/CardNav.css';
+import '../../styles/NavBar.css';
 
-const CardNav = ({
+const NavBar = ({
   logo,
   logoAlt = 'Logo',
   items,
@@ -26,7 +26,7 @@ const CardNav = ({
 
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     if (isMobile) {
-      const contentEl = navEl.querySelector('.card-nav-content');
+      const contentEl = navEl.querySelector('.nav-bar-content');
       if (contentEl) {
         const wasVisible = contentEl.style.visibility;
         const wasPointerEvents = contentEl.style.pointerEvents;
@@ -139,13 +139,13 @@ const CardNav = ({
   };
 
   return (
-    <div className={`card-nav-container ${className}`}>
+    <div className={`nav-bar-container ${className}`}>
       <nav
         ref={navRef}
-        className={`card-nav ${isExpanded ? 'open' : ''}`}
+        className={`nav-bar ${isExpanded ? 'open' : ''}`}
         style={{ backgroundColor: baseColor }}
       >
-        <div className="card-nav-top">
+        <div className="nav-bar-top">
           
 
           <Link to="/" className="logo-container">
@@ -153,7 +153,7 @@ const CardNav = ({
           </Link>
         </div>
 
-        <div className="card-nav-content" aria-hidden={!isExpanded}>
+        <div className="nav-bar-content" aria-hidden={!isExpanded}>
           {(items || []).slice(0, 3).map((item, idx) => (
             <div
               key={`${item.label}-${idx}`}
@@ -196,4 +196,4 @@ const CardNav = ({
   );
 };
 
-export default CardNav;
+export default NavBar;

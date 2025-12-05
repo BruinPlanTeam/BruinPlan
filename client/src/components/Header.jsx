@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaUserCircle } from 'react-icons/fa';
-import CardNav from './ui/CardNav';
+import NavBar from './ui/NavBar';
 import logo from '../assets/logo2.png';
 
 export const Header = () => {
@@ -33,7 +33,7 @@ export const Header = () => {
   return (
     <div style={styles.wrapper}>
       <div style={styles.navBar}>
-        <CardNav
+        <NavBar
           logo={logo}
           logoAlt="Bruin Plan"
           items={items}

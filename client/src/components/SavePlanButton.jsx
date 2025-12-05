@@ -23,7 +23,7 @@ export function SavePlanButton({ handleSavePlan, currentPlan }) {
                     <polyline points="17,21 17,13 7,13 7,21" />
                     <polyline points="7,3 7,8 15,8" />
                 </svg>
-                {currentPlan ? 'Save Plan' : 'Save Plan'}
+                {currentPlan ? 'Save Changes' : 'Save Plan'}
             </button>
             
             {showPopup && (
