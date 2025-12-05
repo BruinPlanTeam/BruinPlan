@@ -5,10 +5,22 @@ const MAX_COLS = 4;
 
 /**
  * Custom hook for course validation logic (prerequisites, units, etc.)
+ * Centralizes both the boolean prereq check and missing-prereq computation.
  */
-export function useCourseValidation(droppableZones) {
+export function useCourseValidation(
+  droppableZones,
+  completedClasses = new Set(),
+  allClassesMap = {},
+  categorizedClasses = {}
+) {
+  // Simple boolean: are all prerequisite groups satisfied?
   const arePrereqsCompleted = useCallback((targetZoneId, currentId, currentPrereqGroups = []) => {
     let takenClasses = [];
+
+    // Include completed classes (quarter 0) in taken classes
+    if (completedClasses && completedClasses.size > 0) {
+      takenClasses.push(...Array.from(completedClasses).map(id => String(id)));
+    }
 
     outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
       for (let col = 1; col <= MAX_COLS; col++) {
@@ -17,10 +29,10 @@ export function useCourseValidation(droppableZones) {
         
         const zoneObj = droppableZones[zone];
         if (zoneObj && zoneObj.items) {
-        const classesInZone = zoneObj.items.flatMap(item => item.id);
-        takenClasses.push(classesInZone);
+          const classesInZone = zoneObj.items.flatMap(item => item.id);
+          takenClasses.push(classesInZone);
+        }
       }
-    }
     }
 
     takenClasses = takenClasses
@@ -29,69 +41,167 @@ export function useCourseValidation(droppableZones) {
       .filter(Boolean)
       .map(item => String(item));
 
-    if (!Array.isArray(currentPrereqGroups) || currentPrereqGroups.length === 0) {
-      return true;
-    }
-
     let allGroupsSatisfied = true;
-    for (const group of currentPrereqGroups) {
-      if (!Array.isArray(group) || group.length === 0) continue;
 
-      let groupSatisfied = false;
-      for (const prereqId of group) {
-        const prereqIdStr = String(prereqId);
-        const found = takenClasses.some(item => String(item) === prereqIdStr);
-        if (found) {
-          groupSatisfied = true;
-          break;
-      }
-    }
+    if (Array.isArray(currentPrereqGroups) && currentPrereqGroups.length > 0) {
+      for (const group of currentPrereqGroups) {
+        if (!Array.isArray(group) || group.length === 0) continue;
 
-      if (!groupSatisfied) {
-        allGroupsSatisfied = false;
-        break;
-      }
-    }
-
-    if (!allGroupsSatisfied) {
-      return false;
-    }
-
-    let foundTarget = false;
-    for (let row = 1; row <= MAX_ROWS; row++) {
-      for (let col = 1; col <= MAX_COLS; col++) {
-        const zone = `zone-${row}-${col}`;
-        
-        if (zone === targetZoneId) {
-          foundTarget = true;
+        let groupSatisfied = false;
+        for (const prereqId of group) {
+          const prereqIdStr = String(prereqId);
+          const found = takenClasses.some(item => String(item) === prereqIdStr);
+          if (found) {
+            groupSatisfied = true;
+            break;
+          }
         }
-        
-        if (foundTarget) {
+
+        if (!groupSatisfied) {
+          allGroupsSatisfied = false;
+          break;
+        }
+      }
+    }
+
+    return allGroupsSatisfied;
+  }, [droppableZones, completedClasses]);
+
+  // detailed info: which prerequisite course codes are missing?
+  const getMissingPrereqs = useCallback(
+    (targetZoneId, currentId, currentPrereqGroups = []) => {
+      // if prereqs are satisfied, nothing is missing
+      if (arePrereqsCompleted(targetZoneId, currentId, currentPrereqGroups)) {
+        return [];
+      }
+
+      let takenClasses = [];
+
+      if (completedClasses && completedClasses.size > 0) {
+        takenClasses.push(...Array.from(completedClasses).map((id) => String(id)));
+      }
+
+      outerLoop: for (let row = 1; row <= MAX_ROWS; row++) {
+        for (let col = 1; col <= MAX_COLS; col++) {
+          const zone = `zone-${row}-${col}`;
+          if (zone === targetZoneId) break outerLoop;
+
           const zoneObj = droppableZones[zone];
           if (zoneObj && zoneObj.items) {
-          for (const classItem of zoneObj.items) {
-            if (classItem.id == currentId) continue;
-            
-              const futurePrereqGroups = Array.isArray(classItem.prereqGroups)
-                ? classItem.prereqGroups
-                : [];
+            const classesInZone = zoneObj.items.flatMap((item) => item.id);
+            takenClasses.push(classesInZone);
+          }
+        }
+      }
 
-              for (const group of futurePrereqGroups) {
-                if (Array.isArray(group) && group.some(prereqId => String(prereqId) === String(currentId))) {
-              return false;
+      takenClasses = takenClasses
+        .flat()
+        .filter((item) => item != currentId)
+        .filter(Boolean)
+        .map((item) => String(item));
+
+      const missingPrereqs = [];
+
+      // missing prerequisites of the current class itself
+      for (const group of currentPrereqGroups || []) {
+        if (!Array.isArray(group) || group.length === 0) continue;
+
+        let groupSatisfied = false;
+        const missingInGroup = [];
+
+        for (const prereqId of group) {
+          const prereqIdStr = String(prereqId);
+          if (takenClasses.includes(prereqIdStr)) {
+            groupSatisfied = true;
+            break;
+          }
+
+          // look up prerequisite course by id in the master map first
+          const course =
+            allClassesMap[prereqIdStr] ||
+            Object.values(categorizedClasses)
+              .flat()
+              .find((c) => String(c.id) === prereqIdStr);
+
+          if (course) {
+            missingInGroup.push(course.code);
+          }
+        }
+
+        if (!groupSatisfied && missingInGroup.length > 0) {
+          missingPrereqs.push(missingInGroup);
+        }
+      }
+
+      return missingPrereqs;
+    },
+    [arePrereqsCompleted, droppableZones, completedClasses, allClassesMap, categorizedClasses],
+  );
+
+  // check if moving this course would violate any dependent courses (courses that need this one as a prereq)
+  const getBlockingDependents = useCallback(
+    (targetZoneId, currentId) => {
+      let targetQuarterNum = null;
+      for (let row = 1; row <= MAX_ROWS; row++) {
+        for (let col = 1; col <= MAX_COLS; col++) {
+          const zoneId = `zone-${row}-${col}`;
+          if (zoneId === targetZoneId) {
+            targetQuarterNum = (row - 1) * 4 + col;
+            break;
+          }
+        }
+        if (targetQuarterNum !== null) break;
+      }
+
+      if (targetQuarterNum === null || currentId == null) {
+        return [];
+      }
+
+      const blockingDependents = [];
+      for (let row = 1; row <= MAX_ROWS; row++) {
+        for (let col = 1; col <= MAX_COLS; col++) {
+          const zoneId = `zone-${row}-${col}`;
+          const zoneObj = droppableZones[zoneId];
+          if (!zoneObj || !zoneObj.items) continue;
+
+          const zoneQuarterNum = (row - 1) * 4 + col;
+
+          for (const item of zoneObj.items) {
+            if (String(item.id) === String(currentId)) continue;
+
+            const futurePrereqGroups = Array.isArray(item.prereqGroups)
+              ? item.prereqGroups
+              : [];
+
+            for (const group of futurePrereqGroups) {
+              if (
+                Array.isArray(group) &&
+                group.some((prereqId) => String(prereqId) === String(currentId))
+              ) {
+                // this course depends on the dragged one, so it must be strictly after
+                if (zoneQuarterNum <= targetQuarterNum) {
+                  const code =
+                    item.code ||
+                    (allClassesMap[String(item.id)] || {}).code;
+                  if (code && !blockingDependents.includes(code)) {
+                    blockingDependents.push(code);
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-  
-    return true;
-  }, [droppableZones]);
+
+      return blockingDependents;
+    },
+    [droppableZones, allClassesMap],
+  );
 
   return {
-    arePrereqsCompleted
+    arePrereqsCompleted,
+    getMissingPrereqs,
+    getBlockingDependents,
   };
 }
 

@@ -10,9 +10,12 @@ function authenticateToken(req, res, next) {
   // verify the token using it and the token secret
   // this takes a callback with an error and the user value we serialized in the token. write error handling in callback
   jwt.verify(token,process.env.ACCESS_TOKEN_SECRET, (err,user) => {
-    if(err) return res.sendStatus(403)
+    if(err) {
+      console.error('JWT verification error:', err.message);
+      return res.sendStatus(403)
+    }
     req.user = user
-  next() // move on for the middleware
+    next() // move on for the middleware
   })
 }
 
