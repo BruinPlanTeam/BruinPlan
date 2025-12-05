@@ -32,7 +32,7 @@ The app lets you search for your engineering major, see all the required classes
 
 The frontend is React with Vite. We use React Router for navigation and @dnd-kit for the drag-and-drop functionality. State is managed with React Context (for auth and major selection) and custom hooks for different features.
 
-The backend is Express.js with Prisma as our ORM. We use MySQL for the database. Authentication uses JWT tokens, and passwords are hashed with bcrypt. The server code is organized in `server/app.js` (routes and middleware) and `server/server.js` (entry point).
+The backend is Express.js with Prisma as our ORM. We use MySQL for the database. Authentication uses JWT tokens, and passwords are hashed with bcrypt. The server code is organized in `server/src/app.js` (routes and middleware) and `server/src/server.js` (entry point).
 
 We organized the code into custom hooks so each piece has a clear responsibility. API calls go through service functions, and protected routes use JWT middleware.
 
@@ -128,7 +128,7 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
    DB_PORT=your_database_port
    DB_URL=mysql://user:password@host:port/database
    ACCESS_TOKEN_SECRET=your_jwt_secret_key
-   OPENAI_API_KEY=you_open_ai_api_key
+   OPENAI_API_KEY=your_openai_api_key  # Optional: only needed for AI chat feature
    ```
 
 3. **Set up the client**
@@ -142,7 +142,7 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
 1. **Start the server** (in one terminal)
    ```bash
    cd server
-   node server.js
+   node src/server.js
    ```
    You should see "Server running on port 3000" and "Connected to MySQL successfully."
 
@@ -217,16 +217,113 @@ Body:
 Headers: `Authorization: Bearer <token>`
 Returns array of your plans with all the quarter and class data.
 
+**PUT /plans/:planId** - Update a plan
+Headers: `Authorization: Bearer <token>`
+Body:
+```json
+{
+  "name": "Updated Plan Name",
+  "quarters": [
+    {
+      "quarterNumber": 1,
+      "classIds": [1, 2, 3]
+    }
+  ]
+}
+```
+
+**PATCH /plans/:planId/name** - Update plan name only
+Headers: `Authorization: Bearer <token>`
+Body:
+```json
+{
+  "name": "New Plan Name"
+}
+```
+
+**DELETE /plans/:planId** - Delete a plan
+Headers: `Authorization: Bearer <token>`
+Returns 200 on successful deletion.
+
+### AI Chat (Requires Authentication)
+
+**POST /ai/chat** - Send a message to the AI assistant
+Headers: `Authorization: Bearer <token>`
+Body:
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "What prerequisites do I need for CS 31?"
+    }
+  ]
+}
+```
+Returns 200 with AI response. Requires `OPENAI_API_KEY` to be set in `.env`.
+
 ## Testing
 
-We have end-to-end tests using Cucumber. Run them with:
+We have comprehensive end-to-end tests using Cucumber and Gherkin. The test suite includes both UI tests (using Playwright) and API tests (using Supertest).
 
+### Running Tests
+
+Run all tests:
 ```bash
 cd server
 npm test
 ```
 
-The tests cover user creation and login. They're in `server/features/` with step definitions in `server/features/step_definitions/`.
+Run individual scenarios by tag (all 19 scenarios have individual scripts):
+```bash
+# User authentication (scenarios 1-4)
+npm run test:scenario1  # User creation
+npm run test:scenario2  # Duplicate user prevention
+npm run test:scenario3  # User login
+npm run test:scenario4  # Invalid login
+
+# Major endpoints (scenarios 5-7)
+npm run test:scenario5  # Get all majors
+npm run test:scenario6  # Get major details
+npm run test:scenario7  # Nonexistent major error
+
+# Plan management (scenarios 8-14)
+npm run test:scenario8  # Create plan
+npm run test:scenario9  # Create plan without auth
+npm run test:scenario10 # Get all plans
+npm run test:scenario11 # Update plan
+npm run test:scenario12 # Update plan name
+npm run test:scenario13 # Delete plan
+npm run test:scenario14 # Delete another user's plan (authorization)
+
+# Auth endpoints (scenarios 15-16)
+npm run test:scenario15 # Update username
+npm run test:scenario16 # Update username without auth
+
+# AI endpoints (scenarios 17-19)
+npm run test:scenario17 # AI chat message
+npm run test:scenario18 # AI chat without auth
+npm run test:scenario19 # Invalid AI message format
+```
+
+### Test Coverage
+
+**API Tests** (Supertest) - 19 scenarios covering all 11 API routes:
+- `can_users_be_created.feature` (scenarios 1-2) - User registration and duplicate prevention
+- `can_you_log_in.feature` (scenarios 3-4) - User login and authentication
+- `major_endpoints.feature` (scenarios 5-7) - Major data retrieval (GET all majors, GET major details, error handling)
+- `plan_endpoints.feature` (scenarios 8-14) - Plan CRUD operations (create, read, update, delete, authorization checks)
+- `auth_endpoints.feature` (scenarios 15-16) - User account updates (username updates, authentication)
+- `ai_endpoints.feature` (scenarios 17-19) - AI chat endpoint (authentication, message validation, error handling)
+
+### Test Structure
+
+- Feature files: `server/features/*.feature` (Gherkin syntax)
+- Step definitions: `server/features/step_definitions/`
+  - `stepdefs.js` - Step definitions for user authentication tests (scenarios 1-4)
+  - `api_stepdefs.js` - Step definitions for API endpoint tests (scenarios 5-19)
+
+All tests use Supertest to make HTTP requests to the Express app and verify responses. Tests use a separate test database (configured via `NODE_ENV=test`) and automatically set up/tear down test data to ensure test isolation.
 
 ## Troubleshooting
 
@@ -243,7 +340,7 @@ The tests cover user creation and login. They're in `server/features/` with step
 - Run `npm run prisma:generate` or `npx prisma generate` in the `server/` directory
 
 **Port 3000 already in use**
-- Kill whatever's using port 3000, or change the PORT constant in `server/server.js`
+- Kill whatever's using port 3000, or change the PORT constant in `server/src/server.js`
 
 **CORS errors**
 - Make sure the client is running on `http://localhost:5173`
