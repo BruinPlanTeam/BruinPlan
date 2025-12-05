@@ -42,7 +42,7 @@ We organized the code into custom hooks so each piece has a clear responsibility
 
 This diagram shows how React components and hooks are organized and how they interact with each other.
 
-![Component Structure Diagram](diagrams/ComponentStructureDiagram.png)
+![Component Structure Diagram](diagrams/courseCompilerClassDiagram.png)
 
 Owen u gotta add this
 
