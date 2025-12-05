@@ -44,10 +44,6 @@ This diagram shows how React components and hooks are organized and how they int
 
 ![Component Structure Diagram](diagrams/ComponentStructureDiagram.png)
 
-Owen u gotta add this
-
-i didnt wanna leave this blank so asked ai to make a random paragraph idk how well it aligns with yours
-
 The App component wraps everything with AuthProvider and MajorProvider for global state management. The DegreePlan page uses the usePlanManager hook, which coordinates useCategorizedCourses (fetches and categorizes courses), useDragAndDrop (handles the drag-and-drop logic), and useCourseValidation (checks prerequisites). PlanGrid renders the 4×4 grid of quarters, and CourseSidebar displays the categorized courses. Components like SavePlanButton, SavedPlansButton, and ProgressBar interact with the plan manager to provide the full functionality.
 
 ### 2. Database Schema Diagram
@@ -55,10 +51,6 @@ The App component wraps everything with AuthProvider and MajorProvider for globa
 This ER diagram shows how the database tables relate to each other.
 
 ![Database Schema Diagram](diagrams/DatabaseSchemaDiagram.png)
-
-Ciaran u gotta add this
-
-i didnt wanna leave this blank either so also asked ai to make a random paragraph idk how well it aligns with yours
 
 Users can have multiple Plans. Each Plan belongs to one Major and has multiple Quarters. Each Quarter has multiple PlanClasses, which link to Class records. Majors have Requirements through MajorRequirementGroup (which links to RequirementGroup), and Requirements link to Classes through RequirementClasses. Classes can have Prerequisites pointing to other Classes. The schema supports complex prerequisite relationships and tracks which classes fulfill which requirements.
 
