@@ -8,6 +8,20 @@ export const Header = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
+  const isDegreePlanPage = location.pathname === '/degreeplan';
+  
+  // intercept navigation from degree plan page
+  const handleNavigation = (e, targetPath) => {
+    if (isDegreePlanPage) {
+      const confirmed = window.confirm('You may lose unsaved progress. Are you sure you want to leave?');
+      if (!confirmed) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }
+    return true;
+  };
   
   const items = [
     {
@@ -45,12 +59,20 @@ export const Header = () => {
         />
       </div>
       {!isAuthenticated && !isLoginPage && (
-        <Link to="/login" style={styles.loginButton}>
+        <Link 
+          to="/login" 
+          style={styles.loginButton}
+          onClick={(e) => !handleNavigation(e, '/login') && e.preventDefault()}
+        >
           Log In
         </Link>
       )}
       {isAuthenticated && (
-        <Link to="/profile" style={styles.profileButton}>
+        <Link 
+          to="/profile" 
+          style={styles.profileButton}
+          onClick={(e) => !handleNavigation(e, '/profile') && e.preventDefault()}
+        >
           <FaUserCircle size={20} />
         </Link>
       )}

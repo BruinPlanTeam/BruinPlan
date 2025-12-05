@@ -20,8 +20,8 @@ async function createUser(req, res) {
     return res.status(201).json(user);
   } catch(err){
     // prisma unique constraint error
-    if (err && (err.code === 'P2002' || (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002'))) {
-      const target = err.meta && err.meta.target ? Array.isArray(err.meta.target) ? err.meta.target.join(', ') : err.meta.target : 'field';
+    if (err?.code === 'P2002' || (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002')) {
+      const target = err.meta?.target ? (Array.isArray(err.meta.target) ? err.meta.target.join(', ') : err.meta.target) : 'field';
       return res.status(409).json({ error: `Unique constraint failed on: ${target}` });
     }
     console.error('Error creating user', err)

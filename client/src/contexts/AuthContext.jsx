@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { API_ENDPOINTS, API_BASE_URL } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -21,7 +22,7 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:3000/users/login', {
+      const response = await fetch(API_ENDPOINTS.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,10 +30,15 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ username, password })
       });
 
-      // Check if response is ok before trying to parse JSON
+      // check if response is ok before trying to parse json
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || `Server error: ${response.status}`);
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -48,11 +54,11 @@ export function AuthProvider({ children }) {
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      // Provide more helpful error messages
+      // provide more helpful error messages
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         return { 
           success: false, 
-          error: 'Cannot connect to server. Make sure the backend is running on http://localhost:3000' 
+          error: `Cannot connect to server. Make sure the backend is running on ${API_BASE_URL}` 
         };
       }
       return { success: false, error: error.message || 'Login failed. Please try again.' };
@@ -61,7 +67,7 @@ export function AuthProvider({ children }) {
 
   const signup = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:3000/users', {
+      const response = await fetch(API_ENDPOINTS.signup, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,10 +78,15 @@ export function AuthProvider({ children }) {
         })
       });
 
-      // Check if response is ok before trying to parse JSON
+      // check if response is ok before trying to parse json
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || `Server error: ${response.status}`);
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -84,11 +95,11 @@ export function AuthProvider({ children }) {
       return await login(username, password);
     } catch (error) {
       console.error('Signup error:', error);
-      // Provide more helpful error messages
+      // provide more helpful error messages
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         return { 
           success: false, 
-          error: 'Cannot connect to server. Make sure the backend is running on http://localhost:3000' 
+          error: `Cannot connect to server. Make sure the backend is running on ${API_BASE_URL}` 
         };
       }
       return { success: false, error: error.message || 'Signup failed. Please try again.' };
@@ -104,7 +115,7 @@ export function AuthProvider({ children }) {
 
   const updateUsername = async (newUsername) => {
     try {
-      const response = await fetch('http://localhost:3000/users/username', {
+      const response = await fetch(API_ENDPOINTS.updateUsername, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -114,8 +125,13 @@ export function AuthProvider({ children }) {
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to update username');
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          // ignore json parse errors
+        }
+        throw new Error(errorData.error || 'Failed to update username');
       }
 
       const data = await response.json();

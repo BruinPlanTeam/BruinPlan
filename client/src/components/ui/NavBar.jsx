@@ -1,6 +1,6 @@
 // src/components/NavBar.jsx
 import { useLayoutEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { GoArrowUpRight } from 'react-icons/go';
 import '../../styles/NavBar.css';
@@ -19,6 +19,18 @@ const NavBar = ({
   const navRef = useRef(null);
   const cardsRef = useRef([]);
   const tlRef = useRef(null);
+  const location = useLocation();
+  const isDegreePlanPage = location.pathname === '/degreeplan';
+  
+  // intercept navigation from degree plan page
+  const handleLogoClick = (e) => {
+    if (isDegreePlanPage) {
+      const confirmed = window.confirm('You may lose unsaved progress. Are you sure you want to leave?');
+      if (!confirmed) {
+        e.preventDefault();
+      }
+    }
+  };
 
   const calculateHeight = () => {
     const navEl = navRef.current;
@@ -148,7 +160,11 @@ const NavBar = ({
         <div className="nav-bar-top">
           
 
-          <Link to="/" className="logo-container">
+          <Link 
+            to="/" 
+            className="logo-container"
+            onClick={handleLogoClick}
+          >
             <img src={logo} alt={logoAlt} className="logo" />
           </Link>
         </div>

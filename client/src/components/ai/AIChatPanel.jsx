@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../styles/AIChatPanel.css';
+import { API_ENDPOINTS } from '../../config/api';
 
 export function AIChatPanel({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
@@ -41,7 +42,7 @@ export function AIChatPanel({ isOpen, onClose }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/ai/chat', {
+      const response = await fetch(API_ENDPOINTS.aiChat, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

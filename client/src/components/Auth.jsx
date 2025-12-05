@@ -112,7 +112,7 @@ export default function Auth() {
 
   const handleChangeSignUp = () => {
     setSignUp(!signUp);
-    setErr(''); // Clear errors when switching modes
+    setErr(''); // clear errors when switching modes
     setUsername('');
     setPw('');
     setConfirmPw('');

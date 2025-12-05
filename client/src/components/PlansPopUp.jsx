@@ -3,7 +3,6 @@ import "../styles/PlansPopUp.css";
 export function PlansPopUp({ savedPlans, handleLoadScreen, onClose, handleDelete, currentPlan }) {
 
     const handlePlanClick = (plan) => {
-        console.log("Loading plan:", plan);
         if (handleLoadScreen) {
             handleLoadScreen(plan);
         }
@@ -60,7 +59,7 @@ export function PlansPopUp({ savedPlans, handleLoadScreen, onClose, handleDelete
                                 <div 
                                     key={plan.id}
                                     className="plan-card"
-                                    onClick={() => { handlePlanClick(plan); console.log("Plan clicked:", plan); }}
+                                    onClick={() => handlePlanClick(plan)}
                                 >
                                     {plan.id !== currentPlan?.id && <button 
                                         className="plan-card-delete-button" 

@@ -6,7 +6,7 @@ import { ProgressBar } from '../components/ProgressBar.jsx';
 import { Header } from '../components/Header.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
-import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
+import { LeavePlanButton } from '../components/LeavePlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
 import { PlanSetupModal } from '../components/PlanSetupModal.jsx';
@@ -43,7 +43,7 @@ export default function DegreePlan() {
     getPlans,
     loadPlan,
     deletePlan,
-    resetPlan,
+    leavePlan,
     updatePlanName,
     categorizedClasses, 
     requirementGroups,
@@ -66,7 +66,7 @@ export default function DegreePlan() {
     getBlockingDependents
   } = usePlanManager();
 
-  // check for pending plan to load from Profile page
+  // check for pending plan to load from profile page
   useEffect(() => {
     const pendingPlan = localStorage.getItem('pendingPlanToLoad');
     if (pendingPlan) {
@@ -74,7 +74,7 @@ export default function DegreePlan() {
         const planData = JSON.parse(pendingPlan);
         loadPlan(planData);
         setCurrentPlan({ id: planData.id, name: planData.name });
-        setHasCompletedSetup(true); // Bypass setup modal when loading from Profile
+        setHasCompletedSetup(true); // bypass setup modal when loading from profile
         localStorage.removeItem('pendingPlanToLoad');
       } catch (error) {
         console.error('Failed to load pending plan:', error);
@@ -83,10 +83,15 @@ export default function DegreePlan() {
     }
   }, [loadPlan]);
 
-  useEffect(() =>  {
-    function handleOnBeforeUnload(event){ event.preventDefault(); }
-    window.addEventListener('beforeunload', handleOnBeforeUnload, { capture: true});
-    return () => window.removeEventListener('beforeunload', handleOnBeforeUnload, { capture: true});
+  // show browser confirmation when leaving the page
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      event.preventDefault();
+      event.returnValue = ''; // modern browsers require returnValue to be set
+      return ''; // some browsers require return value
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
   const handleDragEnd = useMemo(() => {
@@ -98,10 +103,10 @@ export default function DegreePlan() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  // Handlers for setup modal
+  // handlers for setup modal
   const handleCreateNewPlan = (completedClassIds, geRequirementIds = []) => {
-    // Store completed classes (will be saved as quarter 0 when plan is saved)
-    // The useEffect in planManager will remove them from the sidebar
+    // store completed classes (will be saved as quarter 0 when plan is saved)
+    // the useEffect in planManager will remove them from the sidebar
     setCompletedClassesFromIds(completedClassIds);
     setGeRequirementSelections(new Set(geRequirementIds));
     setHasCompletedSetup(true);
@@ -119,15 +124,15 @@ export default function DegreePlan() {
     setHasCompletedSetup(true);
   };
 
-  // Handler for loading plan from SavedPlansButton
+  // handler for loading plan from saved plans button
   const handleLoadPlanFromButton = (plan) => {
     loadPlan(plan);
     setCurrentPlan({ id: plan.id, name: plan.name });
-    setHasCompletedSetup(true); // Bypass setup modal when loading from SavedPlansButton
+    setHasCompletedSetup(true); // bypass setup modal when loading from saved plans button
     setGeRequirementSelections(new Set());
   };
 
-  // Handler for saving - passes planId for updates, null for new plans
+  // handler for saving - passes planId for updates, null for new plans
   const handleSavePlan = async (planName) => {
     const planId = currentPlan?.id || null;
     const result = await savePlan(planName, planId);
@@ -135,13 +140,16 @@ export default function DegreePlan() {
     return result;
   };
 
-  // Handler for resetting the plan
-  const handleResetPlan = () => {
-    resetPlan();
+  // handler for leaving the plan
+  const handleLeavePlan = () => {
+    leavePlan();
+    // clear GE requirement selections
+    setGeRequirementSelections(new Set());
     setCurrentPlan(null);
+    // keep currentPlan - don't set it to null, just empty the plan
   };
 
-  // Handler for editing plan name
+  // handler for editing plan name
   const handleEditPlanName = () => {
     if (currentPlan) {
       setPlanNameValue(currentPlan.name);
@@ -170,20 +178,20 @@ export default function DegreePlan() {
     if (!currentPlan) return;
     
     try {
-      // Convert to Set for savePlan
+      // convert to set for savePlan
       const completedClassesSet = new Set(completedClassIds.map(id => String(id)));
       
-      // Update completed classes state
+      // update completed classes state
       setCompletedClassesFromIds(completedClassIds);
       
-      // Update plan name if changed
+      // update plan name if changed
       if (newName !== currentPlan.name) {
         await updatePlanName(currentPlan.id, newName);
         setCurrentPlan({ ...currentPlan, name: newName });
       }
       
-      // Save the plan with updated completed classes (quarter 0)
-      // Pass completedClassesSet directly to avoid race condition
+      // save the plan with updated completed classes (quarter 0)
+      // pass completedClassesSet directly to avoid race condition
       const planId = currentPlan.id;
       const result = await savePlan(newName, planId, completedClassesSet);
       setCurrentPlan({ id: result.id, name: result.name });
@@ -195,7 +203,7 @@ export default function DegreePlan() {
     }
   };
 
-  // Show setup modal for authenticated users who haven't completed setup
+  // show setup modal for authenticated users who haven't completed setup
   const showSetupModal = isAuthenticated && !hasCompletedSetup;
 
   return (
@@ -246,7 +254,7 @@ export default function DegreePlan() {
                 <div className="plan-actions">
                   <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan} currentPlan={currentPlan}/>
                   <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/>
-                  <ResetPlanButton onReset={handleResetPlan}/>
+                  <LeavePlanButton onLeave={handleLeavePlan}/>
                 </div>
               }
             </div>

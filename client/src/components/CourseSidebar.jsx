@@ -24,7 +24,7 @@ function CourseSidebar({ categorizedClasses, electricCourseId, requirementGroups
       ...prev,
       [category]: newExpanded
     }));
-    // Close search when category is collapsed
+    // close search when category is collapsed
     if (!newExpanded) {
       setSearchOpen(prev => ({
         ...prev,
@@ -39,7 +39,7 @@ function CourseSidebar({ categorizedClasses, electricCourseId, requirementGroups
       ...prev,
       [category]: newSearchOpen
     }));
-    // Expand category when search is opened
+    // expand category when search is opened
     if (newSearchOpen && !expandedCategories[category]) {
       setExpandedCategories(prev => ({
         ...prev,
@@ -89,10 +89,10 @@ function CourseSidebar({ categorizedClasses, electricCourseId, requirementGroups
             const isSearchOpen = searchOpen[category] || false;
             const searchTerm = searchTerms[category] || '';
             
-            // Sort courses alphabetically by course code
+            // sort courses alphabetically by course code
             const sortedCourses = [...courseList].sort((a, b) => a.code.localeCompare(b.code));
             
-            // Only filter if search is open and has a term
+            // only filter if search is open and has a term
             const isActivelySearching = isSearchOpen && searchTerm && searchTerm.trim() !== '';
             const filteredCourses = isActivelySearching
               ? filterCourses(sortedCourses, searchTerm) 

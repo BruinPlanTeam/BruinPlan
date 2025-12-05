@@ -22,7 +22,6 @@ export function SearchBar() {
       try{
         const majors = await retrieveMajors()
         setMajorList(majors)
-        console.log("edited major list")
       } catch(e){
         console.error("Error retrieving majors: ", e)
       }
@@ -84,7 +83,7 @@ function rankSuggestions(e) {
 
   return (
     <div className='search-bar-container'>
-      <input className='search-bar' type="text" value={inputValue} onChange={rankSuggestions} placeholder="Enter a Major" />
+      <input className='search-bar' type="text" value={inputValue} onChange={rankSuggestions} placeholder="Enter an Engineering Major" />
       {suggestions.length > 0 && (
         <AnimatedList
           items={suggestions}

@@ -1,10 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 
-/**
- * Configure and return all middleware
- * @param {express.Application} app - Express application instance
- */
+// configure and return all middleware
 function configureMiddleware(app) {
   // parse json request bodies
   app.use(express.json());

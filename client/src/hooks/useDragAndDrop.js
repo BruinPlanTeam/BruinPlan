@@ -10,10 +10,7 @@ const QUARTERS = {
   4: 'Summer'
 };
 
-/**
- * Custom hook for drag and drop functionality
- * Note: Pass validation function separately to avoid circular dependencies
- */
+// custom hook for drag and drop functionality - pass validation function separately to avoid circular dependencies
 export function useDragAndDrop(
     categorizedClasses,
     addCourseToCategory,
@@ -50,20 +47,6 @@ export function useDragAndDrop(
     }, 1000);
   }, []);
 
-  const getDependentCourses = useCallback((courseId) => {
-    const dependents = [];
-    Object.values(droppableZones).forEach(zone => {
-      (zone.items || []).forEach(item => {
-        const groups = Array.isArray(item.prereqGroups) ? item.prereqGroups : [];
-        groups.forEach(group => {
-          if (Array.isArray(group) && group.some(id => String(id) === String(courseId))) {
-            dependents.push(allClassesMap[String(item.id)]?.code || item.code);
-          }
-        });
-      });
-    });
-    return dependents;
-  }, [droppableZones, allClassesMap]);
 
   // reorder courses within the same quarter
   const reorderZone = useCallback((targetZoneId, event) => {
@@ -152,9 +135,9 @@ export function useDragAndDrop(
     setActiveId(event.active.id);
   }, []);
 
-  // handle hover during drag (not used for anything right now)
-  const handleDragOver = useCallback((event) => {
-    const { active, over } = event;
+  // handle hover during drag - currently unused but kept for future use
+  const handleDragOver = useCallback(() => {
+    // no-op for now
   }, []);
 
   // handle drag end event - validation functions are injected from useCourseValidation
@@ -242,11 +225,12 @@ export function useDragAndDrop(
 
     // dropping on the sidebar - return the course to available courses
     if (targetItem || (isDroppedOnCategoryZone && sourceZoneId)) {
-      if (sourceZoneId && currentId != null) {
+      if (sourceZoneId && currentId !== null) {
         const item = droppableZones[sourceZoneId].items.find((it) => String(it.id) === activeIdNormalized);
         if (item) {
           // check if any courses on the grid need this one as a prereq
-          const dependents = getDependentCourses(item.id);
+          // null targetZoneId means returning to sidebar - check all dependents
+          const dependents = getBlockingDependents(null, item.id);
           if (dependents.length > 0) {
             setRejectedCourseInfo({
               courseCode: currentName,
@@ -283,15 +267,6 @@ export function useDragAndDrop(
       const blockingDependents = getBlockingDependents(targetZoneId, currentId);
       const hasBlockingDependents = blockingDependents.length > 0;
 
-      const buildMissingPrereqsPayload = () => {
-        const missingFromPrereqs = getMissingPrereqs(
-          targetZoneId,
-          currentId,
-          filteredPrereqGroups,
-        );
-        return [...missingFromPrereqs];
-      };
-
       if (sourceZoneId === targetZoneId && isHoveringOverItemInZone) {
         // just reordering within the same quarter
         reorderZone(targetZoneId, event);
@@ -307,7 +282,11 @@ export function useDragAndDrop(
             )} units. Maximum is ${MAX_UNITS} units.`,
           });
         } else if (!prereqsCompleted) {
-          const missingPrereqs = buildMissingPrereqsPayload();
+          const missingPrereqs = getMissingPrereqs(
+            targetZoneId,
+            currentId,
+            filteredPrereqGroups,
+          );
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'prereqs',
@@ -335,7 +314,11 @@ export function useDragAndDrop(
             )} units. Maximum is ${MAX_UNITS} units.`,
           });
         } else if (!prereqsCompleted) {
-          const missingPrereqs = buildMissingPrereqsPayload();
+          const missingPrereqs = getMissingPrereqs(
+            targetZoneId,
+            currentId,
+            filteredPrereqGroups,
+          );
           setRejectedCourseInfo({
             courseCode: currentName,
             reason: 'prereqs',

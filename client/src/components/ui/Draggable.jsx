@@ -73,7 +73,7 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
     
     let allReqs = Array.from(dedupMap.values());
 
-    // Deduplicate by displayName so we don't show "Core" twice, etc.
+    // deduplicate by displayName so we don't show "Core" twice, etc.
     const seenNames = new Set();
     allReqs = allReqs.filter(req => {
       const key = req.displayName.toLowerCase();
@@ -82,7 +82,7 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
       return true;
     });
 
-    // Helper: pick a single "best" requirement, preferring Core/Prep-style labels
+    // helper: pick a single "best" requirement, preferring Core/Prep-style labels
     const pickSinglePreferred = (list) => {
       if (!list || list.length === 0) return [];
       const preferred = list.find((req) => {
@@ -117,20 +117,20 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
 
       const filtered = allReqs.filter(matchesForCategory);
 
-      // Prep / Major: **exactly one** requirement
+      // prep / major: **exactly one** requirement
       if (lowerCat === 'prep' || lowerCat === 'major') {
         if (filtered.length > 0) return pickSinglePreferred(filtered);
         return pickSinglePreferred(allReqs);
       }
 
-      // Sci‑Tech / Tech Breadth / GE: show **all** matches (or allReqs if none matched)
+      // sci‑tech / tech breadth / ge: show **all** matches (or allReqs if none matched)
       if (filtered.length > 0) return filtered;
       return allReqs;
     }
 
-    // Grid cells (no context):
-    // - If this class has any "Core"/"Prep" style requirement, show ONE of those
-    // - Otherwise (GE / Sci-Tech / TBR), show all deduped requirements
+    // grid cells (no context):
+    // - if this class has any "Core"/"Prep" style requirement, show ONE of those
+    // - otherwise (GE / Sci-Tech / TBR), show all deduped requirements
     const coreOrPrepReqs = allReqs.filter((req) => {
       const name = req.displayName.toLowerCase();
       return name.includes('core') || name.includes('prep');
