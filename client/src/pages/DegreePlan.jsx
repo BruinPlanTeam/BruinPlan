@@ -6,7 +6,7 @@ import { ProgressBar } from '../components/ProgressBar.jsx';
 import { Header } from '../components/Header.jsx';
 import { SavedPlansButton } from '../components/SavedPlansButton.jsx';
 import { SavePlanButton } from '../components/SavePlanButton.jsx';
-import { ResetPlanButton } from '../components/ResetPlanButton.jsx';
+import { LeavePlanButton } from '../components/LeavePlanButton.jsx';
 import { AIChatButton } from '../components/ai/AIChatButton.jsx';
 import { AIChatPanel } from '../components/ai/AIChatPanel.jsx';
 import { PlanSetupModal } from '../components/PlanSetupModal.jsx';
@@ -43,7 +43,7 @@ export default function DegreePlan() {
     getPlans,
     loadPlan,
     deletePlan,
-    resetPlan,
+    leavePlan,
     updatePlanName,
     categorizedClasses, 
     requirementGroups,
@@ -140,10 +140,13 @@ export default function DegreePlan() {
     return result;
   };
 
-  // handler for resetting the plan
-  const handleResetPlan = () => {
-    resetPlan();
+  // handler for leaving the plan
+  const handleLeavePlan = () => {
+    leavePlan();
+    // clear GE requirement selections
+    setGeRequirementSelections(new Set());
     setCurrentPlan(null);
+    // keep currentPlan - don't set it to null, just empty the plan
   };
 
   // handler for editing plan name
@@ -251,7 +254,7 @@ export default function DegreePlan() {
                 <div className="plan-actions">
                   <SavedPlansButton handleLoadScreen={handleLoadPlanFromButton} getPlans={getPlans} deletePlan={deletePlan} currentPlan={currentPlan}/>
                   <SavePlanButton handleSavePlan={handleSavePlan} currentPlan={currentPlan}/>
-                  <ResetPlanButton onReset={handleResetPlan}/>
+                  <LeavePlanButton onLeave={handleLeavePlan}/>
                 </div>
               }
             </div>

@@ -176,22 +176,7 @@ export function usePlanManager() {
         }
     }
 
-    const resetPlan = () => {
-        // collect all courses currently in the grid
-        const coursesToRestore = [];
-        for (let row = 1; row <= 4; row++) {
-            for (let col = 1; col <= 4; col++) {
-                const zoneId = `zone-${row}-${col}`;
-                const zone = droppableZones[zoneId];
-                if (zone && zone.items) {
-                    coursesToRestore.push(...zone.items);
-                }
-            }
-        }
-
-        // collect all completed (quarter 0) class ids
-        const completedIds = Array.from(completedClasses);
-
+    const leavePlan = () => {
         // create empty zones
         const emptyZones = {};
         const quarterTitles = ['Fall', 'Winter', 'Spring', 'Summer'];
@@ -209,7 +194,7 @@ export function usePlanManager() {
         // clear completed classes (quarter 0)
         setCompletedClasses(new Set());
 
-        // set empty zones
+        // set empty zones - this wipes out all courses from the grid
         setDroppableZones(emptyZones);
 
         // add courses back to their categories (from grid)
@@ -281,7 +266,7 @@ export function usePlanManager() {
         getPlans,
         loadPlan,
         deletePlan,
-        resetPlan,
+        leavePlan,
         updatePlanName,
         categorizedClasses, 
         requirementGroups,
