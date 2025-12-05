@@ -49,7 +49,7 @@ export const Header = () => {
       <div style={styles.navBar}>
         <NavBar
           logo={logo}
-          logoAlt="Bruin Plan"
+          logoAlt="CourseCompiler"
           items={items}
           baseColor="rgba(0,0,0,0.3)"
           menuColor="#EAF6FF"
