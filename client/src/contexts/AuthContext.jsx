@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { API_ENDPOINTS, API_BASE_URL } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -21,7 +22,7 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:3000/users/login', {
+      const response = await fetch(API_ENDPOINTS.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ export function AuthProvider({ children }) {
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         return { 
           success: false, 
-          error: 'Cannot connect to server. Make sure the backend is running on http://localhost:3000' 
+          error: `Cannot connect to server. Make sure the backend is running on ${API_BASE_URL}` 
         };
       }
       return { success: false, error: error.message || 'Login failed. Please try again.' };
@@ -66,7 +67,7 @@ export function AuthProvider({ children }) {
 
   const signup = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:3000/users', {
+      const response = await fetch(API_ENDPOINTS.signup, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +99,7 @@ export function AuthProvider({ children }) {
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         return { 
           success: false, 
-          error: 'Cannot connect to server. Make sure the backend is running on http://localhost:3000' 
+          error: `Cannot connect to server. Make sure the backend is running on ${API_BASE_URL}` 
         };
       }
       return { success: false, error: error.message || 'Signup failed. Please try again.' };
@@ -114,7 +115,7 @@ export function AuthProvider({ children }) {
 
   const updateUsername = async (newUsername) => {
     try {
-      const response = await fetch('http://localhost:3000/users/username', {
+      const response = await fetch(API_ENDPOINTS.updateUsername, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

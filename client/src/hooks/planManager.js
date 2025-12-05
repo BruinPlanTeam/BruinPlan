@@ -3,6 +3,7 @@ import { useMajor } from "../providers/Major";
 import { useCategorizedCourses } from "./useCategorizedCourses";
 import { useDragAndDrop } from "./useDragAndDrop";
 import { useCourseValidation } from "./useCourseValidation";
+import { API_ENDPOINTS } from "../config/api";
 
 export function usePlanManager() {
     const { major, setMajor } = useMajor(); 
@@ -63,8 +64,8 @@ export function usePlanManager() {
         
         const isUpdate = planId !== null;
         const url = isUpdate 
-            ? `http://localhost:3000/plans/${planId}` 
-            : 'http://localhost:3000/plans';
+            ? API_ENDPOINTS.plan(planId)
+            : API_ENDPOINTS.plans;
         const method = isUpdate ? 'PUT' : 'POST';
         
                 
@@ -99,7 +100,7 @@ export function usePlanManager() {
         }
         
         try {
-            const response = await fetch('http://localhost:3000/plans', {
+            const response = await fetch(API_ENDPOINTS.plans, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -157,7 +158,7 @@ export function usePlanManager() {
     const deletePlan = async (planId) => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://localhost:3000/plans/${planId}`, {
+            const response = await fetch(API_ENDPOINTS.plan(planId), {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -256,7 +257,7 @@ export function usePlanManager() {
     const updatePlanName = async (planId, newName) => {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://localhost:3000/plans/${planId}/name`, {
+            const response = await fetch(API_ENDPOINTS.planName(planId), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
