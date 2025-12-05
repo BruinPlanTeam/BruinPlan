@@ -1,5 +1,5 @@
 // src/components/Auth.jsx
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Header } from './Header.jsx';
@@ -15,43 +15,6 @@ export default function Auth() {
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  // --- DVD-style bouncing bear ---
-  const arenaRef = useRef(null);
-  const bearRef = useRef(null);
-  const velRef = useRef({ vx: 2.2, vy: 1.8 });
-  const posRef = useRef({ x: 40, y: 30 });
-  const rafRef = useRef(0);
-
-  useEffect(() => {
-    const step = () => {
-      const arena = arenaRef.current;
-      const bear = bearRef.current;
-      if (!arena || !bear) return;
-
-      const aRect = arena.getBoundingClientRect();
-      const bRect = bear.getBoundingClientRect();
-
-      // update pos
-      posRef.current.x += velRef.current.vx;
-      posRef.current.y += velRef.current.vy;
-
-      // bounce on walls
-      if (posRef.current.x <= 0 || posRef.current.x + bRect.width >= aRect.width) {
-        velRef.current.vx = -velRef.current.vx;
-      }
-      if (posRef.current.y <= 0 || posRef.current.y + bRect.height >= aRect.height) {
-        velRef.current.vy = -velRef.current.vy;
-      }
-
-      // apply
-      bear.style.transform = `translate(${posRef.current.x}px, ${posRef.current.y}px)`;
-
-      rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
 
   const onLoginSubmit = async (e) => {
     e.preventDefault();
@@ -122,7 +85,7 @@ export default function Auth() {
     <div className="auth-page-container">
       <Header />
       <div className="page">
-        <div ref={arenaRef} className="arena">
+        <div className="arena">
           <div className="card" role="region" aria-label="Authentication form">
             <h1 className="title">{signUp ? 'Sign Up' : 'Log In'}</h1>
             <form onSubmit={signUp ? onSignUpSubmit : onLoginSubmit} className="form">
