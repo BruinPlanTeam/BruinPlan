@@ -1,6 +1,6 @@
 const { prisma } = require('../config/database');
 
-// this messy method is to sort the data into a flatter more frontend friendly structure
+// this method is to sort the data into a flatter more frontend friendly structure
 function processMajorRequirements(major) {
   // instantiate the map and array for classes and req groups we need to return
   const classesById = new Map(); // map used to avoid duplicate classes being added
@@ -28,9 +28,13 @@ function processMajorRequirements(major) {
 
         // work through the prereq logic here
         if (!classesById.has(classId)) {
-          const prereqGroupsMap = new Map();
+          // map prereq group numbers to array of prereq ids
+          // within each prereq group is an OR
+          // each prereq group is an AND
+          const prereqGroupsMap = new Map(); 
           const prereqRecords = classData.requiredFor || [];
 
+          // f
           for (const prereq of prereqRecords) {
             if (!prereqGroupsMap.has(prereq.prereqGroupNumber)) {
               prereqGroupsMap.set(prereq.prereqGroupNumber, []);
@@ -73,7 +77,7 @@ function processMajorRequirements(major) {
     });
   }
 
-  // return the classes as a nice array and req groups as a not so nice array
+  // return the classes as an array and req groups as an array
   return {
     availableClasses: Array.from(classesById.values()),
     majorRequirementGroups: majorRequirementGroups
