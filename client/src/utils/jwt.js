@@ -5,7 +5,7 @@ export function decodeJWT(token) {
       return null;
     }
     
-    // Decode the payload (second part)
+    // decode the payload (second part)
     const payload = parts[1];
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
     return decoded;
@@ -20,7 +20,7 @@ export function getJWTExpiration(token) {
   if (!decoded || !decoded.exp) {
     return null;
   }
-  // JWT exp is in seconds, convert to milliseconds
+  // jwt exp is in seconds, convert to milliseconds
   return decoded.exp * 1000;
 }
 

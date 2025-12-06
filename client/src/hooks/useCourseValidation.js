@@ -10,7 +10,7 @@ export function useCourseValidation(
   allClassesMap = {},
   categorizedClasses = {}
 ) {
-  // build list of taken classes (completed classes + classes in zones before targetZoneId)
+  // build list of taken classes (completed classes + classes in zones before targetzoneid)
   const buildTakenClasses = useCallback((targetZoneId, currentId) => {
     let takenClasses = [];
 
@@ -118,7 +118,7 @@ export function useCourseValidation(
   );
 
   // check if moving this course would violate any dependent courses (courses that need this one as a prereq)
-  // if targetZoneId is null, check all dependents (for returning to sidebar)
+  // if targetzoneid is null, check all dependents (for returning to sidebar)
   const getBlockingDependents = useCallback(
     (targetZoneId, currentId) => {
       if (currentId === null) {
@@ -126,7 +126,7 @@ export function useCourseValidation(
       }
 
       let targetQuarterNum = null;
-      // if targetZoneId is null, we're returning to sidebar - check all dependents
+      // if targetzoneid is null, we're returning to sidebar - check all dependents
       if (targetZoneId !== null) {
         for (let row = 1; row <= MAX_ROWS; row++) {
           for (let col = 1; col <= MAX_COLS; col++) {
@@ -162,8 +162,8 @@ export function useCourseValidation(
                 group.some((prereqId) => String(prereqId) === String(currentId))
               ) {
                 // this course depends on the dragged one
-                // if targetZoneId is null (returning to sidebar), any dependent is a blocker
-                // if targetZoneId is set, dependent is a blocker if it's in the same or an earlier quarter
+                // if targetzoneid is null (returning to sidebar), any dependent is a blocker
+                // if targetzoneid is set, dependent is a blocker if it's in the same or an earlier quarter
                 if (targetZoneId === null || (targetQuarterNum !== null && zoneQuarterNum <= targetQuarterNum)) {
                   const code =
                     item.code ||

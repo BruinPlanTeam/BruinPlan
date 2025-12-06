@@ -3,7 +3,7 @@ const { prisma } = require('../config/database');
 async function createPlan(req, res) {
   try {
     const { name, majorName, quarters } = req.body;
-    const userId = req.user.userId; // from JWT
+    const userId = req.user.userId; // from jwt
 
     // validate input
     if (!name || !majorName || !quarters) {
@@ -24,7 +24,7 @@ async function createPlan(req, res) {
       return res.status(400).json({ error: "Missing or invalid quarters array" });
     }
 
-    // create plan with nested quarters and planClasses
+    // create plan with nested quarters and planclasses
     const plan = await prisma.plan.create({
       data: {
         name,
@@ -105,7 +105,7 @@ async function updatePlan(req, res) {
       return res.status(400).json({ error: "Missing or invalid quarters array" });
     }
 
-    // look up major id if majorName provided
+    // look up major id if majorname provided
     let majorId = existingPlan.majorId;
     if (majorName) {
       const major = await prisma.major.findFirst({
@@ -117,7 +117,7 @@ async function updatePlan(req, res) {
       majorId = major.id;
     }
 
-    // delete existing quarters and planClasses (we'll recreate them)
+    // delete existing quarters and planclasses (we'll recreate them)
     const quarterIds = existingPlan.quarters.map(q => q.id);
     if (quarterIds.length > 0) {
       await prisma.planClass.deleteMany({
@@ -194,11 +194,11 @@ async function deletePlan(req, res) {
       return res.status(403).json({ error: "Not authorized to delete this plan" });
     }
     
-    // delete in order: PlanClasses -> Quarters -> Plan (due to foreign key constraints)
+    // delete in order: planclasses -> quarters -> plan (due to foreign key constraints)
     const quarterIds = plan.quarters.map(q => q.id);
     
     if (quarterIds.length > 0) {
-      // delete all PlanClasses for this plan's quarters
+      // delete all planclasses for this plan's quarters
       await prisma.planClass.deleteMany({
         where: { quarterId: { in: quarterIds } }
       });

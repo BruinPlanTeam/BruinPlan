@@ -1,4 +1,4 @@
-/* Backdrop */
+/* backdrop */
 .setup-backdrop {
     position: fixed;
     top: 0;
@@ -11,7 +11,7 @@
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Modal */
+/* modal */
 .setup-modal {
     position: fixed;
     top: 50%;
@@ -37,7 +37,7 @@
     animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Header */
+/* header */
 .setup-header {
     text-align: center;
     margin-bottom: 36px;
@@ -88,7 +88,7 @@
     color: rgba(255, 255, 255, 0.5);
 }
 
-/* Back Button */
+/* back button */
 .setup-back {
     display: inline-flex;
     align-items: center;
@@ -111,7 +111,7 @@
     color: white;
 }
 
-/* Option Cards */
+/* option cards */
 .setup-options {
     display: flex;
     flex-direction: column;
@@ -198,7 +198,7 @@
     transform: translateX(4px);
 }
 
-/* Skip Button */
+/* skip button */
 .setup-skip {
     display: block;
     width: 100%;
@@ -221,7 +221,7 @@
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Plans List */
+/* plans list */
 .setup-plans-list {
     display: flex;
     flex-direction: column;
@@ -290,7 +290,7 @@
     transform: translateX(3px);
 }
 
-/* Empty State */
+/* empty state */
 .setup-empty {
     display: flex;
     flex-direction: column;
@@ -327,7 +327,7 @@
     box-shadow: 0 6px 20px rgba(39, 116, 174, 0.3);
 }
 
-/* Plan Name Input */
+/* plan name input */
 .setup-name-input-wrapper {
     margin-bottom: 24px;
 }
@@ -376,7 +376,7 @@
     font-weight: 500;
 }
 
-/* Completed Classes Info */
+/* completed classes info */
 .setup-completed-info {
     display: flex;
     gap: 14px;
@@ -401,7 +401,7 @@
     line-height: 1.5;
 }
 
-/* Classes Selection Section */
+/* classes selection section */
 .setup-classes-section {
     margin-bottom: 24px;
 }
@@ -526,12 +526,12 @@
     border-radius: 10px;
 }
 
-/* Smaller list height for GE section so modal fits nicely */
+/* smaller list height for ge section so modal fits nicely */
 .setup-classes-list--ge {
     max-height: 150px;
 }
 
-/* Smaller list height for Prep section (about 3 items visible) */
+/* smaller list height for prep section (about 3 items visible) */
 .setup-classes-list--prep {
     max-height: 150px;
 }
@@ -619,7 +619,7 @@
     flex-shrink: 0;
 }
 
-/* Actions */
+/* actions */
 .setup-actions {
     display: flex;
     flex-direction: column;
@@ -653,7 +653,7 @@
     transform: translateY(0);
 }
 
-/* Animations */
+/* animations */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -670,7 +670,7 @@
     }
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 540px) {
     .setup-modal {
         width: 95vw;

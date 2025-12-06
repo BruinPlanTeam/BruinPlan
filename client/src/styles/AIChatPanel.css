@@ -1,4 +1,4 @@
-/* Backdrop */
+/* backdrop */
 .chat-backdrop {
   position: fixed;
   top: 0;
@@ -9,7 +9,7 @@
   z-index: 999;
 }
 
-/* Chat Panel */
+/* chat panel */
 .ai-chat-panel {
   position: fixed;
   bottom: 5rem;
@@ -26,7 +26,7 @@
   z-index: 1000;
 }
 
-/* Header */
+/* header */
 .chat-header {
   display: flex;
   justify-content: space-between;
@@ -73,7 +73,7 @@
   color: #ccd6f6;
 }
 
-/* Messages Container */
+/* messages container */
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -101,7 +101,7 @@
   background: rgba(39, 116, 174, 0.6);
 }
 
-/* Messages */
+/* messages */
 .message {
   display: flex;
 }
@@ -137,7 +137,7 @@
   border-bottom-right-radius: 4px;
 }
 
-/* Input Container */
+/* input container */
 .chat-input-container {
   display: flex;
   gap: 0.75rem;
@@ -199,7 +199,7 @@
   cursor: not-allowed;
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 768px) {
   .ai-chat-panel {
     bottom: 4.5rem;

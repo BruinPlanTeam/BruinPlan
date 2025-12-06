@@ -87,37 +87,37 @@ export default function DegreePlan() {
   useEffect(() => {
     function handleBeforeUnload(event) {
       event.preventDefault();
-      event.returnValue = ''; // modern browsers require returnValue to be set
+      event.returnValue = ''; // modern browsers require returnvalue to be set
       return ''; // some browsers require return value
     }
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
-  // Register autosave callback for session expiration
+  // register autosave callback for session expiration
   useEffect(() => {
     if (!isAuthenticated || !currentPlan) {
       clearOnSessionExpiring();
       return;
     }
 
-    // Register autosave callback that will be called 10 seconds before JWT expiration
+    // register autosave callback that will be called 10 seconds before jwt expiration
     const autosaveCallback = async () => {
       try {
-        // Autosave the current plan
+        // autosave the current plan
         const planName = currentPlan.name;
         const planId = currentPlan.id;
         await savePlan(planName, planId);
         console.log('Plan autosaved before session expiration');
       } catch (error) {
         console.error('Failed to autosave plan before session expiration:', error);
-        // Don't throw - we still want to logout even if autosave fails
+        // don't throw - we still want to logout even if autosave fails
       }
     };
 
     setOnSessionExpiring(autosaveCallback);
 
-    // Cleanup on unmount or when dependencies change
+    // cleanup on unmount or when dependencies change
     return () => {
       clearOnSessionExpiring();
     };
@@ -135,7 +135,7 @@ export default function DegreePlan() {
   // handlers for setup modal
   const handleCreateNewPlan = (completedClassIds, geRequirementIds = []) => {
     // store completed classes (will be saved as quarter 0 when plan is saved)
-    // the useEffect in planManager will remove them from the sidebar
+    // the useeffect in planmanager will remove them from the sidebar
     setCompletedClassesFromIds(completedClassIds);
     setGeRequirementSelections(new Set(geRequirementIds));
     setHasCompletedSetup(true);
@@ -161,7 +161,7 @@ export default function DegreePlan() {
     setGeRequirementSelections(new Set());
   };
 
-  // handler for saving - passes planId for updates, null for new plans
+  // handler for saving - passes planid for updates, null for new plans
   const handleSavePlan = async (planName) => {
     const planId = currentPlan?.id || null;
     const result = await savePlan(planName, planId);
@@ -172,10 +172,10 @@ export default function DegreePlan() {
   // handler for leaving the plan
   const handleLeavePlan = () => {
     leavePlan();
-    // clear GE requirement selections
+    // clear ge requirement selections
     setGeRequirementSelections(new Set());
     setCurrentPlan(null);
-    // keep currentPlan - don't set it to null, just empty the plan
+    // keep currentplan - don't set it to null, just empty the plan
   };
 
   // handler for editing plan name
@@ -207,7 +207,7 @@ export default function DegreePlan() {
     if (!currentPlan) return;
     
     try {
-      // convert to set for savePlan
+      // convert to set for saveplan
       const completedClassesSet = new Set(completedClassIds.map(id => String(id)));
       
       // update completed classes state
@@ -220,7 +220,7 @@ export default function DegreePlan() {
       }
       
       // save the plan with updated completed classes (quarter 0)
-      // pass completedClassesSet directly to avoid race condition
+      // pass completedclassesset directly to avoid race condition
       const planId = currentPlan.id;
       const result = await savePlan(newName, planId, completedClassesSet);
       setCurrentPlan({ id: result.id, name: result.name });

@@ -39,12 +39,12 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
 
     return (
         <>
-            {/* Backdrop */}
+            {/* backdrop */}
             <div className="save-plan-backdrop" onClick={onClose} />
             
-            {/* Modal */}
+            {/* modal */}
             <div className="save-plan-modal">
-                {/* Header */}
+                {/* header */}
                 <div className="save-plan-header">
                     <div className="save-plan-title">
                         <svg 
@@ -78,7 +78,7 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
                     </button>
                 </div>
 
-                {/* Content */}
+                {/* content */}
                 <div className="save-plan-content">
                     {isEditing ? (
                         <div className="save-plan-info">
@@ -112,7 +112,7 @@ export function SavePlanPopUp({ handleSavePlan, currentPlan, onClose }) {
                     )}
                 </div>
 
-                {/* Footer */}
+                {/* footer */}
                 <div className="save-plan-footer">
                     <button 
                         className="save-plan-cancel-btn" 

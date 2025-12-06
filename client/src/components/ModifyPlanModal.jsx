@@ -29,7 +29,7 @@ export function ModifyPlanModal({
 
     const [selectedGeRequirements, setSelectedGeRequirements] = useState(new Set(initialGeSelections));
 
-    // update completed classes when currentCompletedClasses changes (including when modal opens)
+    // update completed classes when currentcompletedclasses changes (including when modal opens)
     useEffect(() => {
         if (currentCompletedClasses) {
             // convert all ids to strings for consistent comparison
@@ -41,7 +41,7 @@ export function ModifyPlanModal({
     }, [currentCompletedClasses]);
 
     useEffect(() => {
-        // derive prep catalog from requirementGroups + allClasses
+        // derive prep catalog from requirementgroups + allclasses
         let catalog = [];
 
         if (allClasses && allClasses.length > 0 && requirementGroups && requirementGroups.length > 0) {
@@ -58,7 +58,7 @@ export function ModifyPlanModal({
 
             catalog = allClasses.filter(course => prepIds.has(String(course.id)));
         } else {
-            // fallback: use categorizedClasses['Prep'] if available
+            // fallback: use categorizedclasses['prep'] if available
             const prepFromCategories = (categorizedClasses && categorizedClasses['Prep']) || [];
             catalog = prepFromCategories;
         }
@@ -146,7 +146,7 @@ export function ModifyPlanModal({
             setNameError("Please enter a plan name");
             return;
         }
-        // ge completion is tracked via selectedGeRequirements, no synthetic classes needed
+        // ge completion is tracked via selectedgerequirements, no synthetic classes needed
         const prepIds = Array.from(completedClasses);
         onSave(trimmedName, prepIds);
     };
@@ -219,7 +219,7 @@ export function ModifyPlanModal({
                         </span>
                     </label>
                     <div className="setup-classes-list setup-classes-list--prep">
-                        {/* Show completed classes (quarter 0) at the top */}
+                        {/* show completed classes (quarter 0) at the top */}
                         {filteredCompleted.length > 0 && (
                             <>
                                 <div className="setup-classes-section-title">Completed Classes</div>
@@ -244,7 +244,7 @@ export function ModifyPlanModal({
                             </>
                         )}
                         
-                        {/* Show available classes (not in plan) */}
+                        {/* show available classes (not in plan) */}
                         {filteredAvailable.length > 0 && (
                             <>
                                 {filteredCompleted.length > 0 && (

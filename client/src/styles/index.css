@@ -37,7 +37,7 @@ body {
   --santa-barbara-sand: #F6F4EE;   /* alt backgrounds */
   --grove-fountain: #DAEBFE;       /* soft info backgrounds */
   --silver-screen: #C9CFD4;        /* borders, rules */
-  --santa-monica-sunset: #FFB81C;  /* strong CTAs */
+  --santa-monica-sunset: #FFB81C;  /* strong ctas */
 
   /* semantic tokens used across the app (dark mode) */
   --color-bg-page: var(--midnight-joshua-tree);

@@ -29,8 +29,8 @@ function processMajorRequirements(major) {
         // work through the prereq logic here
         if (!classesById.has(classId)) {
           // map prereq group numbers to array of prereq ids
-          // within each prereq group is an OR
-          // each prereq group is an AND
+          // within each prereq group is an or
+          // each prereq group is an and
           const prereqGroupsMap = new Map(); 
           const prereqRecords = classData.requiredFor || [];
 
@@ -96,7 +96,7 @@ async function getAllMajors(req, res) {
         name: true
       }
     });
-    //map results to an arrray
+    // map results to an arrray
     const majorNames = results.map(major => major.name);
     res.json(majorNames)
   } catch (error){
@@ -156,10 +156,10 @@ async function getMajorByName(req, res) {
       return res.status(404).json({ error: `No requirement groups found for major "${majorName}".` });
     }
 
-    //use a separate method to procces the data for the frontend (major is a deeply nested object))
+    // use a separate method to procces the data for the frontend (major is a deeply nested object))
     const { availableClasses, majorRequirementGroups } = processMajorRequirements(major);
 
-    // return the data destructured from the processMajorRequirements method
+    // return the data destructured from the processmajorrequirements method
     return res.json({
       availableClasses: availableClasses,
       majorRequirementGroups: majorRequirementGroups

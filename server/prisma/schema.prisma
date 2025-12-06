@@ -1,14 +1,11 @@
 // main prisma commands:
-// 
-// npx prisma generate
-//   - generates the prisma client based on this schema
-//
-// npx prisma db pull
-//   - pulls the current database schema and updates this file
-//   - HAS ALREADY CAUSED DB DRIFT
-//
-// npx prisma migrate dev
-//   - creates a new migration from schema changes
+// // npx prisma generate
+// - generates the prisma client based on this schema
+// // npx prisma db pull
+// - pulls the current database schema and updates this file
+// - has already caused db drift
+// // npx prisma migrate dev
+// - creates a new migration from schema changes
 
 generator client {
   provider = "prisma-client-js"

@@ -3,14 +3,14 @@
   text-align: center;
 }
 
-/* for the Search Bar Component */
+/* for the search bar component */
 .search-container {
   position: relative;
   width: 400px; 
   margin: 0 auto; 
 }
 
-/* Style for the dropdown list */
+/* style for the dropdown list */
 .suggestions-list {
   position: absolute;
   top: 100%; 
@@ -27,7 +27,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for each item in the list */
+/* style for each item in the list */
 .suggestion-item {
   width: 80%; 
   cursor: pointer;
@@ -36,13 +36,13 @@
   border-color: #f0f0f087;
 }
 
-/* Add a hover effect for each item */
+/* add a hover effect for each item */
 .suggestion-item:hover {
   background-color: #f0f0f087;
   border-radius: 4px;
 }
 
-/* Styles for the Header */
+/* styles for the header */
 .header-container {
   padding: 0.75%;
   position: fixed;
@@ -59,7 +59,7 @@
   border-color: #ccc;
 }
 
-/* Hold items on the rights side of the Header */
+/* hold items on the rights side of the header */
 .right-header-container {
   float: right;
   padding-left: 83%;
@@ -71,12 +71,12 @@
 
 /* styles for droppable containers */
 .droppable-container {
-  border: 1px solid #d1d5db; /* A soft gray */
-  border-radius: 8px;         /* Rounded corners */
+  border: 1px solid #d1d5db; /* a soft gray */
+  border-radius: 8px;         /* rounded corners */
   padding: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   
-  /* This is just for looks: ensures a minimum height */
+  /* this is just for looks: ensures a minimum height */
   min-height: 150px; 
 }
 

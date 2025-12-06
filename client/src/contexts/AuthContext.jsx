@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const expirationTimerRef = useRef(null);
   const onSessionExpiringCallbackRef = useRef(null);
 
-  // load user from localStorage on mount
+  // load user from localstorage on mount
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
       setUser(JSON.parse(savedUser));
     }
     
-    // Check if we should show session expired popup
+    // check if we should show session expired popup
     const shouldShowPopup = localStorage.getItem('showSessionExpiredPopup') === 'true';
     if (shouldShowPopup) {
       setShowSessionExpiredPopup(true);
@@ -32,9 +32,9 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  // Monitor JWT expiration and set up timer
+  // monitor jwt expiration and set up timer
   useEffect(() => {
-    // Clear any existing timer
+    // clear any existing timer
     if (expirationTimerRef.current) {
       clearTimeout(expirationTimerRef.current);
       expirationTimerRef.current = null;
@@ -50,14 +50,14 @@ export function AuthProvider({ children }) {
     }
 
     const now = Date.now();
-    // Calculate time until 10 seconds before expiration
+    // calculate time until 10 seconds before expiration
     const timeUntilAutoSave = expirationTime - now - 10000; // 10 seconds before expiration
 
     if (timeUntilAutoSave > 0) {
       expirationTimerRef.current = setTimeout(async () => {
         // 10 seconds before expiration - trigger autosave and logout
         try {
-          // Call the autosave callback if it exists
+          // call the autosave callback if it exists
           if (onSessionExpiringCallbackRef.current) {
             await onSessionExpiringCallbackRef.current();
           }
@@ -65,18 +65,18 @@ export function AuthProvider({ children }) {
           console.error('Error during autosave before session expiration:', error);
         }
 
-        // Logout and navigate to homepage
+        // logout and navigate to homepage
         logout();
         
-        // Set flag in localStorage to show popup after navigation
+        // set flag in localstorage to show popup after navigation
         localStorage.setItem('showSessionExpiredPopup', 'true');
         
-        // Navigate to homepage
+        // navigate to homepage
         window.location.href = '/';
       }, timeUntilAutoSave);
     } else {
-      // Token is already expired or will expire in less than 10 seconds
-      // Try autosave first, then logout immediately
+      // token is already expired or will expire in less than 10 seconds
+      // try autosave first, then logout immediately
       (async () => {
         try {
           if (onSessionExpiringCallbackRef.current) {
@@ -86,18 +86,18 @@ export function AuthProvider({ children }) {
           console.error('Error during autosave before session expiration:', error);
         }
         
-        // Logout and navigate to homepage
+        // logout and navigate to homepage
         logout();
         
-        // Set flag in localStorage to show popup after navigation
+        // set flag in localstorage to show popup after navigation
         localStorage.setItem('showSessionExpiredPopup', 'true');
         
-        // Navigate to homepage
+        // navigate to homepage
         window.location.href = '/';
       })();
     }
 
-    // Cleanup on unmount or token change
+    // cleanup on unmount or token change
     return () => {
       if (expirationTimerRef.current) {
         clearTimeout(expirationTimerRef.current);
@@ -106,12 +106,12 @@ export function AuthProvider({ children }) {
     };
   }, [token]);
 
-  // Function to register autosave callback
+  // function to register autosave callback
   const setOnSessionExpiring = (callback) => {
     onSessionExpiringCallbackRef.current = callback;
   };
 
-  // Function to clear autosave callback
+  // function to clear autosave callback
   const clearOnSessionExpiring = () => {
     onSessionExpiringCallbackRef.current = null;
   };
@@ -143,7 +143,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       setToken(data.token);
       
-      // save to localStorage
+      // save to localstorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
@@ -207,12 +207,12 @@ export function AuthProvider({ children }) {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    // Clear expiration timer
+    // clear expiration timer
     if (expirationTimerRef.current) {
       clearTimeout(expirationTimerRef.current);
       expirationTimerRef.current = null;
     }
-    // Clear autosave callback
+    // clear autosave callback
     clearOnSessionExpiring();
   };
 

@@ -25,9 +25,9 @@
 
 .search-bar {
     display: flex;
-    align-items: center; /* Vertically centers the input and button */
+    align-items: center; /* vertically centers the input and button */
     padding: 14px 16px;
-    background-color: #2774AE; /* Solid blue background */
+    background-color: #2774AE; /* solid blue background */
     border-radius: 500px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
     border: 1px solid var(--color-border-subtle);

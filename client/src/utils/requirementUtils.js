@@ -2,7 +2,7 @@ export function getRequirementDisplayName(name) {
   if (!name) return '';
   const nameStr = String(name);
   
-  // special case: Writing II in GE should show as "Engineering Writing"
+  // special case: writing ii in ge should show as "engineering writing"
   if (nameStr.toLowerCase().includes('writing ii')) {
     return 'Engineering Writing';
   }

@@ -100,7 +100,7 @@ export function PlanSetupModal({
         setCurrentPlan({ id: null, name: trimmedName });
         // prep completions (prep classes)
         const prepIds = Array.from(completedClasses);
-        // ge completion is tracked via selectedGeRequirements, no synthetic classes needed
+        // ge completion is tracked via selectedgerequirements, no synthetic classes needed
         // pass combined completed class ids (quarter 0) and the explicit ge requirement ids
         onCreateNew(prepIds, Array.from(selectedGeRequirements));
     };

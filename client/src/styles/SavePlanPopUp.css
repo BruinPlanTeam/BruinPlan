@@ -1,4 +1,4 @@
-/* Backdrop */
+/* backdrop */
 .save-plan-backdrop {
     position: fixed;
     top: 0;
@@ -11,7 +11,7 @@
     animation: fadeIn 0.2s ease-out;
 }
 
-/* Modal */
+/* modal */
 .save-plan-modal {
     position: fixed;
     top: 50%;
@@ -33,7 +33,7 @@
     overflow: hidden;
 }
 
-/* Header */
+/* header */
 .save-plan-header {
     display: flex;
     align-items: center;
@@ -84,7 +84,7 @@
     transform: scale(1.05);
 }
 
-/* Content */
+/* content */
 .save-plan-content {
     padding: 24px 28px;
 }
@@ -163,7 +163,7 @@
     color: #ef4444;
 }
 
-/* Footer */
+/* footer */
 .save-plan-footer {
     display: flex;
     gap: 12px;
@@ -224,7 +224,7 @@
     animation: spin 1s linear infinite;
 }
 
-/* Animations */
+/* animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -254,7 +254,7 @@
     }
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 640px) {
     .save-plan-modal {
         width: 95vw;

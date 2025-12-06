@@ -85,12 +85,12 @@ export function AIChatPanel({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* backdrop */}
       <div className="chat-backdrop" onClick={onClose} />
       
-      {/* Chat Panel */}
+      {/* chat panel */}
       <div className="ai-chat-panel">
-        {/* Header */}
+        {/* header */}
         <div className="chat-header">
           <div className="chat-title">
             <svg
@@ -132,7 +132,7 @@ export function AIChatPanel({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Messages */}
+        {/* messages */}
         <div className="chat-messages">
           {messages.map((message, index) => (
             <div
@@ -147,7 +147,7 @@ export function AIChatPanel({ isOpen, onClose }) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
+        {/* input */}
         <div className="chat-input-container">
           <textarea
             className="chat-input"

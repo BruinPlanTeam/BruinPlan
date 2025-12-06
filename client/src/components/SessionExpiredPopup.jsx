@@ -3,12 +3,12 @@ import '../styles/SessionExpiredPopup.css';
 export function SessionExpiredPopup({ onClose }) {
   return (
     <>
-      {/* Backdrop */}
+      {/* backdrop */}
       <div className="session-expired-backdrop" onClick={onClose} />
       
-      {/* Modal */}
+      {/* modal */}
       <div className="session-expired-modal">
-        {/* Header */}
+        {/* header */}
         <div className="session-expired-header">
           <div className="session-expired-title">
             <svg 
@@ -35,7 +35,7 @@ export function SessionExpiredPopup({ onClose }) {
           </button>
         </div>
         
-        {/* Content */}
+        {/* content */}
         <div className="session-expired-content">
           <p>Your session has expired. Please log back in to continue planning.</p>
         </div>
