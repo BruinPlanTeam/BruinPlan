@@ -1,18 +1,19 @@
 # CourseCompiler: UCLA 4-Year Class Planner
 
-CourseCompiler helps UCLA Engineering students plan their 4-year degree path. You can drag and drop courses into a quarterly schedule, see which prerequisites you need, and track your progress toward graduation.
+CourseCompiler helps UCLA Engineering students plan their 4-year degree path. You can drag and drop courses into a quarterly schedule, see which requirements you need to meet, what prerequisites each class has and track your progress toward graduation.
 
 ## What It Does
 
-The app lets you search for your engineering major, see all the required classes, and build a plan by dragging courses into quarters. It checks prerequisites automatically and warns you if you're taking too many units. You can save multiple plans and switch between them.
+The app lets you search for your engineering major, see all the available classes, and build a plan by dragging courses into quarters. It checks prerequisites automatically and warns you if you're taking too many units. You can save multiple plans and switch between them.
 
 ### Main Features
 
 **Course Planning**
 - See all required courses for your major loaded from our database
 - Drag courses into a 4-year quarterly schedule
-- System blocks you from adding classes if you haven't taken prerequisites
-- System blocks you from adding classes if a quarter would exceed 21 units (visual warning shown)
+- System blocks you from adding classes with a visual warning if:
+  - you haven't taken prerequisites
+  - a quarter would exceed 21 units
 
 **Progress Tracking**
 - See how much of your degree you've completed
@@ -30,11 +31,11 @@ The app lets you search for your engineering major, see all the required classes
 
 ## How It's Built
 
-The frontend is React with Vite. We use React Router for navigation and @dnd-kit for the drag-and-drop functionality. State is managed with React Context (for auth and major selection) and custom hooks for different features.
+The frontend is React with Vite. We use React Router for navigation and @dnd-kit for the drag-and-drop functionality. We utilized React Bits for some visual components such as the electric border on the classes and the dots on the homepage. State is managed with React Context (for auth and major selection) and custom hooks for different features.
 
-The backend is Express.js with Prisma as our ORM. We use MySQL for the database. Authentication uses JWT tokens, and passwords are hashed with bcrypt. The server code is organized in `server/src/app.js` (routes and middleware) and `server/src/server.js` (entry point).
+The backend is Express.js with Prisma as our ORM. We use MySQL for the database. Authentication uses JWT tokens, and passwords are hashed with bcrypt. The server code is organized into separate folders for middleware, controllers, the routes, and the configuration.
 
-We organized the code into custom hooks so each piece has a clear responsibility. API calls go through service functions, and protected routes use JWT middleware.
+We organized the code into custom hooks so each piece has a single, clear responsibility. API calls go through service functions, and protected routes use JWT middleware.
 
 ## Architecture Diagrams
 
@@ -52,7 +53,7 @@ This ER diagram shows how the database tables relate to each other.
 
 ![Database Schema Diagram](diagrams/DatabaseSchemaDiagram.png)
 
-Users can have multiple Plans. Each Plan belongs to one Major and has multiple Quarters. Each Quarter has multiple PlanClasses, which link to Class records. Majors have Requirements through MajorRequirementGroup (which links to RequirementGroup), and Requirements link to Classes through RequirementClasses. Classes can have Prerequisites pointing to other Classes. The schema supports complex prerequisite relationships and tracks which classes fulfill which requirements.
+Users can have multiple Plans. Each Plan belongs to one Major and has multiple Quarters. Each Quarter has multiple classes which are shown through the PlanClasses join table. Majors have Requirements through MajorRequirementGroup (which links to RequirementGroup), and Requirements link to Classes through RequirementClasses. Classes can have Prerequisites pointing to other Classes. The schema supports complex prerequisite relationships and tracks which classes fulfill which requirements.
 
 ### 3. Application State Diagram
 
@@ -90,10 +91,7 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
 ## Getting Started
 
 ### What You Need
-
-- Node.js (v18 or higher)
 - npm
-- MySQL database
 - The `.env` file (ask a team member for it)
 
 ### Setup
@@ -113,11 +111,6 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
    
    You'll need a `.env` file in the `server/` folder with your database info:
    ```env
-   DB_HOST=your_database_host
-   DB_USER=your_database_user
-   DB_PASS=your_database_password
-   DB_NAME=your_database_name
-   DB_PORT=your_database_port
    DB_URL=mysql://user:password@host:port/database
    ACCESS_TOKEN_SECRET=your_jwt_secret_key
    OPENAI_API_KEY=your_openai_api_key  # Optional: only needed for AI chat feature
@@ -149,6 +142,7 @@ When saving a plan, the client serializes the drag-and-drop zones into a quarter
    - Go to `http://localhost:5173`
    - Search for an engineering major (try "Computer Science" or "Computer Engineering")
    - Start building your plan
+   - Log in to save your plan
 
 
 ## API Endpoints
@@ -260,6 +254,11 @@ We have comprehensive end-to-end tests using Cucumber and Gherkin. The test suit
 
 ### Running Tests
 
+You must set up your `.env.test` file to run with our test database
+```env.test
+   DB_URL=mysql://user:password@host:port/database
+```
+
 Run all tests:
 ```bash
 cd server
@@ -279,20 +278,18 @@ npm run test:scenario5  # Get all majors
 npm run test:scenario6  # Get major details
 npm run test:scenario7  # Nonexistent major error
 
-# Plan management (scenarios 8-14)
+# Plan management (scenarios 8-13)
 npm run test:scenario8  # Create plan
 npm run test:scenario9  # Create plan without auth
 npm run test:scenario10 # Get all plans
 npm run test:scenario11 # Update plan
 npm run test:scenario12 # Update plan name
 npm run test:scenario13 # Delete plan
-npm run test:scenario14 # Delete another user's plan (authorization)
 
-# Auth endpoints (scenarios 15-16)
+# Auth endpoints (scenarios 14)
 npm run test:scenario15 # Update username
-npm run test:scenario16 # Update username without auth
 
-# AI endpoints (scenarios 17-19)
+# AI endpoints (scenarios 15-17)
 npm run test:scenario17 # AI chat message
 npm run test:scenario18 # AI chat without auth
 npm run test:scenario19 # Invalid AI message format
@@ -300,7 +297,7 @@ npm run test:scenario19 # Invalid AI message format
 
 ### Test Coverage
 
-**API Tests** (Supertest) - 19 scenarios covering all 11 API routes:
+**API Tests** (Supertest) - 17 scenarios covering all 11 API routes:
 - `can_users_be_created.feature` (scenarios 1-2) - User registration and duplicate prevention
 - `can_you_log_in.feature` (scenarios 3-4) - User login and authentication
 - `major_endpoints.feature` (scenarios 5-7) - Major data retrieval (GET all majors, GET major details, error handling)
@@ -322,8 +319,7 @@ All tests use Supertest to make HTTP requests to the Express app and verify resp
 **Database connection fails**
 - Make sure the `.env` file exists in `server/`
 - Check your database credentials
-- Make sure MySQL is running
-- Verify the database exists and your user has permissions
+- Make sure the server is running
 
 **Module not found errors**
 - Run `npm install` in both `client/` and `server/` directories
@@ -335,10 +331,9 @@ All tests use Supertest to make HTTP requests to the Express app and verify resp
 - Kill whatever's using port 3000, or change the PORT constant in `server/src/server.js`
 
 **CORS errors**
-- Make sure the client is running on `http://localhost:5173`
-- Check the CORS config in `server/app.js` matches your client URL
+- Check the CORS config in `server/src/middleware/setup.middleware.js` matches your client URL
 - The client uses Vite proxy (`/api` routes) configured in `client/vite.config.js`
 
 ---
 
-Built for CS35L at UCLA. CourseCompiler Team: Owen Battles, Ciaran Turner, Atri Pandya, Conor Parman
+Built for CS35L at UCLA. CourseCompiler Team: Owen Battles, Ciaran Turner, Conor Parman, Atri Pandya
