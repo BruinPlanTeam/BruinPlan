@@ -29,6 +29,7 @@
     "test:scenario20": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @scenario20",
     "test:scenario21": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @scenario21",
     "test:e2e": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags @e2e",
+    "test:api": "cross-env NODE_ENV=test npm run prisma:generate && cross-env NODE_ENV=test cucumber-js --tags 'not @e2e'",
     "devStart": "nodemon src/server.js"
   },
   "keywords": [],
