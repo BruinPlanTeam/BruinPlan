@@ -1,8 +1,8 @@
-//use the test database instead
+// use the test database instead
 require('dotenv').config({
   path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
 });
-//log which db you're connecting to
+// log which db you're connecting to
 console.log('NODE_ENV=', process.env.NODE_ENV, 'DB_URL=', process.env.DB_URL);
 
 const assert = require('assert');
@@ -14,7 +14,7 @@ const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
 
-//helper function to create an authenticated user and return token
+// helper function to create an authenticated user and return token
 async function createAuthenticatedUser() {
     const username = `testuser_${Date.now()}`;
     const password = 'password123';
@@ -28,7 +28,7 @@ async function createAuthenticatedUser() {
         throw new Error('Failed to create test user');
     }
     
-    //login to get token
+    // login to get token
     const loginRes = await request(app)
         .post('/users/login')
         .send({ username, password });
@@ -45,7 +45,7 @@ async function createAuthenticatedUser() {
 }
 
 
-//major endpoints
+// major endpoints
 When('I request all majors', async function () {
     this.response = await request(app)
         .get('/majors');
@@ -55,7 +55,7 @@ Then('I should receive a list of major names', function () {
     const res = this.response;
     assert.ok(Array.isArray(res.body), 'response should be an array');
     assert.ok(res.body.length > 0, 'response should contain at least one major');
-    //verify all items are strings (major names)
+    // verify all items are strings (major names)
     res.body.forEach(name => {
         assert.strictEqual(typeof name, 'string', 'each major name should be a string');
     });
@@ -63,8 +63,8 @@ Then('I should receive a list of major names', function () {
 
 Then('the response should be successful', function () {
     const res = this.response;
-    //for AI endpoints, 500 is acceptable if API key is not configured, and
-    //for other endpoints, we expect 200
+    // for ai endpoints, 500 is acceptable if api key is not configured, and
+    // for other endpoints, we expect 200
     if (res.req && res.req.path && res.req.path.includes('/ai/chat')) {
         assert.ok(res.status === 200 || res.status === 500, 'AI response should be 200 or 500');
     } else {
@@ -73,7 +73,7 @@ Then('the response should be successful', function () {
 });
 
 Given('there is a major named {string}', async function (majorName) {
-    //verify major exists in database (majors are seeded, so we just verify)
+    // verify major exists in database (majors are seeded, so we just verify)
     const major = await prisma.major.findFirst({
         where: { name: majorName }
     });
@@ -94,7 +94,7 @@ Then('I should receive major details with classes and requirements', function ()
 });
 
 Given('there is no major named {string}', async function (majorName) {
-    //verify major doesn't exist
+    // verify major doesn't exist
     this.majorName = majorName;
 });
 
@@ -113,7 +113,7 @@ Then('the error message should indicate the major was not found', function () {
     );
 });
 
-//authentication helpers
+// authentication helpers
 
 Given('I am authenticated as a user', async function () {
     const authData = await createAuthenticatedUser();
@@ -125,17 +125,17 @@ Given('I am authenticated as a user', async function () {
 Given('I am authenticated as user {string}', async function (username) {
     const password = 'password123';
     
-    //create user if doesn't exist
+    // create user if doesn't exist
     let createRes = await request(app)
         .post('/users')
         .send({ username, password });
     
-    //if user already exists, that's fine - just login
+    // if user already exists, that's fine - just login
     if (createRes.status !== 201 && createRes.status !== 409) {
         throw new Error(`Failed to create user ${username}`);
     }
     
-    //login to get token
+    // login to get token
     const loginRes = await request(app)
         .post('/users/login')
         .send({ username, password });
@@ -149,7 +149,7 @@ Given('I am authenticated as user {string}', async function (username) {
     this.token = loginRes.body.token;
 });
 
-//plan endpoints
+// plan endpoints
 
 When('I create a plan with name {string} for major {string}', async function (planName, majorName) {
     const planData = {
@@ -158,7 +158,7 @@ When('I create a plan with name {string} for major {string}', async function (pl
         quarters: [
             {
                 quarterNumber: 1,
-                classIds: [1, 2] //sample class IDs
+                classIds: [1, 2] // sample class ids
             }
         ]
     };
@@ -207,7 +207,7 @@ Then('I should receive a {int} unauthorized error', function (statusCode) {
 });
 
 Given('I have created a plan named {string}', async function (planName) {
-    //ensure we're authenticated
+    // ensure we're authenticated
     if (!this.token) {
         const authData = await createAuthenticatedUser();
         this.userId = authData.userId;
@@ -215,7 +215,7 @@ Given('I have created a plan named {string}', async function (planName) {
         this.token = authData.token;
     }
     
-    //get a major name (use CS as default)
+    // get a major name (use cs as default)
     const majorName = 'Computer Science';
     
     const planData = {
@@ -238,7 +238,7 @@ Given('I have created a plan named {string}', async function (planName) {
     this.planId = res.body.id;
     this.planName = planName;
     
-    //store multiple plans if needed
+    // store multiple plans if needed
     if (!this.plans) {
         this.plans = [];
     }
@@ -349,7 +349,7 @@ Then('the plan should no longer exist', async function () {
 });
 
 Given('user {string} has created a plan', async function (username) {
-    //create user if doesn't exist
+    // create user if doesn't exist
     const password = 'password123';
     let createRes = await request(app)
         .post('/users')
@@ -359,7 +359,7 @@ Given('user {string} has created a plan', async function (username) {
         throw new Error(`Failed to create user ${username}`);
     }
     
-    //login as that user
+    // login as that user
     const loginRes = await request(app)
         .post('/users/login')
         .send({ username, password });
@@ -371,7 +371,7 @@ Given('user {string} has created a plan', async function (username) {
     const otherUserToken = loginRes.body.token;
     const otherUserId = loginRes.body.user.id;
     
-    //create a plan for that user
+    // create a plan for that user
     const planData = {
         name: 'Other User Plan',
         majorName: 'Computer Science',
@@ -403,10 +403,10 @@ Then('I should receive a {int} forbidden error', function (statusCode) {
     assert.strictEqual(res.status, statusCode, `response should be ${statusCode}`);
 });
 
-//auth endpoints
+// auth endpoints
 
 When('I update my username to {string}', async function (newUsername) {
-    // Make username unique to avoid conflicts
+    // make username unique to avoid conflicts
     const uniqueUsername = `${newUsername}_${Date.now()}`;
     this.response = await request(app)
         .patch('/users/username')
@@ -437,7 +437,7 @@ When('I try to update my username without authentication', async function () {
         .send({ username: 'newusername' });
 });
 
-//ai endpoints
+// ai endpoints
 
 When('I send a message to the AI chat', async function () {
     const chatData = {
@@ -457,12 +457,12 @@ When('I send a message to the AI chat', async function () {
 
 Then('I should receive an AI response', function () {
     const res = this.response;
-    //this might fail if OPENAI_API_KEY is not set, but that's expected
-    //the test verifies the endpoint is accessible and returns a response
+    // this might fail if openai_api_key is not set, but that's expected
+    // the test verifies the endpoint is accessible and returns a response
     assert.ok(res.body, 'response should contain body');
-    //if API key is valid, we should get a response with role and content
-    //if not, we'll get an error (500), but the endpoint is working
-    //we accept either 200 (success) or 500 (API key not configured)
+    // if api key is valid, we should get a response with role and content
+    // if not, we'll get an error (500), but the endpoint is working
+    // we accept either 200 (success) or 500 (api key not configured)
     assert.ok(res.status === 200 || res.status === 500, 'response should be 200 or 500');
 });
 
@@ -482,7 +482,7 @@ When('I try to send a message to the AI chat without authentication', async func
 });
 
 When('I send an invalid message format to the AI chat', async function () {
-    //send invalid format (not an array, or missing messages)
+    // send invalid format (not an array, or missing messages)
     this.response = await request(app)
         .post('/ai/chat')
         .set('Authorization', `Bearer ${this.token}`)

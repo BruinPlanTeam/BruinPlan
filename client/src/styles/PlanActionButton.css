@@ -1,4 +1,4 @@
-/* Shared Plan Action Button Styles */
+/* shared plan action button styles */
 .plan-action-button {
     display: inline-flex;
     align-items: center;
@@ -20,7 +20,7 @@
     transition: all 0.2s ease;
 }
 
-/* Blue theme (default - Browse, Save) */
+/* blue theme (default - browse, save) */
 .plan-action-button {
     color: white;
     background: linear-gradient(135deg, #2774AE 0%, #3284BE 100%);
@@ -37,7 +37,7 @@
     box-shadow: 0 2px 8px rgba(39, 116, 174, 0.3);
 }
 
-/* Reset button - red/orange theme */
+/* reset button - red/orange theme */
 .plan-action-button.reset {
     background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
@@ -60,7 +60,7 @@
     transform: scale(1.1);
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 768px) {
     .plan-action-button {
         min-width: 120px;

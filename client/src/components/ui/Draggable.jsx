@@ -49,7 +49,7 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
     }
     
     const dedupMap = new Map();
-    const bucketMap = new Map(); // one entry per bucket (prep / major / TB / etc.)
+    const bucketMap = new Map(); // one entry per bucket (prep / major / tb / etc.)
     requirementGroups.forEach(group => {
       (group.requirements || []).forEach(req => {
         if (item.fulfillsReqIds.includes(req.id)) {
@@ -73,7 +73,7 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
     
     let allReqs = Array.from(dedupMap.values());
 
-    // deduplicate by displayName so we don't show "Core" twice, etc.
+    // deduplicate by displayname so we don't show "core" twice, etc.
     const seenNames = new Set();
     allReqs = allReqs.filter(req => {
       const key = req.displayName.toLowerCase();
@@ -82,7 +82,7 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
       return true;
     });
 
-    // helper: pick a single "best" requirement, preferring Core/Prep-style labels
+    // helper: pick a single "best" requirement, preferring core/prep-style labels
     const pickSinglePreferred = (list) => {
       if (!list || list.length === 0) return [];
       const preferred = list.find((req) => {
@@ -123,14 +123,14 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
         return pickSinglePreferred(allReqs);
       }
 
-      // sci‑tech / tech breadth / ge: show **all** matches (or allReqs if none matched)
+      // sci‑tech / tech breadth / ge: show **all** matches (or allreqs if none matched)
       if (filtered.length > 0) return filtered;
       return allReqs;
     }
 
     // grid cells (no context):
-    // - if this class has any "Core"/"Prep" style requirement, show ONE of those
-    // - otherwise (GE / Sci-Tech / TBR), show all deduped requirements
+    // - if this class has any "core"/"prep" style requirement, show one of those
+    // - otherwise (ge / sci-tech / tbr), show all deduped requirements
     const coreOrPrepReqs = allReqs.filter((req) => {
       const name = req.displayName.toLowerCase();
       return name.includes('core') || name.includes('prep');
@@ -222,7 +222,7 @@ export function Draggable({ id, item, showElectric, requirementGroups = [], cont
   );
 
 
-  // wrap with ElectricBorder if showElectric is true
+  // wrap with electricborder if showelectric is true
   if (showElectric) {
     return (
       <ElectricBorder 

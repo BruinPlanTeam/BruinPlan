@@ -7,7 +7,7 @@
   margin: 1.5rem 0;
 }
 
-/* Header */
+/* header */
 .progress-header {
   display: flex;
   justify-content: space-between;
@@ -28,7 +28,7 @@
   color: var(--color-accent);
 }
 
-/* Overall Progress Section */
+/* overall progress section */
 .progress-section {
   margin-bottom: 1rem;
 }
@@ -37,7 +37,7 @@
   padding: 0;
 }
 
-/* Progress Track */
+/* progress track */
 .progress-track {
   height: 8px;
   background: rgba(0, 0, 0, 0.4);
@@ -58,7 +58,7 @@
   background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent) 100%);
 }
 
-/* Progress Groups */
+/* progress groups */
 .progress-groups {
   display: flex;
   flex-wrap: nowrap;
@@ -148,7 +148,7 @@
   color: var(--color-text-secondary);
 }
 
-/* Requirements Dropdown */
+/* requirements dropdown */
 .requirements-dropdown {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -267,7 +267,7 @@
   transition: width 0.3s ease;
 }
 
-/* Empty State */
+/* empty state */
 .empty-state {
   text-align: center;
   padding: 2rem 1rem;
@@ -285,7 +285,7 @@
   font-style: italic;
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 768px) {
   .progress-bar-container {
     padding: 0.75rem 1rem;

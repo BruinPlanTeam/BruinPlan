@@ -47,7 +47,7 @@
   white-space: nowrap;
 }
 
-/* Pulse ring animation - simplified */
+/* pulse ring animation - simplified */
 .pulse-ring {
   position: absolute;
   top: 50%;
@@ -77,7 +77,7 @@
   display: none;
 }
 
-/* Responsive */
+/* responsive */
 @media (max-width: 768px) {
   .ai-chat-button {
     bottom: 1.5rem;

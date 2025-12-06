@@ -111,7 +111,7 @@ const assignRequirementsToCourses = (courses, orderedRequirements) => {
     const courseId = String(courseData.item.id);
     const groupTypes = courseToGroupTypes.get(courseId) || new Set();
     
-    // if this course is in Prep, it can only satisfy Prep requirements
+    // if this course is in prep, it can only satisfy prep requirements
     const isPrepClass = groupTypes.has('Prep');
     
     courseData.eligibleRequirementIndices = requirementSets
@@ -154,8 +154,8 @@ const assignRequirementsToCourses = (courses, orderedRequirements) => {
 };
 
 // hook to compute requirement progress from requirement groups and planned courses
-// completedClasses: Set of class ids for quarter 0 (completed before plan)
-// allClassesMap: Map from classId (string) -> full course object
+// completedclasses: set of class ids for quarter 0 (completed before plan)
+// allclassesmap: map from classid (string) -> full course object
 export function useRequirementProgress(
   requirementGroups,
   droppableZones,
@@ -210,7 +210,7 @@ export function useRequirementProgress(
     requirementGroups.forEach(group => {
       const type = group.type;
       
-      // filter out "Technical Breadth" requirement groups from Major section
+      // filter out "technical breadth" requirement groups from major section
       if (type && type.toLowerCase() === 'major') {
         const groupNameLower = (group.name || '').toLowerCase();
         if (groupNameLower.includes('technical breadth') || groupNameLower === 'technical breadth') {
@@ -240,7 +240,7 @@ export function useRequirementProgress(
 
       const isGeGroup = (group.type || '').toLowerCase() === 'ge';
 
-      // compute progress for each requirement in this group using assignments + GE overrides
+      // compute progress for each requirement in this group using assignments + ge overrides
       (group.requirements || []).forEach(req => {
         const requiredCourses = req.fulfilledByClassIds || [];
         const coursesToChoose = req.coursesToChoose || 1;
@@ -289,7 +289,7 @@ export function useRequirementProgress(
       });
 
       // now roll requirement progress up to the group and type levels
-      // always preserve numRequirementsToChoose in the group entry
+      // always preserve numrequirementstochoose in the group entry
       groupEntry.numRequirementsToChoose = numRequirementsToChoose;
       
       if (groupEntry.requirements.length === 1) {
@@ -359,7 +359,7 @@ export function useRequirementProgress(
 
     // within each type, sort groups by:
     // - highest percent finished first
-    // - then highest groupTotal
+    // - then highest grouptotal
     Object.values(typeGroups).forEach(typeEntry => {
       typeEntry.groups.sort((a, b) => {
         const aCompleted = a.groupCompleted || 0;

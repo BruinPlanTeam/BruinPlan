@@ -11,12 +11,12 @@ export function PlansPopUp({ savedPlans, handleLoadScreen, onClose, handleDelete
 
     return (
         <>
-            {/* Backdrop */}
+            {/* backdrop */}
             <div className="plans-backdrop" onClick={onClose} />
             
-            {/* Modal */}
+            {/* modal */}
             <div className="plans-modal">
-                {/* Header */}
+                {/* header */}
                 <div className="plans-header">
                     <div className="plans-title">
                         <svg 
@@ -43,7 +43,7 @@ export function PlansPopUp({ savedPlans, handleLoadScreen, onClose, handleDelete
                     </button>
                 </div>
 
-                {/* Content */}
+                {/* content */}
                 <div className="plans-content">
                     {savedPlans.length === 0 ? (
                         <div className="plans-empty">

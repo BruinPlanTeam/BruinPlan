@@ -51,7 +51,7 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
         </div>
       </div>
 
-      {/* Overall Progress Bar */}
+      {/* overall progress bar */}
       <div className="progress-section overall-section">
         <div className="progress-track">
           <div 
@@ -61,10 +61,10 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
         </div>
       </div>
 
-      {/* Progress by Type */}
+      {/* progress by type */}
       <div className="progress-groups">
         {(() => {
-          // define fixed order: Prep, Major, Tech Breadth, GE
+          // define fixed order: prep, major, tech breadth, ge
           const typeOrder = ['Prep', 'Major', 'Tech Breadth', 'GE'];
           return typeOrder
             .map(type => progressByType[type])
@@ -99,7 +99,7 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
                 </div>
               </div>
 
-              {/* Requirement Groups Dropdown */}
+              {/* requirement groups dropdown */}
               {isTypeExpanded && (
                 <div className="requirements-dropdown">
                   {groupType.groups.map((grp) => {
@@ -109,7 +109,7 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
                     const groupPercentage = grp.groupTotal > 0 ? (grp.groupCompleted / grp.groupTotal) * 100 : 0;
 
                     // always show the group name, even if there's only one requirement
-                    // if there are multiple requirements or numRequirementsToChoose > 1, show as collapsible group
+                    // if there are multiple requirements or numrequirementstochoose > 1, show as collapsible group
                     const shouldShowAsGroup = grp.requirements.length > 1 || (grp.numRequirementsToChoose && grp.numRequirementsToChoose > 1);
                     
                     if (!shouldShowAsGroup && grp.requirements.length === 1) {
@@ -211,7 +211,7 @@ export function ProgressBar({ requirementGroups, droppableZones, completedClasse
         })}
       </div>
 
-      {/* Legend */}
+      {/* legend */}
       {Object.keys(progressByType).length === 0 && (
         <div className="empty-state">
           <p>Loading...</p>

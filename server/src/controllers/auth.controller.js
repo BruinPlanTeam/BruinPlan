@@ -3,8 +3,6 @@ const jwt = require('jsonwebtoken');
 const { Prisma } = require('@prisma/client');
 const { prisma } = require('../config/database');
 
-// I (Owen) took out the username because we don't need it for the sign up process
-
 
 async function createUser(req, res) {
   const {username, password} = req.body

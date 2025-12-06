@@ -20,4 +20,3 @@ Feature: Major data endpoints
         When I request details for major "Nonexistent Major"
         Then I should receive a 404 error
         And the error message should indicate the major was not found
-

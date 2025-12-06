@@ -140,7 +140,7 @@ export function useDragAndDrop(
     // no-op for now
   }, []);
 
-  // handle drag end event - validation functions are injected from useCourseValidation
+  // handle drag end event - validation functions are injected from usecoursevalidation
   const createHandleDragEnd = useCallback((arePrereqsCompleted, getMissingPrereqs, getBlockingDependents) => (event) => {
     const { active, over } = event;
     let currentName = null;
@@ -229,7 +229,7 @@ export function useDragAndDrop(
         const item = droppableZones[sourceZoneId].items.find((it) => String(it.id) === activeIdNormalized);
         if (item) {
           // check if any courses on the grid need this one as a prereq
-          // null targetZoneId means returning to sidebar - check all dependents
+          // null targetzoneid means returning to sidebar - check all dependents
           const dependents = getBlockingDependents(null, item.id);
           if (dependents.length > 0) {
             setRejectedCourseInfo({

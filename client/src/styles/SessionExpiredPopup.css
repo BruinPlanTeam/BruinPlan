@@ -1,4 +1,4 @@
-/* Backdrop */
+/* backdrop */
 .session-expired-backdrop {
     position: fixed;
     top: 0;
@@ -11,7 +11,7 @@
     animation: fadeIn 0.2s ease-out;
 }
 
-/* Modal */
+/* modal */
 .session-expired-modal {
     position: fixed;
     top: 50%;
@@ -33,7 +33,7 @@
     overflow: hidden;
 }
 
-/* Header */
+/* header */
 .session-expired-header {
     display: flex;
     align-items: center;
@@ -84,7 +84,7 @@
     transform: scale(1.05);
 }
 
-/* Content */
+/* content */
 .session-expired-content {
     padding: 24px 28px;
 }

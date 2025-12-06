@@ -343,7 +343,7 @@ function deserializePlanToZones(planData, allClassesMap = {}) {
       }
     }
     
-    // fill zones with classes from planData
+    // fill zones with classes from plandata
     if (planData.quarters && Array.isArray(planData.quarters)) {
       planData.quarters.forEach(quarter => {
           // handle quarter 0 (completed classes)
@@ -356,18 +356,18 @@ function deserializePlanToZones(planData, allClassesMap = {}) {
             return; // don't add to zones
           }
         
-        // convert quarterNumber back to zone coordinates
+        // convert quarternumber back to zone coordinates
         const year = Math.ceil(quarter.quarterNumber / 4);
         const quarterInYear = ((quarter.quarterNumber - 1) % 4) + 1;
         const zoneId = `zone-${year}-${quarterInYear}`;
         
-        // map planClasses to zone items, restoring prereqGroups from the master catalog when possible
+        // map planclasses to zone items, restoring prereqgroups from the master catalog when possible
         if (quarter.planClasses && Array.isArray(quarter.planClasses)) {
           zones[zoneId].items = quarter.planClasses.map(pc => {
             const idStr = String(pc.class.id);
             const catalogCourse = allClassesMap[idStr];
             if (catalogCourse) {
-              // use the full course object from the catalog (includes prereqGroups, fulfillsReqIds, etc.)
+              // use the full course object from the catalog (includes prereqgroups, fulfillsreqids, etc.)
               return {
                 ...catalogCourse
               };

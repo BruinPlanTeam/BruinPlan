@@ -250,7 +250,7 @@ Returns 200 with AI response. Requires `OPENAI_API_KEY` to be set in `.env`.
 
 ## Testing
 
-We have comprehensive end-to-end tests using Cucumber and Gherkin. The test suite includes both UI tests (using Playwright) and API tests (using Supertest).
+We have comprehensive end-to-end tests using Cucumber and Gherkin. The test suite includes both E2E UI tests (using Playwright) and API tests (using Supertest).
 
 ### Running Tests
 
@@ -259,13 +259,49 @@ You must set up your `.env.test` file to run with our test database
    DB_URL=mysql://user:password@host:port/database
 ```
 
-Run all tests:
+Run all tests (API + E2E):
 ```bash
 cd server
 npm test
 ```
 
-Run individual scenarios by tag (all 19 scenarios have individual scripts):
+**Note:** E2E tests require both client (`http://localhost:5173`) and server (`http://localhost:3000`) to be running. If they're not running, E2E tests will fail but API tests will still run.
+
+Run E2E tests (requires both client and server running):
+```bash
+# Terminal 1: Start the client
+cd client
+npm run dev
+# Client should be running on http://localhost:5173
+
+# Terminal 2: Start the server
+cd server
+node src/server.js
+# Server should be running on http://localhost:3000
+
+# Terminal 3: Run E2E tests
+cd server
+
+# First time setup: Install Playwright browsers
+npx playwright install
+
+# Then run E2E tests
+npm run test:e2e  # Run all E2E tests
+npm run test:scenario20  # Complete user journey test
+npm run test:scenario21  # Plan management E2E test
+```
+
+**Important Notes:**
+- E2E tests require Playwright browsers to be installed. Run `npx playwright install` once before running E2E tests.
+- Both client and server (`localhost:3000`) must be running before E2E tests will work.
+- **Port Auto-Detection**: E2E tests automatically detect which port your client is running on (tries 5174, 5173, 5175, 5176). You can also set it manually:
+  ```bash
+  E2E_BASE_URL=http://localhost:5174 npm run test:e2e
+  ```
+- If tests timeout, verify both servers are running and accessible.
+- E2E tests have 60-second timeouts for steps and 30-second timeouts for page navigation.
+
+Run individual API test scenarios by tag (all 19 API scenarios have individual scripts):
 ```bash
 # User authentication (scenarios 1-4)
 npm run test:scenario1  # User creation
@@ -297,7 +333,11 @@ npm run test:scenario19 # Invalid AI message format
 
 ### Test Coverage
 
-**API Tests** (Supertest) - 17 scenarios covering all 11 API routes:
+**E2E Tests** (Playwright + Cucumber) - 2 comprehensive scenarios:
+- `e2e_user_journey.feature` (scenario 20) - Complete user flow: signup → search major → create plan → drag and drop courses → save plan
+- `e2e_plan_management.feature` (scenario 21) - Plan management: load saved plan → modify plan → update plan
+
+**API Tests** (Supertest) - 19 scenarios covering all 11 API routes:
 - `can_users_be_created.feature` (scenarios 1-2) - User registration and duplicate prevention
 - `can_you_log_in.feature` (scenarios 3-4) - User login and authentication
 - `major_endpoints.feature` (scenarios 5-7) - Major data retrieval (GET all majors, GET major details, error handling)
@@ -311,8 +351,18 @@ npm run test:scenario19 # Invalid AI message format
 - Step definitions: `server/features/step_definitions/`
   - `stepdefs.js` - Step definitions for user authentication tests (scenarios 1-4)
   - `api_stepdefs.js` - Step definitions for API endpoint tests (scenarios 5-19)
+  - `e2e_stepdefs.js` - Step definitions for E2E UI tests using Playwright (scenarios 20-21)
 
-All tests use Supertest to make HTTP requests to the Express app and verify responses. Tests use a separate test database (configured via `NODE_ENV=test`) and automatically set up/tear down test data to ensure test isolation.
+**E2E Test Requirements:**
+- Both client (`http://localhost:5173`) and server (`http://localhost:3000`) must be running
+- E2E tests use Playwright to automate browser interactions
+- Tests create users and plans via API, then verify UI behavior
+- Tests are configured to run headless by default (set `E2E_HEADLESS=false` to see browser)
+
+**API Tests:**
+- All API tests use Supertest to make HTTP requests to the Express app
+- Tests use a separate test database (configured via `NODE_ENV=test`)
+- Tests automatically set up/tear down test data to ensure test isolation
 
 ## Troubleshooting
 

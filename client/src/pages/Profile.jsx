@@ -38,7 +38,7 @@ export default function Profile() {
   };
 
   const handlePlanClick = (plan) => {
-    // store plan in localStorage so DegreePlan can load it
+    // store plan in localstorage so degreeplan can load it
     localStorage.setItem('pendingPlanToLoad', JSON.stringify(plan));
     navigate('/degreeplan');
   };

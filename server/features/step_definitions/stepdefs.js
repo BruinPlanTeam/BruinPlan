@@ -1,8 +1,8 @@
-//use the test database instead
+// use the test database instead
 require('dotenv').config({
   path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
 });
-//log which db you're connecting to
+// log which db you're connecting to
 console.log('NODE_ENV=', process.env.NODE_ENV, 'DB_URL=', process.env.DB_URL);
 
 
@@ -25,7 +25,7 @@ async function teardown(){
     }
 }
 
-//Scenario 1: you should be able to create a new user
+// scenario 1: you should be able to create a new user
 
 Given('there is no user yet with an email alice@example.com', async function () {
     await teardown();
@@ -49,16 +49,16 @@ Then('the account should be created', function () {
     });
 Then('I should be on the homepage with the new account signed in', function () {
     const res = this.response;
-    // This step is used both after signup (201) and after login (200)
-    // For signup: verify user was created
-    // For login: verify login was successful with token
+    // this step is used both after signup (201) and after login (200)
+    // for signup: verify user was created
+    // for login: verify login was successful with token
     if (res.status === 201) {
-        // After signup - user was created
+        // after signup - user was created
         assert.ok(res.body.id, 'response should have a user id');
         assert.strictEqual(res.body.username, 'alice', 'username should match');
-        // Note: The API currently returns the password (hashed), but we verify the user was created
+        // note: the api currently returns the password (hashed), but we verify the user was created
     } else if (res.status === 200) {
-        // After login - should have token
+        // after login - should have token
         assert.ok(res.body.token, 'response should contain a JWT token');
         assert.ok(res.body.user, 'response should contain user object');
         assert.strictEqual(res.body.user.username, 'alice', 'user username should match');
@@ -68,7 +68,7 @@ Then('I should be on the homepage with the new account signed in', function () {
     }
 });
 
-//Scenario 2: You can't create a user that already exists
+// scenario 2: you can't create a user that already exists
 Given('a user already exists with an email alice@example.com', async function () {
     const newUser = {
         username: 'alice',
@@ -94,12 +94,12 @@ Then('the account should not be created', function () {
 
   assert.strictEqual(res.status, 409, 'duplicate user should not be created');
 
-  //There should be no new user id in the response body
+  // there should be no new user id in the response body
   assert.ok(!res.body.id, 'response should not contain an id for a newly created user');
     });
 Then('I should see an error message showing that the email is already in use', function () {
     const res = this.response;
-    // Verify that the response contains an error message about unique constraint
+    // verify that the response contains an error message about unique constraint
     assert.strictEqual(res.status, 409, 'should return 409 for duplicate user');
     assert.ok(res.body.error, 'response should contain an error message');
     assert.ok(
@@ -109,13 +109,13 @@ Then('I should see an error message showing that the email is already in use', f
 });
 Then('I should remain on the sign-up page', function () {
     const res = this.response;
-    // For backend tests, remaining on sign-up page means the request failed
-    // The 409 status already indicates the account was not created
+    // for backend tests, remaining on sign-up page means the request failed
+    // the 409 status already indicates the account was not created
     assert.strictEqual(res.status, 409, 'should return 409, indicating signup failed');
     assert.ok(!res.body.id, 'response should not contain a user id');
 });
 
-//Scenario 3: You should be able to log in to an existing user account
+// scenario 3: you should be able to log in to an existing user account
 
 Given('there is a user with an email alice@example.com', async function () {
                const newUser = {
@@ -143,22 +143,22 @@ Then('I should be logged in', function () {
 });
 
 
-//Scenario 4: You should be not able to log in to a nonexistent user account
+// scenario 4: you should be not able to log in to a nonexistent user account
 
 Given('there is no user with an email alice@example.com', async function () {
     await teardown();
 });
 Then('I should not be logged in', function () {
     const res = this.response;
-    // Should return 401 for invalid credentials
+    // should return 401 for invalid credentials
     assert.strictEqual(res.status, 401, 'should return 401 for trying to log in with nonexistent user');
     assert.ok(res.body.error, 'response should contain an error message');
     assert.ok(!res.body.token, 'response should not contain a token');
 });
 Then('I should stay on the login page', function () {
     const res = this.response;
-    // For backend tests, staying on login page means the login request failed
-    // The 401 status already indicates login failed
+    // for backend tests, staying on login page means the login request failed
+    // the 401 status already indicates login failed
     assert.strictEqual(res.status, 401, 'should return 401, indicating login failed');
     assert.ok(res.body.error, 'response should contain an error message');
     assert.ok(!res.body.token, 'response should not contain a token');

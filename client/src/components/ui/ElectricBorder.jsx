@@ -1,5 +1,5 @@
-// CREDIT
-// Component inspired by @BalintFerenczy on X
+// credit
+// component inspired by @balintferenczy on x
 // https://codepen.io/BalintFerenczy/pen/KwdoyEN
 
 import { useEffect, useId, useLayoutEffect, useRef } from 'react';
