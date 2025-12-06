@@ -34,7 +34,7 @@ function processMajorRequirements(major) {
           const prereqGroupsMap = new Map(); 
           const prereqRecords = classData.requiredFor || [];
 
-          // f
+          // for each prereq record, add the prereq id to the array of prereq ids for the prereq group number
           for (const prereq of prereqRecords) {
             if (!prereqGroupsMap.has(prereq.prereqGroupNumber)) {
               prereqGroupsMap.set(prereq.prereqGroupNumber, []);
@@ -42,6 +42,7 @@ function processMajorRequirements(major) {
             prereqGroupsMap.get(prereq.prereqGroupNumber).push(prereq.prereqId);
           }
 
+          // convert the map to an array of arrays of prereq ids
           const prereqGroups = Array.from(prereqGroupsMap.values());
 
           classesById.set(classId, {
