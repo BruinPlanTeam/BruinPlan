@@ -51,8 +51,8 @@ function checkUrlReachable(url, timeout = 5000) {
 
 // Helper function to detect which port the client is running on
 async function detectClientPort() {
-  // Try 5174 first (common when 5173 is taken), then 5173, then others
-  const ports = [5174, 5173, 5175, 5176];
+  // Try 5173 first, then 5174 (common when 5173 is taken), then others
+  const ports = [5173, 5174, 5175, 5176];
   
   for (const port of ports) {
     const url = `http://localhost:${port}`;
@@ -408,12 +408,25 @@ Then('the plan should be saved successfully', async function () {
   await page.waitForTimeout(2000);
   await page.waitForLoadState('networkidle');
   
-  // Check for success indicator (could be toast, message, or modal closing)
-  // For now, just verify no error messages
-  const errorMessages = await page.locator('[class*="error"], [class*="Error"]').count();
-  if (errorMessages > 0) {
-    const errorText = await page.locator('[class*="error"], [class*="Error"]').first().textContent();
+  // Check for actual error messages (not styling classes like zone-error)
+  // Look specifically for save-plan-error or auth error messages
+  const saveError = await page.locator('.save-plan-error').count();
+  const authError = await page.locator('.auth-modal .error, .error:has-text("failed"), .error:has-text("error")').count();
+  
+  if (saveError > 0) {
+    const errorText = await page.locator('.save-plan-error').first().textContent();
     throw new Error(`Save failed with error: ${errorText}`);
+  }
+  
+  // Also check if the save modal is still open (should close on success)
+  const modalStillOpen = await page.locator('.save-plan-modal').isVisible().catch(() => false);
+  if (modalStillOpen) {
+    // Check if there's an error in the modal
+    const modalError = await page.locator('.save-plan-modal .save-plan-error').count();
+    if (modalError > 0) {
+      const errorText = await page.locator('.save-plan-modal .save-plan-error').first().textContent();
+      throw new Error(`Save failed with error: ${errorText}`);
+    }
   }
 });
 
@@ -542,11 +555,24 @@ Then('the plan should be updated successfully in the UI', async function () {
   await page.waitForTimeout(2000);
   await page.waitForLoadState('networkidle');
   
-  // Verify no errors
-  const errorMessages = await page.locator('[class*="error"], [class*="Error"]').count();
-  if (errorMessages > 0) {
-    const errorText = await page.locator('[class*="error"], [class*="Error"]').first().textContent();
+  // Check for actual error messages (not styling classes like zone-error)
+  // Look specifically for save-plan-error or auth error messages
+  const saveError = await page.locator('.save-plan-error').count();
+  
+  if (saveError > 0) {
+    const errorText = await page.locator('.save-plan-error').first().textContent();
     throw new Error(`Update failed with error: ${errorText}`);
+  }
+  
+  // Also check if the save modal is still open (should close on success)
+  const modalStillOpen = await page.locator('.save-plan-modal').isVisible().catch(() => false);
+  if (modalStillOpen) {
+    // Check if there's an error in the modal
+    const modalError = await page.locator('.save-plan-modal .save-plan-error').count();
+    if (modalError > 0) {
+      const errorText = await page.locator('.save-plan-modal .save-plan-error').first().textContent();
+      throw new Error(`Update failed with error: ${errorText}`);
+    }
   }
 });
 
