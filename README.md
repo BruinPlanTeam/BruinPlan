@@ -74,7 +74,7 @@ When a user types in the search bar, the app fetches all engineering majors from
 
 This sequence diagram shows how user authentication (signup and login) works.
 
-![Authentication Sequence Diagram](diagrams/AuthSequenceDiagram.png)
+![Authentication Sequence Diagram](diagrams/AuthenticationSequenceDiagram.png)
 
 For signup, the client sends user credentials to the server, which hashes the password with bcrypt and creates a user record in the database. After successful signup, the app automatically logs the user in. For login, the server compares the provided password with the stored hash, and if valid, generates a JWT token. The client stores the token and user data in localStorage for future authenticated requests.
 
