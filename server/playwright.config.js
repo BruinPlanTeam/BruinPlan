@@ -1,5 +1,5 @@
-// Playwright configuration for E2E tests
-// This is used when running Playwright directly (not through Cucumber)
+// playwright configuration for e2e tests
+// this is used when running playwright directly (not through cucumber)
 const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
