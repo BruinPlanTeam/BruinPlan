@@ -1,0 +1,119 @@
+/* Backdrop */
+.session-expired-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Modal */
+.session-expired-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    width: min(90vw, 480px);
+    
+    background: linear-gradient(180deg, rgba(20, 30, 48, 0.98), rgba(15, 23, 38, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+                0 10px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    z-index: 9999;
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+/* Header */
+.session-expired-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.session-expired-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.session-expired-icon {
+    color: #FFB84D;
+    flex-shrink: 0;
+}
+
+.session-expired-title h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #EAF6FF;
+    letter-spacing: 0.3px;
+}
+
+.session-expired-close-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    
+    transition: all 0.2s ease;
+}
+
+.session-expired-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Content */
+.session-expired-content {
+    padding: 24px 28px;
+}
+
+.session-expired-content p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #EAF6FF;
+    text-align: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
