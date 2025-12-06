@@ -35,7 +35,7 @@ export default function DegreePlan() {
   const [planNameValue, setPlanNameValue] = useState('');
   const [showModifyPlanModal, setShowModifyPlanModal] = useState(false);
   const [geRequirementSelections, setGeRequirementSelections] = useState(new Set());
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, setOnSessionExpiring, clearOnSessionExpiring } = useAuth();
 
   const {
     major,
@@ -93,6 +93,35 @@ export default function DegreePlan() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
+
+  // Register autosave callback for session expiration
+  useEffect(() => {
+    if (!isAuthenticated || !currentPlan) {
+      clearOnSessionExpiring();
+      return;
+    }
+
+    // Register autosave callback that will be called 10 seconds before JWT expiration
+    const autosaveCallback = async () => {
+      try {
+        // Autosave the current plan
+        const planName = currentPlan.name;
+        const planId = currentPlan.id;
+        await savePlan(planName, planId);
+        console.log('Plan autosaved before session expiration');
+      } catch (error) {
+        console.error('Failed to autosave plan before session expiration:', error);
+        // Don't throw - we still want to logout even if autosave fails
+      }
+    };
+
+    setOnSessionExpiring(autosaveCallback);
+
+    // Cleanup on unmount or when dependencies change
+    return () => {
+      clearOnSessionExpiring();
+    };
+  }, [isAuthenticated, currentPlan, savePlan, setOnSessionExpiring, clearOnSessionExpiring]);
 
   const handleDragEnd = useMemo(() => {
     return createHandleDragEnd(arePrereqsCompleted, getMissingPrereqs, getBlockingDependents);
